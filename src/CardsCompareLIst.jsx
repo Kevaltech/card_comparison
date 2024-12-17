@@ -27,19 +27,19 @@ const CARD_CONFIGS = [
 const ICONS = {
   chart:
     "M4 5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H4Zm0 6h16v6H4v-6Z M5 14a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1Zm5 0a1 1 0 0 1 1-1h5a1 1 0 1 1 0 2h-5a1 1 0 0 1-1-1Z",
-  grid: "M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z",
+  grid: "M4 5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H4Zm0 6h16v6H4v-6Z M5 14a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1Zm5 0a1 1 0 0 1 1-1h5a1 1 0 1 1 0 2h-5a1 1 0 0 1-1-1Z",
   headset:
     "M17.418 3.623-.018-.008a6.713 6.713 0 0 0-2.4-.569V2h1a1 1 0 1 0 0-2h-2a1 1 0 0 0-1 1v2H9.89A6.977 6.977 0 0 1 12 8v5h-2V8A5 5 0 1 0 0 8v6a1 1 0 0 0 1 1h8v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4h6a1 1 0 0 0 1-1V8a5 5 0 0 0-2.582-4.377ZM6 12H4a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Z",
 };
 
 function CardsCompareLIst() {
   const navigate = useNavigate();
-  const { cardId } = useParams();
+  const { cardId: routeCardId } = useParams();
 
   const [htmlContent, setHtmlContent] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedCard, setSelectedCard] = useState(cardId || "hdfcc29");
+  const [selectedCard, setSelectedCard] = useState(null);
   const containerRef = useRef(null);
 
   // Construct base URLs
@@ -53,7 +53,7 @@ function CardsCompareLIst() {
     setSelectedCard(cardId);
 
     // Update URL without page reload
-    navigate(`/compare/${cardId}`);
+    navigate(`/compare/${cardId}`, { replace: true });
 
     try {
       const response = await axios.get(`${BASE_COMPARE_URL}${cardId}`, {
@@ -66,6 +66,10 @@ function CardsCompareLIst() {
     } catch (err) {
       console.error("Fetch error:", err);
       setError(err.message || "Failed to fetch HTML content");
+      // Fallback to a default card if fetch fails
+      if (cardId !== "hdfcc29") {
+        fetchHtmlContent("hdfcc29");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -73,10 +77,17 @@ function CardsCompareLIst() {
 
   // Initial load effect
   useEffect(() => {
-    fetchHtmlContent(selectedCard);
-  }, []);
+    // Determine which card to load
+    const cardToLoad = routeCardId || "hdfcc29";
 
+    // Ensure the card exists in our configurations
+    const validCard = CARD_CONFIGS.find((card) => card.id === cardToLoad);
+
+    // Fetch content for the card, or fallback to default
+    fetchHtmlContent(validCard ? cardToLoad : "hdfcc29");
+  }, [routeCardId]);
   // Handle styles and scripts (previous implementation)
+
   useEffect(() => {
     if (!htmlContent || !containerRef.current) return;
 
@@ -147,24 +158,25 @@ function CardsCompareLIst() {
         className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
         aria-label="Sidebar"
       >
-        <div className="h-full px-3 py-8 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+        <div className="h-full px-2 py-8 overflow-y-auto bg-gray-50 D:bg-gray-800">
           <ul className="space-y-2 font-medium">
             {CARD_CONFIGS.map((card) => (
               <li key={card.id}>
                 <button
                   onClick={() => fetchHtmlContent(card.id)}
-                  className={`flex items-center p-2 rounded-lg group w-full 
+                  className={`flex items-center p-2 pr-0 rounded-lg group w-full 
                     ${
                       selectedCard === card.id
-                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-                        : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                        ? "bg-blue-100 text-blue-800 D:bg-blue-900 D:text-blue-300"
+                        : "text-gray-900 D:text-white hover:bg-gray-100 D:hover:bg-gray-700"
                     }`}
                 >
+                  {" "}
                   <svg
                     className={`w-5 h-5 transition duration-75 ${
                       selectedCard === card.id
-                        ? "text-blue-800 dark:text-blue-300"
-                        : "text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                        ? "text-blue-800 D:text-blue-300"
+                        : "text-gray-500 D:text-gray-400 group-hover:text-gray-900 D:group-hover:text-white"
                     }`}
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
@@ -184,20 +196,19 @@ function CardsCompareLIst() {
                       clip-rule="evenodd"
                     />
                   </svg>
-
                   <span className="flex-1 ms-3 whitespace-nowrap">
                     {card.name}
                   </span>
-                  {card.badge && (
-                    <span className="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-300">
+                  {/* {card.badge && (
+                    <span className="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full D:bg-gray-700 D:text-gray-300">
                       {card.badge}
                     </span>
                   )}
                   {card.badgeCount && (
-                    <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">
+                    <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full D:bg-blue-900 D:text-blue-300">
                       {card.badgeCount}
                     </span>
-                  )}
+                  )} */}
                 </button>
               </li>
             ))}
@@ -207,7 +218,7 @@ function CardsCompareLIst() {
 
       <div className="p-4 sm:ml-64">
         <div
-          className="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700"
+          className="p-4 border-2 border-gray-200 border-dashed rounded-lg D:border-gray-700"
           id="content"
           ref={containerRef}
           dangerouslySetInnerHTML={{ __html: htmlContent }}

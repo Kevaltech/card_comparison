@@ -3,7 +3,7 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import CardsCompareLIst from "./CardsCompareLIst";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -11,8 +11,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<CardsCompareLIst />} />
         <Route path="/compare/:cardId" element={<CardsCompareLIst />} />
+        <Route path="/compare" element={<CardsCompareLIst />} />
+        {/* Add a redirect from root to default compare route */}
+        <Route path="/" element={<Navigate to="/compare/hdfcc29" replace />} />
+        {/* Catch-all route to handle any undefined routes */}
+        <Route path="*" element={<Navigate to="/compare/hdfcc29" replace />} />
       </Routes>
     </BrowserRouter>
   );
