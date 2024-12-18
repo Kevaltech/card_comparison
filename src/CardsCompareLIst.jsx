@@ -67,6 +67,7 @@ function CardsCompareLIst() {
       const response = await axios.get(`${BASE_COMPARE_URL}${cardId}`, {
         headers: {
           Accept: "text/html",
+          "ngrok-skip-browser-warning": "69420",
         },
       });
 
