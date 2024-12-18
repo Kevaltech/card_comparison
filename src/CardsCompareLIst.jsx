@@ -51,7 +51,7 @@ function CardsCompareLIst() {
   const containerRef = useRef(null);
 
   // Construct base URLs
-  const BASE_COMPARE_URL = "https://03ec-59-162-82-6.ngrok-free.app/compare/";
+  const BASE_COMPARE_URL = "https://d1df-59-162-82-6.ngrok-free.app/compare/";
 
   const fetchHtmlContent = async (cardId) => {
     if (!cardId) return;
