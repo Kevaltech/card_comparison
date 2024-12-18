@@ -13,24 +13,32 @@ const CARD_CONFIGS = [
     id: "hdfcc41",
     name: "HDFC Paytm Select",
     icon: "grid",
-    badge: "Pro",
+    // badge: "Pro",
   },
   {
     id: "hdfcc49",
     name: "HDFC Business Regalia",
     icon: "headset",
-    badgeCount: 3,
+    // badgeCount: 3,
+  },
+  {
+    id: "hdfcc56",
+    name: "HDFC RuPay UPI",
+    icon: "chart",
+  },
+  {
+    id: "hdfcc47",
+    name: "HDFC Platinum Edge",
+    icon: "chart",
+  },
+  {
+    id: "hdfcc40",
+    name: "HDFC Paytm Digital",
+    icon: "chart",
   },
 ];
 
 // Icon mapping to SVG paths
-const ICONS = {
-  chart:
-    "M4 5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H4Zm0 6h16v6H4v-6Z M5 14a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1Zm5 0a1 1 0 0 1 1-1h5a1 1 0 1 1 0 2h-5a1 1 0 0 1-1-1Z",
-  grid: "M4 5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H4Zm0 6h16v6H4v-6Z M5 14a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1Zm5 0a1 1 0 0 1 1-1h5a1 1 0 1 1 0 2h-5a1 1 0 0 1-1-1Z",
-  headset:
-    "M17.418 3.623-.018-.008a6.713 6.713 0 0 0-2.4-.569V2h1a1 1 0 1 0 0-2h-2a1 1 0 0 0-1 1v2H9.89A6.977 6.977 0 0 1 12 8v5h-2V8A5 5 0 1 0 0 8v6a1 1 0 0 0 1 1h8v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4h6a1 1 0 0 0 1-1V8a5 5 0 0 0-2.582-4.377ZM6 12H4a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Z",
-};
 
 function CardsCompareLIst() {
   const navigate = useNavigate();
@@ -43,7 +51,7 @@ function CardsCompareLIst() {
   const containerRef = useRef(null);
 
   // Construct base URLs
-  const BASE_COMPARE_URL = "http://127.0.0.1:8000/compare/";
+  const BASE_COMPARE_URL = "https://03ec-59-162-82-6.ngrok-free.app/compare/";
 
   const fetchHtmlContent = async (cardId) => {
     if (!cardId) return;
