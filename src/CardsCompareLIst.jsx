@@ -34,7 +34,11 @@ function CardsCompareLIst() {
   // Fetch cards data
   const fetchCardsData = async () => {
     try {
-      const response = await axios.get(CARDS_STATUS_URL);
+      const response = await axios.get(CARDS_STATUS_URL, {
+        headers: {
+          "ngrok-skip-browser-warning": "234242",
+        },
+      });
       const { data } = response;
 
       if (!data || typeof data !== "object") {
@@ -118,7 +122,11 @@ function CardsCompareLIst() {
     setError(null);
 
     try {
-      const response = await axios.put(`${UPDATE_STATUS_URL}${selectedCard}/`);
+      const response = await axios.put(`${UPDATE_STATUS_URL}${selectedCard}/`, {
+        headers: {
+          "ngrok-skip-browser-warning": "234242",
+        },
+      });
 
       if (response.data.status === "success") {
         setStatusMessage({
