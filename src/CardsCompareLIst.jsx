@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { formatDate } from "./utils/formateDate";
 
 function CardsCompareLIst() {
   const navigate = useNavigate();
@@ -25,8 +26,10 @@ function CardsCompareLIst() {
 
   // Base URLs for API calls
   const BASE_COMPARE_URL = "https://eefd-59-162-82-6.ngrok-free.app/compare/";
-  const CARDS_STATUS_URL = "http://127.0.0.1:8000/cards-by-status/";
-  const UPDATE_STATUS_URL = "http://127.0.0.1:8000/update-card-status/";
+  const CARDS_STATUS_URL =
+    "https://eefd-59-162-82-6.ngrok-free.app/cards-by-status/";
+  const UPDATE_STATUS_URL =
+    "https://eefd-59-162-82-6.ngrok-free.app/update-card-status/";
 
   // Fetch cards data
   const fetchCardsData = async () => {
@@ -268,9 +271,7 @@ function CardsCompareLIst() {
                 className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100"
               >
                 <span className="flex items-center">
-                  <span className="ms-3">
-                    Open Cards ({cardsData.open.length})
-                  </span>
+                  <span className="">Open Cards ({cardsData.open.length})</span>
                 </span>
                 {isOpenDropdownVisible ? (
                   <ChevronUp size={20} />
@@ -284,13 +285,13 @@ function CardsCompareLIst() {
                     <li key={card.cardId}>
                       <button
                         onClick={() => fetchHtmlContent(card.cardId)}
-                        className={`flex items-center p-2 pl-11 w-full rounded-lg ${
+                        className={`flex items-center p-2  w-full rounded-lg ${
                           selectedCard === card.cardId
                             ? "bg-blue-100 text-blue-800"
                             : "text-gray-900 hover:bg-gray-100"
                         }`}
                       >
-                        {card.name}
+                        {card.name} - {card.cardId}
                       </button>
                     </li>
                   ))}
@@ -307,7 +308,7 @@ function CardsCompareLIst() {
                 className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100"
               >
                 <span className="flex items-center">
-                  <span className="ms-3">
+                  <span className="">
                     Resolved Cards ({cardsData.resolve.length})
                   </span>
                 </span>
@@ -323,13 +324,13 @@ function CardsCompareLIst() {
                     <li key={card.cardId}>
                       <button
                         onClick={() => fetchHtmlContent(card.cardId)}
-                        className={`flex items-center p-2 pl-11 w-full rounded-lg ${
+                        className={`flex items-center p-2  w-full rounded-lg ${
                           selectedCard === card.cardId
                             ? "bg-blue-100 text-blue-800"
                             : "text-gray-900 hover:bg-gray-100"
                         }`}
                       >
-                        {card.name}
+                        {card.name}- {card.cardId}
                       </button>
                     </li>
                   ))}
@@ -357,7 +358,7 @@ function CardsCompareLIst() {
                 </h4>
                 <div className="flex me-4">
                   <label className="ms-2 ml-10 text-md font-medium text-gray-900">
-                    Last updated: {cardData.last_updated}
+                    Last updated: {formatDate(cardData.last_updated)}
                   </label>
                 </div>
               </div>
