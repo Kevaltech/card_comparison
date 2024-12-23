@@ -1,57 +1,83 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-
-// Configuration for card buttons
-const CARD_CONFIGS = [
-  {
-    id: "hdfcc29",
-    name: "HDFC Business Black",
-    icon: "chart",
-  },
-  {
-    id: "hdfcc41",
-    name: "HDFC Paytm Select",
-    icon: "grid",
-    // badge: "Pro",
-  },
-  {
-    id: "hdfcc49",
-    name: "HDFC Business Regalia",
-    icon: "headset",
-    // badgeCount: 3,
-  },
-  {
-    id: "hdfcc56",
-    name: "HDFC RuPay UPI",
-    icon: "chart",
-  },
-  {
-    id: "hdfcc47",
-    name: "HDFC Platinum Edge",
-    icon: "chart",
-  },
-  {
-    id: "hdfcc40",
-    name: "HDFC Paytm Digital",
-    icon: "chart",
-  },
-];
-
-// Icon mapping to SVG paths
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 function CardsCompareLIst() {
   const navigate = useNavigate();
   const { cardId: routeCardId } = useParams();
+  const containerRef = useRef(null);
 
   const [htmlContent, setHtmlContent] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [cardData, setCardData] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
-  const containerRef = useRef(null);
+  const [isOpenDropdownVisible, setIsOpenDropdownVisible] = useState(true);
+  const [isResolvedDropdownVisible, setIsResolvedDropdownVisible] =
+    useState(true);
+  const [cardsData, setCardsData] = useState({
+    open: [],
+    resolve: [],
+  });
+  const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState(null);
 
-  // Construct base URLs
+  // Base URLs for API calls
   const BASE_COMPARE_URL = "https://eefd-59-162-82-6.ngrok-free.app/compare/";
+  const CARDS_STATUS_URL = "http://127.0.0.1:8000/cards-by-status/";
+  const UPDATE_STATUS_URL = "http://127.0.0.1:8000/update-card-status/";
+
+  // Fetch cards data
+  const fetchCardsData = async () => {
+    try {
+      const response = await axios.get(CARDS_STATUS_URL);
+      const { data } = response;
+
+      if (!data || typeof data !== "object") {
+        throw new Error("Invalid data format received from server");
+      }
+
+      const normalizedData = {
+        open: Array.isArray(data.open) ? data.open : [],
+        resolve: Array.isArray(data.resolve) ? data.resolve : [],
+      };
+
+      setCardsData(normalizedData);
+
+      // Select first card if none selected
+      if (!selectedCard && normalizedData.open.length > 0) {
+        fetchHtmlContent(normalizedData.open[0].cardId);
+      }
+    } catch (err) {
+      console.error("Error fetching cards data:", err);
+      handleApiError(err, "Failed to load cards data");
+      setCardsData({
+        open: [],
+        resolve: [],
+      });
+    }
+  };
+
+  const handleApiError = (err, defaultMessage) => {
+    let errorMessage = defaultMessage;
+
+    if (err.response) {
+      errorMessage =
+        err.response.data?.message || `Server error: ${err.response.status}`;
+    } else if (err.request) {
+      errorMessage =
+        "Could not connect to the server. Please check your internet connection.";
+    }
+
+    setError(errorMessage);
+    setStatusMessage({ type: "error", text: errorMessage });
+
+    // Clear error message after 5 seconds
+    setTimeout(() => {
+      setStatusMessage(null);
+    }, 5000);
+  };
 
   const fetchHtmlContent = async (cardId) => {
     if (!cardId) return;
@@ -60,7 +86,6 @@ function CardsCompareLIst() {
     setError(null);
     setSelectedCard(cardId);
 
-    // Update URL without page reload
     navigate(`/compare/${cardId}`, { replace: true });
 
     try {
@@ -69,40 +94,82 @@ function CardsCompareLIst() {
           "ngrok-skip-browser-warning": "234242",
         },
       });
-
+      setCardData(response.data);
       setHtmlContent(response.data);
     } catch (err) {
       console.error("Fetch error:", err);
-      setError(err.message || "Failed to fetch HTML content");
-      // Fallback to a default card if fetch fails
-      if (cardId !== "hdfcc29") {
-        fetchHtmlContent("hdfcc29");
+      handleApiError(err, "Failed to fetch card details");
+      if (cardId !== cardsData.open[0]?.cardId && cardsData.open.length > 0) {
+        fetchHtmlContent(cardsData.open[0].cardId);
       }
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Handle card status toggle
+  const handleStatusToggle = async () => {
+    if (!selectedCard || !cardData || statusUpdateLoading) return;
+
+    setStatusUpdateLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.put(`${UPDATE_STATUS_URL}${selectedCard}/`);
+
+      if (response.data.status === "success") {
+        setStatusMessage({
+          type: "success",
+          text: `Successfully updated card status to ${response.data.data.status}`,
+        });
+
+        // Refresh the cards data to update the sidebar
+        await fetchCardsData();
+
+        // Update the current card data
+        setCardData((prev) => ({
+          ...prev,
+          cardStatus: response.data.data.status,
+        }));
+      }
+    } catch (err) {
+      handleApiError(err, "Failed to update card status");
+    } finally {
+      setStatusUpdateLoading(false);
+
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setStatusMessage(null);
+      }, 5000);
+    }
+  };
+
   // Initial load effect
   useEffect(() => {
-    // Determine which card to load
-    const cardToLoad = routeCardId || "hdfcc29";
+    fetchCardsData();
+  }, []);
 
-    // Ensure the card exists in our configurations
-    const validCard = CARD_CONFIGS.find((card) => card.id === cardToLoad);
+  useEffect(() => {
+    if (routeCardId && cardsData) {
+      const allCards = [...cardsData.open, ...cardsData.resolve];
+      const validCard = allCards.find((card) => card.cardId === routeCardId);
 
-    // Fetch content for the card, or fallback to default
-    fetchHtmlContent(validCard ? cardToLoad : "hdfcc29");
-  }, [routeCardId]);
-  // Handle styles and scripts (previous implementation)
+      if (validCard) {
+        fetchHtmlContent(validCard.cardId);
+      } else if (cardsData.open.length > 0) {
+        fetchHtmlContent(cardsData.open[0].cardId);
+      }
+    }
+  }, [routeCardId, cardsData]);
 
+  // Handle styles and scripts
   useEffect(() => {
     if (!htmlContent || !containerRef.current) return;
 
     const handleStyleTags = () => {
       const styleTags = containerRef.current.getElementsByTagName("style");
-      for (let styleTag of Array.from(styleTags)) {
-        if (styleTag.getAttribute("data-processed")) continue;
+      Array.from(styleTags).forEach((styleTag) => {
+        if (styleTag.getAttribute("data-processed")) return;
 
         const newStyleElement = document.createElement("style");
         Array.from(styleTag.attributes).forEach((attr) => {
@@ -114,15 +181,15 @@ function CardsCompareLIst() {
         newStyleElement.textContent = styleTag.textContent;
         styleTag.setAttribute("data-processed", "true");
         document.head.appendChild(newStyleElement);
-      }
+      });
     };
 
     const handleScriptTags = () => {
       const scripts = containerRef.current.getElementsByTagName("script");
-      for (let script of Array.from(scripts)) {
-        if (script.getAttribute("data-executed")) continue;
-        const newScript = document.createElement("script");
+      Array.from(scripts).forEach((script) => {
+        if (script.getAttribute("data-executed")) return;
 
+        const newScript = document.createElement("script");
         Array.from(script.attributes).forEach((attr) => {
           if (attr.name !== "data-executed") {
             newScript.setAttribute(attr.name, attr.value);
@@ -133,7 +200,7 @@ function CardsCompareLIst() {
         script.setAttribute("data-executed", "true");
         script.parentNode.removeChild(script);
         document.body.appendChild(newScript);
-      }
+      });
     };
 
     handleStyleTags();
@@ -151,16 +218,35 @@ function CardsCompareLIst() {
       try {
         window.cleanupDOMElements();
       } catch (err) {
-        console.error("Error cleaning up DOM elements for:", err);
+        console.error("Error cleaning up DOM elements:", err);
       }
     }
   }, [htmlContent]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center p-8 bg-red-50 rounded-lg">
+          <h2 className="text-xl font-bold text-red-800 mb-2">Error</h2>
+          <p className="text-red-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
+      {statusMessage && (
+        <div className="fixed top-4 right-4 z-50">
+          <div
+            className="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 D:bg-gray-800 D:text-yellow-300"
+            role="alert"
+          >
+            <span class="font-medium">{statusMessage.text}</span>
+          </div>
+        </div>
+      )}
+
       <aside
         id="default-sidebar"
         className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
@@ -168,69 +254,144 @@ function CardsCompareLIst() {
       >
         <div className="h-full px-2 py-8 overflow-y-auto bg-gray-50 D:bg-gray-800">
           <ul className="space-y-2 font-medium">
-            {CARD_CONFIGS.map((card) => (
-              <li key={card.id}>
-                <button
-                  onClick={() => fetchHtmlContent(card.id)}
-                  className={`flex items-center p-2 pr-0 rounded-lg group w-full 
-                    ${
-                      selectedCard === card.id
-                        ? "bg-blue-100 text-blue-800 D:bg-blue-900 D:text-blue-300"
-                        : "text-gray-900 D:text-white hover:bg-gray-100 D:hover:bg-gray-700"
-                    }`}
-                >
-                  {" "}
-                  <svg
-                    className={`w-5 h-5 transition duration-75 ${
-                      selectedCard === card.id
-                        ? "text-blue-800 D:text-blue-300"
-                        : "text-gray-500 D:text-gray-400 group-hover:text-gray-900 D:group-hover:text-white"
-                    }`}
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M4 5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H4Zm0 6h16v6H4v-6Z"
-                      clip-rule="evenodd"
-                    />
-                    <path
-                      fill-rule="evenodd"
-                      d="M5 14a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1Zm5 0a1 1 0 0 1 1-1h5a1 1 0 1 1 0 2h-5a1 1 0 0 1-1-1Z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    {card.name}
+            {/* Open Cards Section */}
+            <li>
+              <h6 class="text-lg font-bold dark:text-white">
+                {" "}
+                Total Cards in DB:{" "}
+                {cardsData.open.length + cardsData.resolve.length}
+              </h6>
+            </li>
+            <li className="border-b border-gray-200">
+              <button
+                onClick={() => setIsOpenDropdownVisible(!isOpenDropdownVisible)}
+                className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100"
+              >
+                <span className="flex items-center">
+                  <span className="ms-3">
+                    Open Cards ({cardsData.open.length})
                   </span>
-                  {/* {card.badge && (
-                    <span className="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full D:bg-gray-700 D:text-gray-300">
-                      {card.badge}
-                    </span>
-                  )}
-                  {card.badgeCount && (
-                    <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full D:bg-blue-900 D:text-blue-300">
-                      {card.badgeCount}
-                    </span>
-                  )} */}
-                </button>
-              </li>
-            ))}
+                </span>
+                {isOpenDropdownVisible ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
+              </button>
+              {isOpenDropdownVisible && (
+                <ul className="py-2 space-y-2">
+                  {cardsData.open.map((card) => (
+                    <li key={card.cardId}>
+                      <button
+                        onClick={() => fetchHtmlContent(card.cardId)}
+                        className={`flex items-center p-2 pl-11 w-full rounded-lg ${
+                          selectedCard === card.cardId
+                            ? "bg-blue-100 text-blue-800"
+                            : "text-gray-900 hover:bg-gray-100"
+                        }`}
+                      >
+                        {card.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+
+            {/* Resolved Cards Section */}
+            <li className="border-b border-gray-200">
+              <button
+                onClick={() =>
+                  setIsResolvedDropdownVisible(!isResolvedDropdownVisible)
+                }
+                className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100"
+              >
+                <span className="flex items-center">
+                  <span className="ms-3">
+                    Resolved Cards ({cardsData.resolve.length})
+                  </span>
+                </span>
+                {isResolvedDropdownVisible ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
+              </button>
+              {isResolvedDropdownVisible && (
+                <ul className="py-2 space-y-2">
+                  {cardsData.resolve.map((card) => (
+                    <li key={card.cardId}>
+                      <button
+                        onClick={() => fetchHtmlContent(card.cardId)}
+                        className={`flex items-center p-2 pl-11 w-full rounded-lg ${
+                          selectedCard === card.cardId
+                            ? "bg-blue-100 text-blue-800"
+                            : "text-gray-900 hover:bg-gray-100"
+                        }`}
+                      >
+                        {card.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
           </ul>
         </div>
       </aside>
 
       <div className="p-4 sm:ml-64">
-        <div
-          className="p-4 border-2 border-gray-200 border-dashed rounded-lg D:border-gray-700"
-          id="content"
-          ref={containerRef}
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
-        ></div>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          </div>
+        ) : cardData ? (
+          <>
+            <div className="mx-auto max-w-screen-md text-center mb-4 lg:mb-4">
+              <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
+                {cardData.cardName}
+              </h3>
+              <div className="flex items-center justify-center">
+                <h4 className="mb-0 text-2xl tracking-tight font-extrabold text-gray-900">
+                  Total Version: {cardData.version}
+                </h4>
+                <div className="flex me-4">
+                  <label className="ms-2 ml-10 text-md font-medium text-gray-900">
+                    Last updated: {cardData.last_updated}
+                  </label>
+                </div>
+              </div>
+              <div className="flex items-center justify-center">
+                <h4 className="mb-0 text-2xl tracking-tight font-extrabold text-gray-900">
+                  Status:{" "}
+                  <span
+                    id="badge-dismiss-green"
+                    class="inline-flex items-center px-2 py-1 me-2 text-sm font-medium text-green-800 bg-green-100 rounded D:bg-green-900 D:text-green-300"
+                  >
+                    {cardData.cardStatus}
+                  </span>
+                </h4>
+                <div className="flex me-4">
+                  <button
+                    onClick={handleStatusToggle}
+                    className="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 font-small rounded-lg text-sm px-3 py-2"
+                  >
+                    {cardData.cardStatus === "Open" ? "Resolve" : "Open"}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div
+              className="p-4 py-0 border-2 border-gray-200 border-dashed rounded-lg"
+              ref={containerRef}
+              dangerouslySetInnerHTML={{ __html: cardData.cardHtml }}
+            />
+          </>
+        ) : (
+          <div className="text-center p-8">
+            <p className="text-gray-500">Select a card to view details</p>
+          </div>
+        )}
       </div>
     </div>
   );
