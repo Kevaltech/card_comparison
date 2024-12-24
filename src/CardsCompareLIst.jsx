@@ -26,11 +26,11 @@ function CardsCompareLIst() {
   const [statusMessage, setStatusMessage] = useState(null);
 
   // Base URLs for API calls
-  const BASE_COMPARE_URL = "https://eefd-59-162-82-6.ngrok-free.app/compare/";
+  const BASE_COMPARE_URL = "https://393c-59-162-82-6.ngrok-free.app/compare/";
   const CARDS_STATUS_URL =
-    "https://eefd-59-162-82-6.ngrok-free.app/cards-by-status/";
+    "https://393c-59-162-82-6.ngrok-free.app/cards-by-status/";
   const UPDATE_STATUS_URL =
-    "https://eefd-59-162-82-6.ngrok-free.app/update-card-status/";
+    "https://393c-59-162-82-6.ngrok-free.app/update-card-status/";
 
   // Fetch cards data
   const fetchCardsData = async () => {
