@@ -264,23 +264,24 @@ function CardsCompareLIst() {
         className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
         aria-label="Sidebar"
       >
-        <div className="h-full px-0 py-8 overflow-y-auto bg-gray-50 D:bg-gray-800">
+        <div className="h-full px-0 py-8 overflow-y-auto bg-gray-50 dark:bg-gray-800">
           <ul className="space-y-2 font-medium">
-            {/* Open Cards Section */}
+            {/* Total Cards Count */}
             <li>
               <h6 className="text-lg font-bold dark:text-white">
-                {" "}
                 Total Cards in DB:{" "}
                 {cardsData.open.length + cardsData.resolve.length}
               </h6>
             </li>
+
+            {/* Open Cards Section */}
             <li className="border-b border-gray-200">
               <button
                 onClick={() => setIsOpenDropdownVisible(!isOpenDropdownVisible)}
-                className="flex items-center justify-between w-full p-2 pl-0 text-gray-900 rounded-lg hover:bg-gray-100"
+                className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100"
               >
                 <span className="flex items-center">
-                  <span className="">Open Cards ({cardsData.open.length})</span>
+                  <span>Open Cards ({cardsData.open.length})</span>
                 </span>
                 {isOpenDropdownVisible ? (
                   <ChevronUp size={20} />
@@ -294,13 +295,18 @@ function CardsCompareLIst() {
                     <li key={card.cardId}>
                       <button
                         onClick={() => fetchHtmlContent(card.cardId)}
-                        className={`flex items-center p-2 pl-0 w-full rounded-lg whitespace-nowrap ${
+                        className={`flex items-center w-full p-2 rounded-lg group ${
                           selectedCard === card.cardId
                             ? "bg-blue-100 text-blue-800"
                             : "text-gray-900 hover:bg-gray-100"
                         }`}
+                        title={`HDFC ${card?.name} (ID ${card?.cardId?.split(
+                          "hdfcc"
+                        )})`}
                       >
-                        HDFC {card?.name} (ID {card?.cardId?.split("hdfcc")})
+                        <div className="w-full text-left truncate">
+                          HDFC {card?.name} (ID {card?.cardId?.split("hdfcc")})
+                        </div>
                       </button>
                     </li>
                   ))}
@@ -317,9 +323,7 @@ function CardsCompareLIst() {
                 className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100"
               >
                 <span className="flex items-center">
-                  <span className="">
-                    Resolved Cards ({cardsData.resolve.length})
-                  </span>
+                  <span>Resolved Cards ({cardsData.resolve.length})</span>
                 </span>
                 {isResolvedDropdownVisible ? (
                   <ChevronUp size={20} />
@@ -333,13 +337,16 @@ function CardsCompareLIst() {
                     <li key={card.cardId}>
                       <button
                         onClick={() => fetchHtmlContent(card.cardId)}
-                        className={`flex items-center p-2  w-full rounded-lg ${
+                        className={`flex items-center w-full p-2 rounded-lg group ${
                           selectedCard === card.cardId
                             ? "bg-blue-100 text-blue-800"
                             : "text-gray-900 hover:bg-gray-100"
                         }`}
+                        title={`${card.name}- ${card.cardId}`}
                       >
-                        {card.name}- {card.cardId}
+                        <div className="w-full text-left truncate">
+                          {card.name}- {card.cardId}
+                        </div>
                       </button>
                     </li>
                   ))}
