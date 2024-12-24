@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { formatDate } from "./utils/formateDate";
+import { Link } from "react-router-dom";
 
 function CardsCompareLIst() {
   const navigate = useNavigate();
@@ -209,7 +210,7 @@ function CardsCompareLIst() {
 
         newScript.textContent = script.textContent;
         script.setAttribute("data-executed", "true");
-        script.parentNode.removeChild(script);
+        script?.parentNode?.removeChild(script);
         document.body.appendChild(newScript);
       });
     };
@@ -253,7 +254,7 @@ function CardsCompareLIst() {
             className="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 D:bg-gray-800 D:text-yellow-300"
             role="alert"
           >
-            <span class="font-medium">{statusMessage.text}</span>
+            <span className="font-medium">{statusMessage.text}</span>
           </div>
         </div>
       )}
@@ -263,11 +264,11 @@ function CardsCompareLIst() {
         className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
         aria-label="Sidebar"
       >
-        <div className="h-full px-2 py-8 overflow-y-auto bg-gray-50 D:bg-gray-800">
+        <div className="h-full px-0 py-8 overflow-y-auto bg-gray-50 D:bg-gray-800">
           <ul className="space-y-2 font-medium">
             {/* Open Cards Section */}
             <li>
-              <h6 class="text-lg font-bold dark:text-white">
+              <h6 className="text-lg font-bold dark:text-white">
                 {" "}
                 Total Cards in DB:{" "}
                 {cardsData.open.length + cardsData.resolve.length}
@@ -276,7 +277,7 @@ function CardsCompareLIst() {
             <li className="border-b border-gray-200">
               <button
                 onClick={() => setIsOpenDropdownVisible(!isOpenDropdownVisible)}
-                className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100"
+                className="flex items-center justify-between w-full p-2 pl-0 text-gray-900 rounded-lg hover:bg-gray-100"
               >
                 <span className="flex items-center">
                   <span className="">Open Cards ({cardsData.open.length})</span>
@@ -293,13 +294,13 @@ function CardsCompareLIst() {
                     <li key={card.cardId}>
                       <button
                         onClick={() => fetchHtmlContent(card.cardId)}
-                        className={`flex items-center p-2  w-full rounded-lg ${
+                        className={`flex items-center p-2 pl-0 w-full rounded-lg whitespace-nowrap ${
                           selectedCard === card.cardId
                             ? "bg-blue-100 text-blue-800"
                             : "text-gray-900 hover:bg-gray-100"
                         }`}
                       >
-                        {card.name} - {card.cardId}
+                        HDFC {card?.name} (ID {card?.cardId?.split("hdfcc")})
                       </button>
                     </li>
                   ))}
@@ -358,7 +359,9 @@ function CardsCompareLIst() {
           <>
             <div className="mx-auto max-w-screen-md text-center mb-4 lg:mb-4">
               <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
-                {cardData.cardName}
+                <Link to={cardData.url} target="_blank">
+                  {cardData.cardName}
+                </Link>
               </h3>
               <div className="flex items-center justify-center">
                 <h4 className="mb-0 text-2xl tracking-tight font-extrabold text-gray-900">
@@ -375,7 +378,7 @@ function CardsCompareLIst() {
                   Status:{" "}
                   <span
                     id="badge-dismiss-green"
-                    class="inline-flex items-center px-2 py-1 me-2 text-sm font-medium text-green-800 bg-green-100 rounded D:bg-green-900 D:text-green-300"
+                    className="inline-flex items-center px-2 py-1 me-2 text-sm font-medium text-green-800 bg-green-100 rounded D:bg-green-900 D:text-green-300"
                   >
                     {cardData.cardStatus}
                   </span>
