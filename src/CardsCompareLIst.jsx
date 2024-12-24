@@ -264,11 +264,11 @@ function CardsCompareLIst() {
         className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
         aria-label="Sidebar"
       >
-        <div className="h-full px-0 py-8 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+        <div className="h-full px-0 py-8 overflow-y-auto bg-gray-50 D:bg-gray-800">
           <ul className="space-y-2 font-medium">
             {/* Total Cards Count */}
             <li>
-              <h6 className="text-lg font-bold dark:text-white">
+              <h6 className="text-lg font-bold D:text-white">
                 Total Cards in DB:{" "}
                 {cardsData.open.length + cardsData.resolve.length}
               </h6>
