@@ -226,7 +226,7 @@ function CardsCompareList() {
   }
 
   return (
-    <div className="w-full h-screen grid grid-cols-[max-content_auto] grid-rows-[5fr_1fr] gap-y-2 p-2 ">
+    <div>
       {statusMessage && (
         <div className="fixed top-4 right-4 z-50">
           <div
@@ -248,7 +248,14 @@ function CardsCompareList() {
         setIsResolvedVisible={setIsResolvedDropdownVisible}
       />
 
-      <div className="p-4 sm:ml-64">
+      <div
+        className="p-4 transition-all duration-300 ease-in-out"
+        style={{
+          marginLeft: "min(90vw, max(300px, 25%))",
+          maxWidth: "calc(100% - min(90vw, max(300px, 25%)))",
+          width: "100%",
+        }}
+      >
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
