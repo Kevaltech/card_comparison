@@ -63,6 +63,8 @@ function CardsCompareList() {
         const firstBank = Object.values(response.data)[0];
         if (firstBank?.open.length > 0) {
           fetchHtmlContent(firstBank.open[0].cardId);
+        } else if (firstBank?.resolve.length > 0) {
+          fetchHtmlContent(firstBank.resolve[0].cardId);
         }
       }
     } catch (err) {
