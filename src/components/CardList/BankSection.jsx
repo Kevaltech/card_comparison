@@ -26,7 +26,7 @@ export const BankSection = ({
         className="flex items-center justify-between w-full p-2 px-4 text-gray-900 rounded-lg hover:bg-gray-100"
       >
         <span className="flex items-center">
-          <span>Open Cards ({cards?.open.length})</span>
+          <span>Open ({cards?.open.length})</span>
         </span>
         {isOpenVisible ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
       </button>
@@ -56,7 +56,7 @@ export const BankSection = ({
         className="flex items-center justify-between w-full p-2 px-4 text-gray-900 rounded-lg hover:bg-gray-100"
       >
         <span className="flex items-center">
-          <span>Resolved Cards ({cards?.resolve.length})</span>
+          <span>Resolved ({cards?.resolve.length})</span>
         </span>
         {isResolveVisible ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
       </button>
