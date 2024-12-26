@@ -44,7 +44,8 @@ export const BankSection = ({
                 title={`${bankName} ${card.name} (ID ${card.cardId})`}
               >
                 <div className="w-full text-left truncate">
-                  {bankName} {card.name} ({card.cardId})
+                  {bankName === "HDF" ? "HDFC" : "Axis"} {card.name} (
+                  {card.cardId})
                 </div>
               </button>
             </li>
@@ -74,7 +75,8 @@ export const BankSection = ({
                 title={`${bankName} ${card.name} (ID ${card.cardId})`}
               >
                 <div className="w-full text-left truncate">
-                  {bankName} {card.name} ({card.cardId})
+                  {bankName === "HDF" ? "HDFC" : "Axis"} {card.name} (
+                  {card.cardId})
                 </div>
               </button>
             </li>

@@ -226,7 +226,7 @@ function CardsCompareList() {
   }
 
   return (
-    <div>
+    <div className="w-full h-screen grid grid-cols-[max-content_auto] grid-rows-[5fr_1fr] gap-y-2 p-2 ">
       {statusMessage && (
         <div className="fixed top-4 right-4 z-50">
           <div
