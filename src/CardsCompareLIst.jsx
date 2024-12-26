@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { formatDate } from "./utils/formateDate";
-import { Link } from "react-router-dom";
+import { Sidebar } from "./components/CardList/Sidebar";
+import { CardContent } from "./components/CardDetails/CardContent";
 
-function CardsCompareLIst() {
+function CardsCompareList() {
   const navigate = useNavigate();
   const { cardId: routeCardId } = useParams();
   const containerRef = useRef(null);
 
-  const [htmlContent, setHtmlContent] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cardData, setCardData] = useState(null);
@@ -18,10 +16,7 @@ function CardsCompareLIst() {
   const [isOpenDropdownVisible, setIsOpenDropdownVisible] = useState(true);
   const [isResolvedDropdownVisible, setIsResolvedDropdownVisible] =
     useState(true);
-  const [cardsData, setCardsData] = useState({
-    open: [],
-    resolve: [],
-  });
+  const [banksData, setBanksData] = useState({});
   const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
 
@@ -32,41 +27,7 @@ function CardsCompareLIst() {
   const UPDATE_STATUS_URL =
     "https://393c-59-162-82-6.ngrok-free.app/update-card-status/";
 
-  // Fetch cards data
-  const fetchCardsData = async () => {
-    try {
-      const response = await axios.get(CARDS_STATUS_URL, {
-        headers: {
-          "ngrok-skip-browser-warning": "234242",
-        },
-      });
-      const { data } = response;
-
-      if (!data || typeof data !== "object") {
-        throw new Error("Invalid data format received from server");
-      }
-
-      const normalizedData = {
-        open: Array.isArray(data.open) ? data.open : [],
-        resolve: Array.isArray(data.resolve) ? data.resolve : [],
-      };
-
-      setCardsData(normalizedData);
-
-      // Select first card if none selected
-      if (!selectedCard && normalizedData.open.length > 0) {
-        fetchHtmlContent(normalizedData.open[0].cardId);
-      }
-    } catch (err) {
-      console.error("Error fetching cards data:", err);
-      handleApiError(err, "Failed to load cards data");
-      setCardsData({
-        open: [],
-        resolve: [],
-      });
-    }
-  };
-
+  // API error handler
   const handleApiError = (err, defaultMessage) => {
     let errorMessage = defaultMessage;
 
@@ -79,14 +40,39 @@ function CardsCompareLIst() {
     }
 
     setError(errorMessage);
-    setStatusMessage({ type: "error", text: errorMessage });
+    setStatusMessage({ text: errorMessage });
 
-    // Clear error message after 5 seconds
-    setTimeout(() => {
-      setStatusMessage(null);
-    }, 5000);
+    setTimeout(() => setStatusMessage(null), 5000);
   };
 
+  // Fetch cards data
+  const fetchCardsData = async () => {
+    try {
+      const response = await axios.get(CARDS_STATUS_URL, {
+        headers: { "ngrok-skip-browser-warning": "234242" },
+      });
+
+      if (!response.data || typeof response.data !== "object") {
+        throw new Error("Invalid data format received from server");
+      }
+
+      setBanksData(response.data);
+
+      // Select first card if none selected
+      if (!selectedCard) {
+        const firstBank = Object.values(response.data)[0];
+        if (firstBank?.open.length > 0) {
+          fetchHtmlContent(firstBank.open[0].cardId);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching cards data:", err);
+      handleApiError(err, "Failed to load cards data");
+      setBanksData({});
+    }
+  };
+
+  // Fetch HTML content for a card
   const fetchHtmlContent = async (cardId) => {
     if (!cardId) return;
 
@@ -98,18 +84,12 @@ function CardsCompareLIst() {
 
     try {
       const response = await axios.get(`${BASE_COMPARE_URL}${cardId}`, {
-        headers: {
-          "ngrok-skip-browser-warning": "234242",
-        },
+        headers: { "ngrok-skip-browser-warning": "234242" },
       });
       setCardData(response.data);
-      setHtmlContent(response.data);
     } catch (err) {
       console.error("Fetch error:", err);
       handleApiError(err, "Failed to fetch card details");
-      if (cardId !== cardsData.open[0]?.cardId && cardsData.open.length > 0) {
-        fetchHtmlContent(cardsData.open[0].cardId);
-      }
     } finally {
       setIsLoading(false);
     }
@@ -124,35 +104,29 @@ function CardsCompareLIst() {
 
     try {
       const response = await axios.put(`${UPDATE_STATUS_URL}${selectedCard}/`, {
-        headers: {
-          "ngrok-skip-browser-warning": "234242",
-        },
+        headers: { "ngrok-skip-browser-warning": "234242" },
       });
 
       if (response.data.status === "success") {
         setStatusMessage({
-          type: "success",
           text: `Successfully updated card status to ${response.data.data.status}`,
         });
 
-        // Refresh the cards data to update the sidebar
         await fetchCardsData();
-
-        // Update the current card data
-        setCardData((prev) => ({
-          ...prev,
-          cardStatus: response.data.data.status,
-        }));
+        setCardData((prev) =>
+          prev
+            ? {
+                ...prev,
+                cardStatus: response.data.data.status,
+              }
+            : null
+        );
       }
     } catch (err) {
       handleApiError(err, "Failed to update card status");
     } finally {
       setStatusUpdateLoading(false);
-
-      // Clear success message after 5 seconds
-      setTimeout(() => {
-        setStatusMessage(null);
-      }, 5000);
+      setTimeout(() => setStatusMessage(null), 5000);
     }
   };
 
@@ -161,26 +135,28 @@ function CardsCompareLIst() {
     fetchCardsData();
   }, []);
 
+  // Route card ID effect
   useEffect(() => {
-    if (routeCardId && cardsData) {
-      const allCards = [...cardsData.open, ...cardsData.resolve];
+    if (routeCardId && Object.keys(banksData).length > 0) {
+      const allCards = Object.values(banksData).flatMap((bank) => [
+        ...bank.open,
+        ...bank.resolve,
+      ]);
       const validCard = allCards.find((card) => card.cardId === routeCardId);
 
       if (validCard) {
         fetchHtmlContent(validCard.cardId);
-      } else if (cardsData.open.length > 0) {
-        fetchHtmlContent(cardsData.open[0].cardId);
       }
     }
-  }, [routeCardId, cardsData]);
+  }, [routeCardId, banksData]);
 
   // Handle styles and scripts
   useEffect(() => {
-    if (!htmlContent || !containerRef.current) return;
+    if (!cardData?.cardHtml || !containerRef.current) return;
 
     const handleStyleTags = () => {
-      const styleTags = containerRef.current.getElementsByTagName("style");
-      Array.from(styleTags).forEach((styleTag) => {
+      const styleTags = containerRef.current?.getElementsByTagName("style");
+      Array.from(styleTags || []).forEach((styleTag) => {
         if (styleTag.getAttribute("data-processed")) return;
 
         const newStyleElement = document.createElement("style");
@@ -197,8 +173,8 @@ function CardsCompareLIst() {
     };
 
     const handleScriptTags = () => {
-      const scripts = containerRef.current.getElementsByTagName("script");
-      Array.from(scripts).forEach((script) => {
+      const scripts = containerRef.current?.getElementsByTagName("script");
+      Array.from(scripts || []).forEach((script) => {
         if (script.getAttribute("data-executed")) return;
 
         const newScript = document.createElement("script");
@@ -210,7 +186,7 @@ function CardsCompareLIst() {
 
         newScript.textContent = script.textContent;
         script.setAttribute("data-executed", "true");
-        script?.parentNode?.removeChild(script);
+        script.parentNode?.removeChild(script);
         document.body.appendChild(newScript);
       });
     };
@@ -218,6 +194,7 @@ function CardsCompareLIst() {
     handleStyleTags();
     handleScriptTags();
 
+    // Initialize custom functions if they exist
     if (typeof window.initializeTabs === "function") {
       try {
         window.initializeTabs();
@@ -233,7 +210,7 @@ function CardsCompareLIst() {
         console.error("Error cleaning up DOM elements:", err);
       }
     }
-  }, [htmlContent]);
+  }, [cardData?.cardHtml]);
 
   if (error) {
     return (
@@ -259,103 +236,15 @@ function CardsCompareLIst() {
         </div>
       )}
 
-      <aside
-        id="default-sidebar"
-        className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
-        aria-label="Sidebar"
-      >
-        <div className="h-full px-0 py-8 overflow-y-auto bg-gray-50 D:bg-gray-800">
-          <ul className="space-y-2 font-medium">
-            {/* Total Cards Count */}
-            <li>
-              <h6 className="text-lg font-bold D:text-white">
-                Total Cards in DB:{" "}
-                {cardsData.open.length + cardsData.resolve.length}
-              </h6>
-            </li>
-
-            {/* Open Cards Section */}
-            <li className="border-b border-gray-200">
-              <button
-                onClick={() => setIsOpenDropdownVisible(!isOpenDropdownVisible)}
-                className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100"
-              >
-                <span className="flex items-center">
-                  <span>Open Cards ({cardsData.open.length})</span>
-                </span>
-                {isOpenDropdownVisible ? (
-                  <ChevronUp size={20} />
-                ) : (
-                  <ChevronDown size={20} />
-                )}
-              </button>
-              {isOpenDropdownVisible && (
-                <ul className="py-2 space-y-2">
-                  {cardsData.open.map((card) => (
-                    <li key={card.cardId}>
-                      <button
-                        onClick={() => fetchHtmlContent(card.cardId)}
-                        className={`flex items-center w-full p-2 rounded-lg group ${
-                          selectedCard === card.cardId
-                            ? "bg-blue-100 text-blue-800"
-                            : "text-gray-900 hover:bg-gray-100"
-                        }`}
-                        title={`HDFC ${card?.name} (ID ${card?.cardId?.split(
-                          "hdfcc"
-                        )})`}
-                      >
-                        <div className="w-full text-left truncate">
-                          HDFC {card?.name} (ID {card?.cardId?.split("hdfcc")})
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-
-            {/* Resolved Cards Section */}
-            <li className="border-b border-gray-200">
-              <button
-                onClick={() =>
-                  setIsResolvedDropdownVisible(!isResolvedDropdownVisible)
-                }
-                className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100"
-              >
-                <span className="flex items-center">
-                  <span>Resolved Cards ({cardsData.resolve.length})</span>
-                </span>
-                {isResolvedDropdownVisible ? (
-                  <ChevronUp size={20} />
-                ) : (
-                  <ChevronDown size={20} />
-                )}
-              </button>
-              {isResolvedDropdownVisible && (
-                <ul className="py-2 space-y-2">
-                  {cardsData.resolve.map((card) => (
-                    <li key={card.cardId}>
-                      <button
-                        onClick={() => fetchHtmlContent(card.cardId)}
-                        className={`flex items-center w-full p-2 rounded-lg group ${
-                          selectedCard === card.cardId
-                            ? "bg-blue-100 text-blue-800"
-                            : "text-gray-900 hover:bg-gray-100"
-                        }`}
-                        title={`${card.name}- ${card.cardId}`}
-                      >
-                        <div className="w-full text-left truncate">
-                          {card.name}- {card.cardId}
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          </ul>
-        </div>
-      </aside>
+      <Sidebar
+        banksData={banksData}
+        selectedCard={selectedCard}
+        onCardSelect={fetchHtmlContent}
+        isOpenVisible={isOpenDropdownVisible}
+        setIsOpenVisible={setIsOpenDropdownVisible}
+        isResolvedVisible={isResolvedDropdownVisible}
+        setIsResolvedVisible={setIsResolvedDropdownVisible}
+      />
 
       <div className="p-4 sm:ml-64">
         {isLoading ? (
@@ -363,49 +252,11 @@ function CardsCompareLIst() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
         ) : cardData ? (
-          <>
-            <div className="mx-auto max-w-screen-md text-center mb-4 lg:mb-4">
-              <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
-                <Link to={cardData.url} target="_blank">
-                  {cardData.cardName}
-                </Link>
-              </h3>
-              <div className="flex items-center justify-center">
-                <h4 className="mb-0 text-2xl tracking-tight font-extrabold text-gray-900">
-                  Total Version: {cardData.version}
-                </h4>
-                <div className="flex me-4">
-                  <label className="ms-2 ml-10 text-md font-medium text-gray-900">
-                    Last updated: {formatDate(cardData.last_updated)}
-                  </label>
-                </div>
-              </div>
-              <div className="flex items-center justify-center">
-                <h4 className="mb-0 text-2xl tracking-tight font-extrabold text-gray-900">
-                  Status:{" "}
-                  <span
-                    id="badge-dismiss-green"
-                    className="inline-flex items-center px-2 py-1 me-2 text-sm font-medium text-green-800 bg-green-100 rounded D:bg-green-900 D:text-green-300"
-                  >
-                    {cardData.cardStatus}
-                  </span>
-                </h4>
-                <div className="flex me-4">
-                  <button
-                    onClick={handleStatusToggle}
-                    className="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 font-small rounded-lg text-sm px-3 py-2"
-                  >
-                    {cardData.cardStatus === "Open" ? "Resolve" : "Open"}
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div
-              className="p-4 py-0 border-2 border-gray-200 border-dashed rounded-lg"
-              ref={containerRef}
-              dangerouslySetInnerHTML={{ __html: cardData.cardHtml }}
-            />
-          </>
+          <CardContent
+            cardData={cardData}
+            onStatusToggle={handleStatusToggle}
+            containerRef={containerRef}
+          />
         ) : (
           <div className="text-center p-8">
             <p className="text-gray-500">Select a card to view details</p>
@@ -416,4 +267,4 @@ function CardsCompareLIst() {
   );
 }
 
-export default CardsCompareLIst;
+export default CardsCompareList;
