@@ -9,6 +9,13 @@ export const BankSection = ({
 }) => {
   if (cards.length === 0) return null;
 
+  const openSortedData = cards?.open?.sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+  const resolveSortedData = cards?.resolve?.sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+
   const [isOpenVisible, setIsOpenVisible] = useState(false);
   const [isResolveVisible, setIsResolveVisible] = useState(false);
 
@@ -25,7 +32,7 @@ export const BankSection = ({
       </button>
       {isOpenVisible && (
         <ul className="py-2 space-y-2">
-          {cards?.open?.map((card) => (
+          {openSortedData?.map((card) => (
             <li key={card.cardId}>
               <button
                 onClick={() => onCardSelect(card.cardId)}
@@ -55,7 +62,7 @@ export const BankSection = ({
       </button>
       {isResolveVisible && (
         <ul className="py-2 space-y-2">
-          {cards?.resolve?.map((card) => (
+          {resolveSortedData?.map((card) => (
             <li key={card.cardId}>
               <button
                 onClick={() => onCardSelect(card.cardId)}
