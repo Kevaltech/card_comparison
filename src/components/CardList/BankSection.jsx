@@ -4,11 +4,8 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 export const BankSection = ({
   bankName,
   cards,
-  isVisible,
-  setIsVisible,
   selectedCard,
   onCardSelect,
-  type,
 }) => {
   if (cards.length === 0) return null;
 
@@ -16,7 +13,7 @@ export const BankSection = ({
   const [isResolveVisible, setIsResolveVisible] = useState(false);
 
   return (
-    <li className="border-b border-gray-200">
+    <div>
       <button
         onClick={() => setIsOpenVisible(!isOpenVisible)}
         className="flex items-center justify-between w-full p-2 px-4 text-gray-900 rounded-lg hover:bg-gray-100"
@@ -47,7 +44,6 @@ export const BankSection = ({
           ))}
         </ul>
       )}
-
       <button
         onClick={() => setIsResolveVisible(!isResolveVisible)}
         className="flex items-center justify-between w-full p-2 px-4 text-gray-900 rounded-lg hover:bg-gray-100"
@@ -78,6 +74,6 @@ export const BankSection = ({
           ))}
         </ul>
       )}
-    </li>
+    </div>
   );
 };

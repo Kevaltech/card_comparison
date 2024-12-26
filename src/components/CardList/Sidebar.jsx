@@ -1,6 +1,7 @@
 import React from "react";
 import { BankSection } from "./BankSection";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import BanksList from "./BanksList";
 export const Sidebar = ({
   banksData,
   selectedCard,
@@ -29,44 +30,12 @@ export const Sidebar = ({
             </h6>
           </li>{" "}
           {Object.entries(banksData).map(([bankName, data]) => (
-            <li className="px-2">
-              <button
-                onClick={() => setIsOpenVisible(!isOpenVisible)}
-                className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100"
-              >
-                <span className="flex items-center">
-                  <span>
-                    {bankName} ({data.open.length + data.resolve.length})
-                  </span>
-                </span>
-                {isOpenVisible ? (
-                  <ChevronUp size={20} />
-                ) : (
-                  <ChevronDown size={20} />
-                )}
-              </button>
-              {isOpenVisible ? (
-                <React.Fragment key={bankName}>
-                  <BankSection
-                    bankName={bankName}
-                    cards={data}
-                    isVisible={isOpenVisible}
-                    setIsVisible={setIsOpenVisible}
-                    selectedCard={selectedCard}
-                    onCardSelect={onCardSelect}
-                  />
-                  {/* <BankSection
-                  bankName={bankName}
-                  cards={data.resolve}
-                  isVisible={isResolvedVisible}
-                  setIsVisible={setIsResolvedVisible}
-                  selectedCard={selectedCard}
-                  onCardSelect={onCardSelect}
-                  type="resolve"
-                /> */}
-                </React.Fragment>
-              ) : null}
-            </li>
+            <BanksList
+              bankName={bankName}
+              data={data}
+              selectedCard={selectedCard}
+              onCardSelect={onCardSelect}
+            />
           ))}
         </ul>
       </div>
