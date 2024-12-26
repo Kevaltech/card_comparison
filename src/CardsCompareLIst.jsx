@@ -249,11 +249,12 @@ function CardsCompareList() {
       />
 
       <div
-        className="p-4 transition-all duration-300 ease-in-out"
+        className="p-4 transition-all duration-300 ease-in-out "
         style={{
-          marginLeft: "min(90vw, max(300px, 25%))",
-          maxWidth: "calc(100% - min(90vw, max(300px, 25%)))",
+          marginLeft: "min(90vw, max(300px, 23%))",
+          maxWidth: "calc(100% - min(90vw, max(300px, 23%)))",
           width: "100%",
+          height: "100%",
         }}
       >
         {isLoading ? (
