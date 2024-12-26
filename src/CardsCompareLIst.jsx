@@ -210,7 +210,7 @@ function CardsCompareList() {
         console.error("Error cleaning up DOM elements:", err);
       }
     }
-  }, [cardData?.cardHtml]);
+  }, [cardData?.cardHtml, fetchHtmlContent]);
 
   if (error) {
     return (
