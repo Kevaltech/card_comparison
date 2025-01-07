@@ -3,17 +3,17 @@ import { Link } from "react-router-dom";
 import { formatDate } from "../../utils/formateDate";
 
 export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
+  console.log("cardData.url?.url", cardData.url);
   return (
     <>
       <div className="mx-auto max-w-screen-md text-center mb-4 lg:mb-4">
         <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
           <Link
-            to={cardData.url?.url}
+            to={cardData?.url}
             target="_blank"
             className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
           >
-            {cardData.bref === "hdf" ? "HDFC" : "AXIS"} {cardData.cardName} (
-            {cardData.cardId})
+            {cardData.bref} {cardData.cardName} ({cardData.cardId})
           </Link>
         </h3>
         <div className="flex items-center justify-center">
