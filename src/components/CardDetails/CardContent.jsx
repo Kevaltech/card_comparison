@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { formatDate } from "../../utils/formateDate";
 
 export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
-  console.log("cardData.url?.url", cardData.url);
+  // console.log("cardData.url?.url", cardData.url);
   return (
     <>
       <div className="mx-auto max-w-screen-md text-center mb-4 lg:mb-4">

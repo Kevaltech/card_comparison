@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Sidebar } from "./components/CardList/Sidebar";
 import { CardContent } from "./components/CardDetails/CardContent";
+import { Search } from "lucide-react";
 
 function CardsCompareList() {
   const navigate = useNavigate();
@@ -248,6 +249,10 @@ function CardsCompareList() {
     );
   }
 
+  const handleSearchRedirect = () => {
+    navigate("/searchKeyword"); // Adjust this path to match your route configuration
+  };
+
   return (
     <div>
       {statusMessage && (
@@ -261,15 +266,6 @@ function CardsCompareList() {
         </div>
       )}
 
-      {/* <div className="flex items-center justify-end p-4">
-        <button
-          onClick={() => setShowGeneralCards(!showGeneralCards)}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          {showGeneralCards ? "Show Regular Cards" : "Show General Cards"}
-        </button>
-      </div> */}
-
       <Sidebar
         banksData={banksData}
         generalBankData={generalBanksData}
@@ -280,6 +276,15 @@ function CardsCompareList() {
         isResolvedVisible={isResolvedDropdownVisible}
         setIsResolvedVisible={setIsResolvedDropdownVisible}
       />
+
+      {/* Fixed Search Button */}
+      <button
+        onClick={handleSearchRedirect}
+        className="fixed right-6 top-6 z-40 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg"
+      >
+        <Search className="w-4 h-4" />
+        <span>Search Keyword</span>
+      </button>
 
       <div
         className="p-4 transition-all duration-300 ease-in-out"
@@ -295,11 +300,13 @@ function CardsCompareList() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
         ) : cardData ? (
-          <CardContent
-            cardData={cardData}
-            onStatusToggle={handleStatusToggle}
-            containerRef={containerRef}
-          />
+          <>
+            <CardContent
+              cardData={cardData}
+              onStatusToggle={handleStatusToggle}
+              containerRef={containerRef}
+            />
+          </>
         ) : (
           <div className="text-center p-8">
             <p className="text-gray-500">Select a card to view details</p>
