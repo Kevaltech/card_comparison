@@ -13,7 +13,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
             target="_blank"
             className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
           >
-            {cardData.bref} {cardData.cardName} ({cardData.cardId})
+            {cardData.bank_name} {cardData.cardName} ({cardData.cardId})
           </Link>
         </h3>
         <div className="flex items-center justify-center">

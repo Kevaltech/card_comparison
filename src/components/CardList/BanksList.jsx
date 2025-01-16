@@ -12,7 +12,7 @@ function BanksList({ bankName, data, selectedCard, onCardSelect }) {
       >
         <span className="flex items-center">
           <span>
-            {bankName} ({data.open.length + data.resolve.length})
+            {bankName} ({data?.open?.length + data?.resolve?.length})
           </span>
         </span>
         {isOpenVisible ? <ChevronUp size={20} /> : <ChevronDown size={20} />}

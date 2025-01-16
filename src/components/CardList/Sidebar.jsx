@@ -10,9 +10,14 @@ export const Sidebar = ({
   setIsOpenVisible,
   isResolvedVisible,
   setIsResolvedVisible,
+  generalBankData,
 }) => {
   const totalCards = Object.values(banksData).reduce(
-    (total, bank) => total + bank.open.length + bank.resolve.length,
+    (total, bank) => total + bank?.open?.length + bank?.resolve?.length,
+    0
+  );
+  const totalGeneralCards = Object.values(generalBankData).reduce(
+    (total, bank) => total + bank?.open?.length + bank?.resolve?.length,
     0
   );
 
@@ -34,6 +39,21 @@ export const Sidebar = ({
             </h6>
           </li>{" "}
           {Object.entries(banksData).map(([bankName, data]) => (
+            <BanksList
+              bankName={bankName}
+              data={data}
+              selectedCard={selectedCard}
+              onCardSelect={onCardSelect}
+            />
+          ))}
+        </ul>
+        <ul className="space-y-2 font-medium">
+          <li className="px-0">
+            <h6 className="text-lg font-bold D:text-white">
+              General links {totalGeneralCards}
+            </h6>
+          </li>{" "}
+          {Object.entries(generalBankData).map(([bankName, data]) => (
             <BanksList
               bankName={bankName}
               data={data}

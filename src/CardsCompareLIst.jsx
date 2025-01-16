@@ -21,11 +21,11 @@ function CardsCompareList() {
   const [statusMessage, setStatusMessage] = useState(null);
 
   // Base URLs for API calls
-  const BASE_COMPARE_URL = "https://393c-59-162-82-6.ngrok-free.app/compare/";
+  const BASE_COMPARE_URL = "https://9e63-59-162-82-6.ngrok-free.app/compare/";
   const CARDS_STATUS_URL =
-    "https://393c-59-162-82-6.ngrok-free.app/cards-by-status/";
+    "https://9e63-59-162-82-6.ngrok-free.app/cards-by-status/";
   const UPDATE_STATUS_URL =
-    "https://393c-59-162-82-6.ngrok-free.app/update-card-status/";
+    "https://9e63-59-162-82-6.ngrok-free.app/update-card-status/";
 
   // API error handler
   const handleApiError = (err, defaultMessage) => {
@@ -45,7 +45,11 @@ function CardsCompareList() {
     setTimeout(() => setStatusMessage(null), 5000);
   };
 
-  // Fetch cards data
+  // Fetch cards data // Add new state for general cards
+  const [generalBanksData, setGeneralBanksData] = useState({});
+  const [showGeneralCards, setShowGeneralCards] = useState(false);
+  // console.log("General Cards", generalBanksData);
+  // Modify fetchCardsData to handle the new structure
   const fetchCardsData = async () => {
     try {
       const response = await axios.get(CARDS_STATUS_URL, {
@@ -56,11 +60,15 @@ function CardsCompareList() {
         throw new Error("Invalid data format received from server");
       }
 
-      setBanksData(response.data);
+      // Separate general cards from regular banks
+      const { General, ...regularBanks } = response.data;
+      setBanksData(regularBanks);
+      setGeneralBanksData(General || {});
 
       // Select first card if none selected
       if (!selectedCard) {
-        const firstBank = Object.values(response.data)[0];
+        // Try to find first card from regular banks
+        const firstBank = Object.values(regularBanks)[0];
         if (firstBank?.open.length > 0) {
           fetchHtmlContent(firstBank.open[0].cardId);
         } else if (firstBank?.resolve.length > 0) {
@@ -71,6 +79,7 @@ function CardsCompareList() {
       console.error("Error fetching cards data:", err);
       handleApiError(err, "Failed to load cards data");
       setBanksData({});
+      setGeneralBanksData({});
     }
   };
 
@@ -139,18 +148,32 @@ function CardsCompareList() {
 
   // Route card ID effect
   useEffect(() => {
-    if (routeCardId && Object.keys(banksData).length > 0) {
-      const allCards = Object.values(banksData).flatMap((bank) => [
+    if (
+      routeCardId &&
+      (Object.keys(banksData).length > 0 ||
+        Object.keys(generalBanksData).length > 0)
+    ) {
+      // Check regular banks
+      const regularCards = Object.values(banksData).flatMap((bank) => [
         ...bank.open,
         ...bank.resolve,
       ]);
-      const validCard = allCards.find((card) => card.cardId === routeCardId);
+
+      // Check general banks
+      const generalCards = Object.values(generalBanksData).flatMap((bank) => [
+        ...bank.open,
+        ...bank.resolve,
+      ]);
+
+      const validCard = [...regularCards, ...generalCards].find(
+        (card) => card.cardId === routeCardId
+      );
 
       if (validCard) {
         fetchHtmlContent(validCard.cardId);
       }
     }
-  }, [routeCardId, banksData]);
+  }, [routeCardId, banksData, generalBanksData]);
 
   // Handle styles and scripts
   useEffect(() => {
@@ -238,8 +261,18 @@ function CardsCompareList() {
         </div>
       )}
 
+      {/* <div className="flex items-center justify-end p-4">
+        <button
+          onClick={() => setShowGeneralCards(!showGeneralCards)}
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          {showGeneralCards ? "Show Regular Cards" : "Show General Cards"}
+        </button>
+      </div> */}
+
       <Sidebar
         banksData={banksData}
+        generalBankData={generalBanksData}
         selectedCard={selectedCard}
         onCardSelect={fetchHtmlContent}
         isOpenVisible={isOpenDropdownVisible}
@@ -249,7 +282,7 @@ function CardsCompareList() {
       />
 
       <div
-        className="p-4 transition-all duration-300 ease-in-out "
+        className="p-4 transition-all duration-300 ease-in-out"
         style={{
           marginLeft: "min(90vw, max(300px, 23%))",
           maxWidth: "calc(100% - min(90vw, max(300px, 23%)))",
