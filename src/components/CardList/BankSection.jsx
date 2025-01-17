@@ -124,7 +124,7 @@ export const BankSection = ({
                     onClick={() => onCardSelect(card.cardId)}
                     className={`flex items-center w-full p-2 text-sm rounded-lg transition-colors ${
                       selectedCard === card.cardId
-                        ? "bg-green-50 text-green-700 hover:bg-green-100"
+                        ? "bg-blue-200 text-blue-700 hover:bg-blue-100"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                     title={`${bankName} ${card.name} (ID ${card.cardId})`}
