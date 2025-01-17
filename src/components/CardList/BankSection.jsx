@@ -40,7 +40,7 @@ export const BankSection = ({
   return (
     <div className="pl-4">
       {/* Open Section */}
-      {openSortedData.length > 0 && (
+      {openSortedData.length >= 0 && (
         <>
           <button
             onClick={() => setIsOpenVisible(!isOpenVisible)}
