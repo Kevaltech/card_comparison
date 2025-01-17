@@ -44,3 +44,5 @@ function BanksList({ bankName, data, selectedCard, onCardSelect }) {
     </li>
   );
 }
+
+export default BanksList;
