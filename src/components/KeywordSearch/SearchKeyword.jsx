@@ -44,7 +44,7 @@ function SearchKeyword() {
 
     try {
       const response = await axios.get(
-        `https://9e63-59-162-82-6.ngrok-free.app/search-cards/?keyword=${encodeURIComponent(
+        `https://baf5-59-162-82-6.ngrok-free.app/search-cards/?keyword=${encodeURIComponent(
           keyword
         )}`,
         {
