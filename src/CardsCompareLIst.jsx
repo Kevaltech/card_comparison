@@ -22,11 +22,11 @@ function CardsCompareList() {
   const [statusMessage, setStatusMessage] = useState(null);
 
   // Base URLs for API calls
-  const BASE_COMPARE_URL = "https://9e63-59-162-82-6.ngrok-free.app/compare/";
+  const BASE_COMPARE_URL = "https://baf5-59-162-82-6.ngrok-free.app/compare/";
   const CARDS_STATUS_URL =
-    "https://9e63-59-162-82-6.ngrok-free.app/cards-by-status/";
+    "https://baf5-59-162-82-6.ngrok-free.app/cards-by-status/";
   const UPDATE_STATUS_URL =
-    "https://9e63-59-162-82-6.ngrok-free.app/update-card-status/";
+    "https://baf5-59-162-82-6.ngrok-free.app/update-card-status/";
 
   // API error handler
   const handleApiError = (err, defaultMessage) => {
@@ -179,9 +179,9 @@ function CardsCompareList() {
   // Handle styles and scripts
   useEffect(() => {
     if (!cardData?.cardHtml || !containerRef.current) return;
-
+    console.log("container", containerRef);
     const handleStyleTags = () => {
-      const styleTags = containerRef.current?.getElementsByTagName("style");
+      const styleTags = containerRef?.current?.getElementsByTagName("style");
       Array.from(styleTags || []).forEach((styleTag) => {
         if (styleTag.getAttribute("data-processed")) return;
 
@@ -236,7 +236,7 @@ function CardsCompareList() {
         console.error("Error cleaning up DOM elements:", err);
       }
     }
-  }, [cardData?.cardHtml, fetchHtmlContent]);
+  }, [cardData?.cardHtml, fetchHtmlContent, fetchCardsData]);
 
   if (error) {
     return (
