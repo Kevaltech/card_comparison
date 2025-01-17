@@ -4,6 +4,20 @@ import { BankSection } from "./BankSection";
 
 function BanksList({ bankName, data, selectedCard, onCardSelect }) {
   const [isOpenVisible, setIsOpenVisible] = useState(false);
+
+  // Auto-expand the section if it contains the selected card
+  React.useEffect(() => {
+    if (selectedCard) {
+      const hasSelectedCard =
+        data?.open?.some((card) => card.cardId === selectedCard) ||
+        data?.resolve?.some((card) => card.cardId === selectedCard);
+
+      if (hasSelectedCard) {
+        setIsOpenVisible(true);
+      }
+    }
+  }, [selectedCard, data]);
+
   return (
     <li className="px-2">
       <button
@@ -17,7 +31,7 @@ function BanksList({ bankName, data, selectedCard, onCardSelect }) {
         </span>
         {isOpenVisible ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
       </button>
-      {isOpenVisible ? (
+      {isOpenVisible && (
         <React.Fragment key={bankName}>
           <BankSection
             bankName={bankName}
@@ -25,19 +39,8 @@ function BanksList({ bankName, data, selectedCard, onCardSelect }) {
             selectedCard={selectedCard}
             onCardSelect={onCardSelect}
           />
-          {/* <BankSection
-        bankName={bankName}
-        cards={data.resolve}
-        isVisible={isResolvedVisible}
-        setIsVisible={setIsResolvedVisible}
-        selectedCard={selectedCard}
-        onCardSelect={onCardSelect}
-        type="resolve"
-      /> */}
         </React.Fragment>
-      ) : null}
+      )}
     </li>
   );
 }
-
-export default BanksList;
