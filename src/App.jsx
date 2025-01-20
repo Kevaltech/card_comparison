@@ -5,13 +5,17 @@ import "./App.css";
 import CardsCompareLIst from "./CardsCompareLIst";
 import SearchKeyword from "./components/KeywordSearch/SearchKeyword";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Home } from "./components/home/Home";
+import Navbar from "./components/nav/Navbar";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <BrowserRouter>
+      <Navbar />
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/compare/:cardId" element={<CardsCompareLIst />} />
         <Route path="/compare" element={<CardsCompareLIst />} />
         {/* Add a redirect from root to default compare route */}

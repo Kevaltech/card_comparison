@@ -47,7 +47,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
         </div>
       </div>
       <div
-        className="p-4 py-0 border-2 border-gray-200 border-dashed rounded-lg"
+        className="p-4  pb-20 pt-0 border-2 border-gray-200 border-dashed rounded-lg"
         ref={containerRef}
         dangerouslySetInnerHTML={{ __html: cardData.cardHtml }}
       />

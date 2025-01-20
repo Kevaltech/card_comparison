@@ -190,7 +190,7 @@ function SearchKeyword() {
   }, [selectedCard?.cardHtml, handleSearch]);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-screen mt-14 flex flex-col bg-gray-50">
       {/* Search Header */}
       <div className="flex-none bg-white shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-6">

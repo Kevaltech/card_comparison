@@ -145,7 +145,7 @@ export const Sidebar = ({
         )}
       </div>
 
-      <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 D:bg-gray-800">
+      <div className="h-full px-3 py-4 pb-20 overflow-y-auto bg-gray-50 D:bg-gray-800">
         <ul className="space-y-2 font-medium">
           <li className="px-0">
             <h6 className="text-lg font-bold D:text-white">

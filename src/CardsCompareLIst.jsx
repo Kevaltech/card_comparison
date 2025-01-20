@@ -249,10 +249,6 @@ function CardsCompareList() {
     );
   }
 
-  const handleSearchRedirect = () => {
-    navigate("/searchKeyword"); // Adjust this path to match your route configuration
-  };
-
   return (
     <div>
       {statusMessage && (
@@ -276,18 +272,8 @@ function CardsCompareList() {
         isResolvedVisible={isResolvedDropdownVisible}
         setIsResolvedVisible={setIsResolvedDropdownVisible}
       />
-
-      {/* Fixed Search Button */}
-      <button
-        onClick={handleSearchRedirect}
-        className="fixed right-6 top-6 z-40 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg"
-      >
-        <Search className="w-4 h-4" />
-        <span>Search Keyword</span>
-      </button>
-
       <div
-        className="p-4 transition-all duration-300 ease-in-out"
+        className="p-4  pt-20 transition-all duration-300 ease-in-out"
         style={{
           marginLeft: "min(90vw, max(300px, 23%))",
           maxWidth: "calc(100% - min(90vw, max(300px, 23%)))",
