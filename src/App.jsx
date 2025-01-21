@@ -19,9 +19,9 @@ function App() {
         <Route path="/compare/:cardId" element={<CardsCompareLIst />} />
         <Route path="/compare" element={<CardsCompareLIst />} />
         {/* Add a redirect from root to default compare route */}
-        <Route path="/" element={<Navigate to="/compare/hdfcc29" replace />} />
+        {/* <Route path="/" element={<Navigate to="/compare/hdfcc29" replace />} /> */}
         {/* Catch-all route to handle any undefined routes */}
-        <Route path="*" element={<Navigate to="/compare/hdfcc29" replace />} />
+        {/* <Route path="*" element={<Navigate to="/compare/hdfcc29" replace />} /> */}
         <Route path="/searchKeyword" element={<SearchKeyword />} />
       </Routes>
     </BrowserRouter>
