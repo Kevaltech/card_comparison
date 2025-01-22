@@ -89,13 +89,13 @@ function Navbar() {
               </li>
               <li>
                 <Link
-                  to="/compare"
+                  to="/compare/2147"
                   className={`block py-2 px-3 rounded md:p-0 ${
                     isActive("/compare")
                       ? "text-white bg-blue-700 md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
                       : "text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
                   }`}
-                  aria-current={isActive("/compare") ? "page" : undefined}
+                  aria-current={isActive("/compare/1001") ? "page" : undefined}
                 >
                   Cards Comparison
                 </Link>

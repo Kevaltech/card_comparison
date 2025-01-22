@@ -19,7 +19,7 @@ function App() {
         <Route path="/" element={<Home />} />
         {/* <Route path="/test" element={<TextComparison />} /> */}
         <Route path="/compare/:cardId" element={<CardsCompareLIst />} />
-        <Route path="/compare" element={<CardsCompareLIst />} />
+        {/* <Route path="/compare" element={<CardsCompareLIst />} /> */}
         {/* Add a redirect from root to default compare route */}
         {/* <Route path="/" element={<Navigate to="/compare/hdfcc29" replace />} /> */}
         {/* Catch-all route to handle any undefined routes */}

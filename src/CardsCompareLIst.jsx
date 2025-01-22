@@ -174,7 +174,7 @@ function CardsCompareList() {
         fetchHtmlContent(validCard.cardId);
       }
     }
-  }, [routeCardId, banksData, generalBanksData]);
+  }, [routeCardId, banksData, generalBanksData, navigate]);
 
   // Handle styles and scripts
   useEffect(() => {
