@@ -60,9 +60,10 @@ export const Sidebar = ({
         .filter(
           (card) =>
             card.cardId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            card.name.toLowerCase().includes(searchTerm.toLowerCase())
+            card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            card.bref.toLowerCase().includes(searchTerm.toLowerCase())
         )
-        .slice(0, 8); // Limit to 8 results
+        .slice(0, 10); // Limit to 8 results
       setSearchResults(filtered);
       setIsSearching(true);
     } else {

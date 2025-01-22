@@ -293,9 +293,9 @@ export const Home = () => {
                   </td>
                   <td className="px-6 py-4">
                     <button
-                      // onClick={() =>
-                      //   (window.location.href = `/cards/${card.CardId}`)
-                      // }
+                      onClick={() =>
+                        (window.location.href = `/compare/${card.CardId}`)
+                      }
                       className="flex items-center gap-1 text-blue-500 hover:text-blue-600"
                     >
                       <span className="text-sm">View Details</span>
