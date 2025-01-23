@@ -5,8 +5,10 @@ import { ChevronDown, RotateCcw } from "lucide-react";
 
 export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   console.log("cardData.url?.url", cardData.cardHtml);
-  const [v1, setV1] = useState(null);
-  const [v2, setV2] = useState(null);
+  const [v1, setV1] = useState(
+    cardData?.version - 1 !== 0 ? cardData?.version - 1 : cardData?.version
+  );
+  const [v2, setV2] = useState(cardData?.version);
   const [versionData, setVersionData] = useState(null);
   const [isDropdown1Open, setIsDropdown1Open] = useState(false);
   const [isDropdown2Open, setIsDropdown2Open] = useState(false);
@@ -112,8 +114,10 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   );
 
   const handleReset = () => {
-    setV1(null);
-    setV2(null);
+    setV1(
+      cardData?.version - 1 !== 0 ? cardData?.version - 1 : cardData?.version
+    );
+    setV2(cardData?.version);
     setVersionData(null);
     setIsDropdown1Open(false);
     setIsDropdown2Open(false);
