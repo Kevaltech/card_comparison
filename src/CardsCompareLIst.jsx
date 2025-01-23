@@ -178,7 +178,7 @@ function CardsCompareList() {
   // Handle styles and scripts
   useEffect(() => {
     if (!cardData?.cardHtml || !containerRef.current) return;
-    console.log("container", containerRef);
+    console.log("Inside cardsCompare List useEffect");
     const handleStyleTags = () => {
       const styleTags = containerRef?.current?.getElementsByTagName("style");
       Array.from(styleTags || []).forEach((styleTag) => {

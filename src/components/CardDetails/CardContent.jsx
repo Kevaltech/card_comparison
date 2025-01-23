@@ -33,7 +33,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/compare-cards/?cardId=${cardData.cardId}&v1=${v1}&v2=${v2}`,
+        `https://baf5-59-162-82-6.ngrok-free.app/?cardId=${cardData.cardId}&v1=${v1}&v2=${v2}`,
         {
           headers: { "ngrok-skip-browser-warning": "234242" },
         }
@@ -147,7 +147,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
 
   useEffect(() => {
     if (!versionData?.cardHtml || !containerRef.current) return;
-    console.log("container", containerRef);
+    console.log("Inside card content  useEffect");
     const handleStyleTags = () => {
       const styleTags = containerRef?.current?.getElementsByTagName("style");
       Array.from(styleTags || []).forEach((styleTag) => {
@@ -286,7 +286,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
       </div>
 
       <div
-        className="p-4  pt-0 border-2 border-gray-200 border-dashed rounded-lg"
+        className="p-4  pt-0 pb-0 border-2 border-gray-200 border-dashed rounded-lg"
         ref={containerRef}
         dangerouslySetInnerHTML={{
           __html: versionData ? versionData.cardHtml : cardData.cardHtml,
