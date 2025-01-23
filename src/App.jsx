@@ -7,7 +7,7 @@ import SearchKeyword from "./components/KeywordSearch/SearchKeyword";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Home } from "./components/home/Home";
 import Navbar from "./components/nav/Navbar";
-// import TextComparison from "./components/home/Test.";
+import Test from "./components/home/Test";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -17,9 +17,9 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        {/* <Route path="/test" element={<TextComparison />} /> */}
+        <Route path="/test" element={<Test />} />
         <Route path="/compare/:cardId" element={<CardsCompareLIst />} />
-        {/* <Route path="/compare" element={<CardsCompareLIst />} /> */}
+        <Route path="/compare" element={<CardsCompareLIst />} />
         {/* Add a redirect from root to default compare route */}
         {/* <Route path="/" element={<Navigate to="/compare/hdfcc29" replace />} /> */}
         {/* Catch-all route to handle any undefined routes */}

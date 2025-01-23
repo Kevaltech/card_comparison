@@ -92,13 +92,12 @@ function CardsCompareList() {
     setError(null);
     setSelectedCard(cardId);
 
-    navigate(`/compare/${cardId}`, { replace: true });
-
     try {
       const response = await axios.get(`${BASE_COMPARE_URL}${cardId}`, {
         headers: { "ngrok-skip-browser-warning": "234242" },
       });
       setCardData(response.data);
+      navigate(`/compare/${cardId}`, { replace: true });
     } catch (err) {
       console.error("Fetch error:", err);
       handleApiError(err, "Failed to fetch card details");
@@ -272,33 +271,31 @@ function CardsCompareList() {
         isResolvedVisible={isResolvedDropdownVisible}
         setIsResolvedVisible={setIsResolvedDropdownVisible}
       />
-      <div
-        className="p-4  pt-20 transition-all duration-300 ease-in-out"
+      <main
+        className="flex-1 overflow-y-auto"
         style={{
           marginLeft: "min(90vw, max(300px, 23%))",
-          maxWidth: "calc(100% - min(90vw, max(300px, 23%)))",
-          width: "100%",
-          height: "100%",
+          height: "100vh",
         }}
       >
-        {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          </div>
-        ) : cardData ? (
-          <>
+        <div className="p-4 pt-20">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+          ) : cardData ? (
             <CardContent
               cardData={cardData}
               onStatusToggle={handleStatusToggle}
               containerRef={containerRef}
             />
-          </>
-        ) : (
-          <div className="text-center p-8">
-            <p className="text-gray-500">Select a card to view details</p>
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="text-center p-8">
+              <p className="text-gray-500">Select a card to view details</p>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
