@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../utils/formateDate";
 import { ChevronDown, RotateCcw } from "lucide-react";
 
 export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
-  console.log("cardData.url?.url", cardData.cardHtml);
   const [v1, setV1] = useState(
     cardData?.version - 1 !== 0 ? cardData?.version - 1 : cardData?.version
   );
@@ -15,14 +14,16 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Add ref to track if versions were changed manually
+  const versionsChanged = useRef(false);
+
   const versions = Array.from({ length: cardData.version || 5 }, (_, i) => ({
     id: i + 1,
     label: `Version ${i + 1}`,
   }));
-  console.log("versiong", versions);
 
   useEffect(() => {
-    if (v1 && v2) {
+    if (v1 && v2 && versionsChanged.current) {
       fetchVersionComparison();
     }
   }, [v1, v2]);
@@ -53,6 +54,11 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleVersionChange = (version, setVersion) => {
+    versionsChanged.current = true;
+    setVersion(version);
   };
 
   const VersionDropdown = ({
@@ -94,7 +100,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
               <button
                 key={version?.id}
                 onClick={() => {
-                  onChange(version?.id);
+                  handleVersionChange(version?.id, onChange);
                   setIsOpen(false);
                 }}
                 className={`w-full px-6 py-2 text-left hover:bg-gray-50 transition-colors
@@ -114,6 +120,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   );
 
   const handleReset = () => {
+    versionsChanged.current = false;
     setV1(
       cardData?.version - 1 !== 0 ? cardData?.version - 1 : cardData?.version
     );
@@ -136,22 +143,11 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
         console.error("Error cleaning up DOM elements:", err);
       }
     }
-    // Reset any processed styles and scripts
-    // if (containerRef.current) {
-    //   const styleTags = containerRef.current.getElementsByTagName("style");
-    //   Array.from(styleTags).forEach((styleTag) => {
-    //     styleTag.removeAttribute("data-processed");
-    //   });
-    //   const scripts = containerRef.current.getElementsByTagName("script");
-    //   Array.from(scripts).forEach((script) => {
-    //     script.removeAttribute("data-executed");
-    //   });
-    // }
   };
 
   useEffect(() => {
     if (!versionData?.cardHtml || !containerRef.current) return;
-    console.log("Inside card content  useEffect");
+
     const handleStyleTags = () => {
       const styleTags = containerRef?.current?.getElementsByTagName("style");
       Array.from(styleTags || []).forEach((styleTag) => {
@@ -192,7 +188,6 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     handleStyleTags();
     handleScriptTags();
 
-    // Initialize custom functions if they exist
     if (typeof window.initializeTabs === "function") {
       try {
         window.initializeTabs();
@@ -290,7 +285,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
       </div>
 
       <div
-        className="p-4  pt-0 pb-0 border-2 border-gray-200 border-dashed rounded-lg"
+        className="p-4 pt-0 pb-0 border-2 border-gray-200 border-dashed rounded-lg"
         ref={containerRef}
         dangerouslySetInnerHTML={{
           __html: versionData ? versionData.cardHtml : cardData.cardHtml,

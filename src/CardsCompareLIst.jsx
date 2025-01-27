@@ -97,7 +97,7 @@ function CardsCompareList() {
         headers: { "ngrok-skip-browser-warning": "234242" },
       });
       setCardData(response.data);
-      navigate(`/compare/${cardId}`, { replace: true });
+      // navigate(`/compare/${cardId}`, { replace: true });
     } catch (err) {
       console.error("Fetch error:", err);
       handleApiError(err, "Failed to fetch card details");
@@ -147,33 +147,33 @@ function CardsCompareList() {
   }, []);
 
   // Route card ID effect
-  useEffect(() => {
-    if (
-      routeCardId &&
-      (Object.keys(banksData).length > 0 ||
-        Object.keys(generalBanksData).length > 0)
-    ) {
-      // Check regular banks
-      const regularCards = Object.values(banksData).flatMap((bank) => [
-        ...bank.open,
-        ...bank.resolve,
-      ]);
+  // useEffect(() => {
+  //   if (
+  //     routeCardId &&
+  //     (Object.keys(banksData).length > 0 ||
+  //       Object.keys(generalBanksData).length > 0)
+  //   ) {
+  //     // Check regular banks
+  //     const regularCards = Object.values(banksData).flatMap((bank) => [
+  //       ...bank.open,
+  //       ...bank.resolve,
+  //     ]);
 
-      // Check general banks
-      const generalCards = Object.values(generalBanksData).flatMap((bank) => [
-        ...bank.open,
-        ...bank.resolve,
-      ]);
+  //     // Check general banks
+  //     const generalCards = Object.values(generalBanksData).flatMap((bank) => [
+  //       ...bank.open,
+  //       ...bank.resolve,
+  //     ]);
 
-      const validCard = [...regularCards, ...generalCards].find(
-        (card) => card.cardId === routeCardId
-      );
+  //     const validCard = [...regularCards, ...generalCards].find(
+  //       (card) => card.cardId === routeCardId
+  //     );
 
-      if (validCard) {
-        fetchHtmlContent(validCard.cardId);
-      }
-    }
-  }, [routeCardId, banksData, generalBanksData, navigate]);
+  //     if (validCard) {
+  //       fetchHtmlContent(validCard.cardId);
+  //     }
+  //   }
+  // }, [routeCardId, banksData, generalBanksData, navigate]);
 
   // Handle styles and scripts
   useEffect(() => {
@@ -235,7 +235,7 @@ function CardsCompareList() {
         console.error("Error cleaning up DOM elements:", err);
       }
     }
-  }, [cardData?.cardHtml, fetchHtmlContent, fetchCardsData]);
+  }, [cardData?.cardHtml, fetchCardsData]);
 
   if (error) {
     return (
@@ -285,6 +285,7 @@ function CardsCompareList() {
             </div>
           ) : cardData ? (
             <CardContent
+              key={cardData.cardId}
               cardData={cardData}
               onStatusToggle={handleStatusToggle}
               containerRef={containerRef}
