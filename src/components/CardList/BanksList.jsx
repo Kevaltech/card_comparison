@@ -4,7 +4,6 @@ import { BankSection } from "./BankSection";
 
 function BanksList({ bankName, data, selectedCard, onCardSelect }) {
   const [isOpenVisible, setIsOpenVisible] = useState(false);
-
   // Auto-expand the section if it contains the selected card
   React.useEffect(() => {
     if (selectedCard) {

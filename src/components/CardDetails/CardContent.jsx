@@ -132,6 +132,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     if (typeof window.initializeTabs === "function") {
       try {
         window.initializeTabs();
+        window.navigateDiff();
       } catch (err) {
         console.error("Error initializing tabs:", err);
       }
@@ -191,6 +192,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     if (typeof window.initializeTabs === "function") {
       try {
         window.initializeTabs();
+        window.navigateDiff();
       } catch (err) {
         console.error("Error initializing tabs:", err);
       }

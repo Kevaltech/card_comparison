@@ -147,33 +147,33 @@ function CardsCompareList() {
   }, []);
 
   // Route card ID effect
-  // useEffect(() => {
-  //   if (
-  //     routeCardId &&
-  //     (Object.keys(banksData).length > 0 ||
-  //       Object.keys(generalBanksData).length > 0)
-  //   ) {
-  //     // Check regular banks
-  //     const regularCards = Object.values(banksData).flatMap((bank) => [
-  //       ...bank.open,
-  //       ...bank.resolve,
-  //     ]);
+  useEffect(() => {
+    if (
+      routeCardId &&
+      (Object.keys(banksData).length > 0 ||
+        Object.keys(generalBanksData).length > 0)
+    ) {
+      // Check regular banks
+      const regularCards = Object.values(banksData).flatMap((bank) => [
+        ...bank.open,
+        ...bank.resolve,
+      ]);
 
-  //     // Check general banks
-  //     const generalCards = Object.values(generalBanksData).flatMap((bank) => [
-  //       ...bank.open,
-  //       ...bank.resolve,
-  //     ]);
+      // Check general banks
+      const generalCards = Object.values(generalBanksData).flatMap((bank) => [
+        ...bank.open,
+        ...bank.resolve,
+      ]);
 
-  //     const validCard = [...regularCards, ...generalCards].find(
-  //       (card) => card.cardId === routeCardId
-  //     );
+      const validCard = [...regularCards, ...generalCards].find(
+        (card) => card.cardId === routeCardId
+      );
 
-  //     if (validCard) {
-  //       fetchHtmlContent(validCard.cardId);
-  //     }
-  //   }
-  // }, [routeCardId, banksData, generalBanksData, navigate]);
+      if (validCard) {
+        fetchHtmlContent(validCard.cardId);
+      }
+    }
+  }, [routeCardId, banksData, generalBanksData, navigate]);
 
   // Handle styles and scripts
   useEffect(() => {
@@ -223,6 +223,7 @@ function CardsCompareList() {
     if (typeof window.initializeTabs === "function") {
       try {
         window.initializeTabs();
+        window.navigateDiff();
       } catch (err) {
         console.error("Error initializing tabs:", err);
       }
