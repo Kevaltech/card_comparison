@@ -36,7 +36,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
 
     try {
       const response = await fetch(
-        `https://6a33-59-162-82-6.ngrok-free.app/compare-cards/?cardId=${cardData.cardId}&v1=${v1}&v2=${v2}`,
+        `https://0491-59-162-82-6.ngrok-free.app/compare-cards/?cardId=${cardData.cardId}&v1=${v1}&v2=${v2}`,
         {
           headers: { "ngrok-skip-browser-warning": "234242" },
         }

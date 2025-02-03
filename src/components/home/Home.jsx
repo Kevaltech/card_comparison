@@ -45,7 +45,7 @@ export const Home = () => {
   const fetchDashboardStats = async () => {
     try {
       const response = await axios.get(
-        "https://6a33-59-162-82-6.ngrok-free.app/dashboard-stats/",
+        "https://0491-59-162-82-6.ngrok-free.app/dashboard-stats/",
         {
           headers: { "ngrok-skip-browser-warning": "234242" },
         }
