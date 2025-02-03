@@ -1,127 +1,82 @@
-import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
-import { CardContent } from "../CardDetails/CardContent";
+import React, { useState } from "react";
+import * as Diff from "diff";
+// import "./home.css";
 
-function Test() {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const containerRef = useRef(null);
+const FileDiffChecker = () => {
+  const [text1, setText1] = useState("");
+  const [text2, setText2] = useState("");
+  const [lines, setLines] = useState({ left: [], right: [] });
 
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
-
-  const fetchDashboardStats = async () => {
-    try {
-      const response = await axios.get(
-        "http://127.0.0.1:8000/compare-cards/?cardId=6001&v1=1&v2=2",
-        {
-          headers: { "ngrok-skip-browser-warning": "234242" },
-        }
-      );
-      setStats(response.data);
-    } catch (err) {
-      setError(err.response?.data?.error || err.message);
-    } finally {
-      setLoading(false);
-    }
+  const handleFile = (setText) => (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => setText(e.target.result);
+    reader.readAsText(file);
   };
 
-  useEffect(() => {
-    if (!stats?.cardHtml || !containerRef.current) return;
-    console.log("container", containerRef);
-    const handleStyleTags = () => {
-      const styleTags = containerRef?.current?.getElementsByTagName("style");
-      Array.from(styleTags || []).forEach((styleTag) => {
-        if (styleTag.getAttribute("data-processed")) return;
+  const compareTexts = () => {
+    const diff = Diff.diffLines(text1, text2, { newlineIsToken: true });
+    const left = [];
+    const right = [];
 
-        const newStyleElement = document.createElement("style");
-        Array.from(styleTag.attributes).forEach((attr) => {
-          if (attr.name !== "data-processed") {
-            newStyleElement.setAttribute(attr.name, attr.value);
-          }
-        });
+    diff.forEach((part) => {
+      const lines = part.value.replace(/\n$/, "").split("\n");
 
-        newStyleElement.textContent = styleTag.textContent;
-        styleTag.setAttribute("data-processed", "true");
-        document.head.appendChild(newStyleElement);
+      lines.forEach((line) => {
+        if (part.added) {
+          right.push({ content: line, type: "added" });
+          left.push({ content: "\u00A0", type: "empty" });
+        } else if (part.removed) {
+          left.push({ content: line, type: "removed" });
+          right.push({ content: "\u00A0", type: "empty" });
+        } else {
+          left.push({ content: line, type: "unchanged" });
+          right.push({ content: line, type: "unchanged" });
+        }
       });
-    };
+    });
 
-    const handleScriptTags = () => {
-      const scripts = containerRef.current?.getElementsByTagName("script");
-      Array.from(scripts || []).forEach((script) => {
-        if (script.getAttribute("data-executed")) return;
-
-        const newScript = document.createElement("script");
-        Array.from(script.attributes).forEach((attr) => {
-          if (attr.name !== "data-executed") {
-            newScript.setAttribute(attr.name, attr.value);
-          }
-        });
-
-        newScript.textContent = script.textContent;
-        script.setAttribute("data-executed", "true");
-        script.parentNode?.removeChild(script);
-        document.body.appendChild(newScript);
-      });
-    };
-
-    handleStyleTags();
-    handleScriptTags();
-
-    // Initialize custom functions if they exist
-    if (typeof window.initializeTabs === "function") {
-      try {
-        window.initializeTabs();
-      } catch (err) {
-        console.error("Error initializing tabs:", err);
-      }
-    }
-
-    if (typeof window.cleanupDOMElements === "function") {
-      try {
-        window.cleanupDOMElements();
-      } catch (err) {
-        console.error("Error cleaning up DOM elements:", err);
-      }
-    }
-  }, [stats?.cardHtml, fetchDashboardStats]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        loading
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen text-red-500">
-        <AlertCircle className="w-6 h-6 mr-2" />
-        {error}
-      </div>
-    );
-  }
-
-  const handleStatusToggle = () => {
-    return null;
+    setLines({ left, right });
   };
 
   return (
-    <div>
-      <h1>Test page</h1>
-      <>
-        <CardContent
-          cardData={stats}
-          onStatusToggle={handleStatusToggle}
-          containerRef={containerRef}
-        />
-      </>
+    <div className="container">
+      <h1>Text File Diff Checker</h1>
+
+      <div className="file-inputs">
+        <input type="file" onChange={handleFile(setText1)} accept=".txt" />
+        <input type="file" onChange={handleFile(setText2)} accept=".txt" />
+      </div>
+
+      <button onClick={compareTexts} disabled={!text1 || !text2}>
+        Compare Files
+      </button>
+
+      <div className="diff-container">
+        <div className="diff-side">
+          <h3>Original File</h3>
+          <div className="diff-content">
+            {lines.left.map((line, i) => (
+              <div key={i} className={`line ${line.type}`}>
+                {line.content}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="diff-side">
+          <h3>Modified File</h3>
+          <div className="diff-content">
+            {lines.right.map((line, i) => (
+              <div key={i} className={`line ${line.type}`}>
+                {line.content}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
-export default Test;
+export default FileDiffChecker;

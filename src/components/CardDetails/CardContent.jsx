@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../utils/formateDate";
 import { ChevronDown, RotateCcw } from "lucide-react";
+import DiffNavigation from "./DiffNavigation";
 
 export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   const [v1, setV1] = useState(
@@ -206,7 +207,6 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
       }
     }
   }, [versionData?.cardHtml]);
-
   return (
     <>
       <div className="mx-auto max-w-screen-md text-center mb-4 lg:mb-4">
@@ -293,6 +293,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
           __html: versionData ? versionData.cardHtml : cardData.cardHtml,
         }}
       />
+      <DiffNavigation />
     </>
   );
 };
