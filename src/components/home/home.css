@@ -74,3 +74,15 @@ button:disabled {
   background-color: #f8f8f8;
   color: #999;
 }
+
+/* Inserted text */
+ins {
+  background-color: #d4fcbc;
+  text-decoration: none;
+}
+
+/* Deleted text */
+del {
+  background-color: #fbb6c2;
+  text-decoration: line-through;
+}

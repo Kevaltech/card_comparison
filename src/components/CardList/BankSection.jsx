@@ -92,56 +92,55 @@ export const BankSection = ({
       )}
 
       {/* Resolved Section */}
-      {resolveSortedData.length > 0 && (
-        <>
-          <button
-            onClick={() => setIsResolveVisible(!isResolveVisible)}
-            className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100 group"
-          >
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span className="text-sm font-medium">
-                Resolved ({resolveSortedData.length})
-              </span>
+
+      <>
+        <button
+          onClick={() => setIsResolveVisible(!isResolveVisible)}
+          className="flex items-center justify-between w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100 group"
+        >
+          <span className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-green-500" />
+            <span className="text-sm font-medium">
+              Resolved ({resolveSortedData.length})
             </span>
-            {isResolveVisible ? (
-              <ChevronUp
-                size={18}
-                className="text-gray-400 group-hover:text-gray-600"
-              />
-            ) : (
-              <ChevronDown
-                size={18}
-                className="text-gray-400 group-hover:text-gray-600"
-              />
-            )}
-          </button>
-          {isResolveVisible && (
-            <ul className="space-y-1 pl-6">
-              {resolveSortedData.map((card) => (
-                <li key={card.cardId}>
-                  <button
-                    onClick={() => onCardSelect(card.cardId)}
-                    className={`flex items-center w-full p-2 text-sm rounded-lg transition-colors ${
-                      selectedCard === card.cardId
-                        ? "bg-blue-200 text-blue-700 hover:bg-blue-100"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                    title={`${bankName} ${card.name} (ID ${card.cardId})`}
-                  >
-                    <div className="w-full text-left truncate">
-                      <span className="font-medium">{card.name}</span>
-                      <span className="text-xs text-gray-500 ml-2">
-                        #{card.cardId}
-                      </span>
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
+          </span>
+          {isResolveVisible ? (
+            <ChevronUp
+              size={18}
+              className="text-gray-400 group-hover:text-gray-600"
+            />
+          ) : (
+            <ChevronDown
+              size={18}
+              className="text-gray-400 group-hover:text-gray-600"
+            />
           )}
-        </>
-      )}
+        </button>
+        {isResolveVisible && (
+          <ul className="space-y-1 pl-6">
+            {resolveSortedData.map((card) => (
+              <li key={card.cardId}>
+                <button
+                  onClick={() => onCardSelect(card.cardId)}
+                  className={`flex items-center w-full p-2 text-sm rounded-lg transition-colors ${
+                    selectedCard === card.cardId
+                      ? "bg-blue-200 text-blue-700 hover:bg-blue-100"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                  title={`${bankName} ${card.name} (ID ${card.cardId})`}
+                >
+                  <div className="w-full text-left truncate">
+                    <span className="font-medium">{card.name}</span>
+                    <span className="text-xs text-gray-500 ml-2">
+                      #{card.cardId}
+                    </span>
+                  </div>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </>
     </div>
   );
 };

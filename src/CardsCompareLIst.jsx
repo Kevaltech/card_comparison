@@ -107,16 +107,19 @@ function CardsCompareList() {
   };
 
   // Handle card status toggle
-  const handleStatusToggle = async () => {
+  const handleStatusToggle = async (version) => {
     if (!selectedCard || !cardData || statusUpdateLoading) return;
 
     setStatusUpdateLoading(true);
     setError(null);
 
     try {
-      const response = await axios.put(`${UPDATE_STATUS_URL}${selectedCard}/`, {
-        headers: { "ngrok-skip-browser-warning": "234242" },
-      });
+      const response = await axios.put(
+        `${UPDATE_STATUS_URL}${selectedCard}/${version}/`,
+        {
+          headers: { "ngrok-skip-browser-warning": "234242" },
+        }
+      );
 
       if (response.data.status === "success") {
         setStatusMessage({

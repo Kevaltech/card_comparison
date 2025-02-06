@@ -1,82 +1,183 @@
-import React, { useState } from "react";
-import * as Diff from "diff";
-// import "./home.css";
+import React, { useState, useCallback } from "react";
+import { ArrowLeftRight, Copy, Trash, Upload } from "lucide-react";
+import { createPatch } from "diff";
+import { html } from "diff2html";
+import "diff2html/bundles/css/diff2html.min.css";
+import htmldiff from "htmldiff-js";
 
-const FileDiffChecker = () => {
-  const [text1, setText1] = useState("");
-  const [text2, setText2] = useState("");
-  const [lines, setLines] = useState({ left: [], right: [] });
+const Test = () => {
+  const [leftText, setLeftText] = useState("");
+  const [rightText, setRightText] = useState("");
+  const [diffHtml, setDiffOutput] = useState("");
+  console.log("dfdf", diffHtml);
 
-  const handleFile = (setText) => (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => setText(e.target.result);
-    reader.readAsText(file);
+  const generateDiff = useCallback(() => {
+    const patch = createPatch("text", leftText, rightText, "", "");
+    const diffOutput = new htmldiff(leftText, rightText);
+    const diffOutput1 = html(patch, {
+      drawFileList: false,
+      matching: "words",
+      outputFormat: "side-by-side",
+      renderNothingWhenEmpty: true,
+    });
+    setDiffOutput(diffOutput1);
+  }, [leftText, rightText]);
+
+  const swapTexts = () => {
+    const temp = leftText;
+    setLeftText(rightText);
+    setRightText(temp);
   };
 
-  const compareTexts = () => {
-    const diff = Diff.diffLines(text1, text2, { newlineIsToken: true });
-    const left = [];
-    const right = [];
+  const clearTexts = () => {
+    setLeftText("");
+    setRightText("");
+    setDiffOutput("");
+  };
 
-    diff.forEach((part) => {
-      const lines = part.value.replace(/\n$/, "").split("\n");
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error("Failed to copy text:", err);
+    }
+  };
 
-      lines.forEach((line) => {
-        if (part.added) {
-          right.push({ content: line, type: "added" });
-          left.push({ content: "\u00A0", type: "empty" });
-        } else if (part.removed) {
-          left.push({ content: line, type: "removed" });
-          right.push({ content: "\u00A0", type: "empty" });
-        } else {
-          left.push({ content: line, type: "unchanged" });
-          right.push({ content: line, type: "unchanged" });
-        }
-      });
-    });
+  const handleFileUpload = (side) => async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    setLines({ left, right });
+    try {
+      const text = await file.text();
+      if (side === "left") {
+        setLeftText(text);
+      } else {
+        setRightText(text);
+      }
+    } catch (error) {
+      console.error("Error reading file:", error);
+      alert("Error reading file. Please try again.");
+    }
   };
 
   return (
-    <div className="container">
-      <h1>Text File Diff Checker</h1>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Text Diff Checker
+          </h1>
+          <p className="text-sm text-gray-600 mt-1">
+            Compare text or code files side by side
+          </p>
+        </div>
+      </header>
 
-      <div className="file-inputs">
-        <input type="file" onChange={handleFile(setText1)} accept=".txt" />
-        <input type="file" onChange={handleFile(setText2)} accept=".txt" />
-      </div>
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex gap-4 mb-6">
+          <button
+            onClick={generateDiff}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Compare Text
+          </button>
+          <button
+            onClick={swapTexts}
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-2"
+          >
+            <ArrowLeftRight className="w-4 h-4" /> Swap
+          </button>
+          <button
+            onClick={clearTexts}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-2"
+          >
+            <Trash className="w-4 h-4" /> Clear
+          </button>
+        </div>
 
-      <button onClick={compareTexts} disabled={!text1 || !text2}>
-        Compare Files
-      </button>
-
-      <div className="diff-container">
-        <div className="diff-side">
-          <h3>Original File</h3>
-          <div className="diff-content">
-            {lines.left.map((line, i) => (
-              <div key={i} className={`line ${line.type}`}>
-                {line.content}
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="relative">
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Original Text
+              </label>
+              <div className="flex gap-2">
+                <label
+                  className="cursor-pointer text-gray-500 hover:text-gray-700"
+                  title="Upload file"
+                >
+                  <Upload className="w-4 h-4" />
+                  <input
+                    type="file"
+                    onChange={handleFileUpload("left")}
+                    className="hidden"
+                    accept=".txt,.html,.css,.js,.jsx,.ts,.tsx,.json,.md"
+                  />
+                </label>
+                <button
+                  onClick={() => copyToClipboard(leftText)}
+                  className="text-gray-500 hover:text-gray-700"
+                  title="Copy to clipboard"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
               </div>
-            ))}
+            </div>
+            <textarea
+              value={leftText}
+              onChange={(e) => setLeftText(e.target.value)}
+              className="w-full h-64 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+              placeholder="Enter or upload original text here..."
+            />
+          </div>
+          <div className="relative">
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Modified Text
+              </label>
+              <div className="flex gap-2">
+                <label
+                  className="cursor-pointer text-gray-500 hover:text-gray-700"
+                  title="Upload file"
+                >
+                  <Upload className="w-4 h-4" />
+                  <input
+                    type="file"
+                    onChange={handleFileUpload("right")}
+                    className="hidden"
+                    accept=".txt,.html,.css,.js,.jsx,.ts,.tsx,.json,.md"
+                  />
+                </label>
+                <button
+                  onClick={() => copyToClipboard(rightText)}
+                  className="text-gray-500 hover:text-gray-700"
+                  title="Copy to clipboard"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <textarea
+              value={rightText}
+              onChange={(e) => setRightText(e.target.value)}
+              className="w-full h-64 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+              placeholder="Enter or upload modified text here..."
+            />
           </div>
         </div>
 
-        <div className="diff-side">
-          <h3>Modified File</h3>
-          <div className="diff-content">
-            {lines.right.map((line, i) => (
-              <div key={i} className={`line ${line.type}`}>
-                {line.content}
-              </div>
-            ))}
+        {diffHtml && (
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">Comparison Result</h2>
+            <div
+              className="diff-container"
+              dangerouslySetInnerHTML={{ __html: diffHtml }}
+            />
           </div>
-        </div>
-      </div>
+        )}
+      </main>
     </div>
   );
 };
 
-export default FileDiffChecker;
+export default Test;

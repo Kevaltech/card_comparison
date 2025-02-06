@@ -7,8 +7,9 @@ const DiffNavigation = () => {
   const initializeDiffNavigation = () => {
     // Get currently displayed tab
     const activeTab = document.querySelector(
-      '.tab-content[style="display: flex;"]'
+      '.tab-content[style*="display: flex"], .tab-content[style*="background-color:"]'
     );
+
     if (!activeTab) return;
 
     // Get all elements with IDs (these are our diff elements)
@@ -21,6 +22,7 @@ const DiffNavigation = () => {
             el.tagName.toLowerCase() === "span")
       )
       .map((el) => el.id);
+    console.log("new diff", newDiffIds);
 
     setDiffIds(newDiffIds);
     setCurScrollLineIndex(-1);
@@ -48,37 +50,66 @@ const DiffNavigation = () => {
     // Get the current element
     const currentElement = document.getElementById(diffIds[newIndex]);
     if (!currentElement) return;
+    console.log("curren", currentElement);
 
     // Scroll to the element
     currentElement.scrollIntoView({ behavior: "smooth", block: "center" });
 
     // Get the element's color for the border
-    const borderColor = currentElement.style.color;
+    const borderColor = "yellow";
 
     // Add border to current element
     if (currentElement.children.length > 0) {
       // If span has child elements, apply outline to them
-      currentElement.style.border = `2px solid ${borderColor}`;
+      //   currentElement.style.border = `2px solid ${borderColor}`;
+      //   currentElement.style.outline = `2px solid ${borderColor}`;
       currentElement.querySelectorAll("*").forEach((el) => {
-        el.style.border = `2px solid ${borderColor}`;
+        el.style.setProperty("background-color", "#fae69e", "important");
+        el.style.padding = "5px";
+        // el.style.border = `2px solid ${borderColor}`;
       });
     } else {
       // If no child elements, apply a highlight (background + border)
-      //   currentElement.style.backgroundColor = "rgba(80, 205, 137, 0.2)"; // Light highlight
-      currentElement.style.border = `2px solid ${borderColor}`;
+      //   currentElement.style.border = `2px solid ${borderColor}`;
+      currentElement.style.backgroundColor = "#fae69e";
+      currentElement.style.padding = "5px";
     }
 
-    // Clear previous outline
-    const prevElement = document.getElementById(
-      diffIds[newIndex - 1 < 0 ? diffIds.length - 1 : newIndex - 1]
+    currentElement.style.setProperty(
+      "background-color",
+      "#fae69e",
+      "important"
     );
-    if (prevElement) prevElement.style.border = "";
+    currentElement.style.padding = "5px";
 
-    // Clear next outline
-    const nextElement = document.getElementById(
-      diffIds[newIndex + 1 >= diffIds.length ? 0 : newIndex + 1]
-    );
-    if (nextElement) nextElement.style.border = "";
+    // Only clear other elements if there's more than one diff
+    if (diffIds.length > 1) {
+      // Clear previous outline
+      const prevElement = document.getElementById(
+        diffIds[newIndex - 1 < 0 ? diffIds.length - 1 : newIndex - 1]
+      );
+      if (prevElement && prevElement !== currentElement) {
+        prevElement.style.backgroundColor = "";
+        prevElement.style.padding = "";
+        prevElement.querySelectorAll("*").forEach((el) => {
+          el.style.backgroundColor = "";
+          el.style.padding = "";
+        });
+      }
+
+      // Clear next outline
+      const nextElement = document.getElementById(
+        diffIds[newIndex + 1 >= diffIds.length ? 0 : newIndex + 1]
+      );
+      if (nextElement && nextElement !== currentElement) {
+        nextElement.style.backgroundColor = "";
+        nextElement.style.padding = "";
+        nextElement.querySelectorAll("*").forEach((el) => {
+          el.style.backgroundColor = "";
+          el.style.padding = "";
+        });
+      }
+    }
 
     setCurScrollLineIndex(newIndex);
   };
@@ -114,7 +145,7 @@ const DiffNavigation = () => {
   }, []);
 
   return (
-    <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-2 flex items-center gap-2">
+    <div className="fixed z-20 top-64 right-6 bg-white rounded-lg shadow-lg p-2 flex items-center gap-2">
       <button
         onClick={() => scrollDiff("<")}
         className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"
