@@ -15,6 +15,7 @@ import {
   ArrowDown,
   ArrowUpDown,
 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 export const Home = () => {
   const [stats, setStats] = useState(null);
@@ -24,6 +25,12 @@ export const Home = () => {
     key: null,
     direction: "ascending",
   });
+
+  const navigate = useNavigate();
+
+  const handleSearchRedirect = (cardId) => {
+    navigate(`/compare/${cardId}`);
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -293,9 +300,7 @@ export const Home = () => {
                   </td>
                   <td className="px-6 py-4">
                     <button
-                      onClick={() =>
-                        (window.location.href = `/compare/${card.CardId}`)
-                      }
+                      onClick={() => handleSearchRedirect(card.CardId)}
                       className="flex items-center gap-1 text-blue-500 hover:text-blue-600"
                     >
                       <span className="text-sm">View Details</span>

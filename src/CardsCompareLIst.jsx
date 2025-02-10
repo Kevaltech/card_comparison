@@ -18,20 +18,18 @@ function CardsCompareList() {
   const [isResolvedDropdownVisible, setIsResolvedDropdownVisible] =
     useState(true);
   const [banksData, setBanksData] = useState({});
+  const [generalBanksData, setGeneralBanksData] = useState({});
   const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
 
-  // Base URLs for API calls
   const BASE_COMPARE_URL = "https://c44d-59-162-82-6.ngrok-free.app/compare/";
   const CARDS_STATUS_URL =
     "https://c44d-59-162-82-6.ngrok-free.app/cards-by-status/";
   const UPDATE_STATUS_URL =
     "https://c44d-59-162-82-6.ngrok-free.app/update-card-status/";
 
-  // API error handler
   const handleApiError = (err, defaultMessage) => {
     let errorMessage = defaultMessage;
-
     if (err.response) {
       errorMessage =
         err.response.data?.message || `Server error: ${err.response.status}`;
@@ -39,18 +37,32 @@ function CardsCompareList() {
       errorMessage =
         "Could not connect to the server. Please check your internet connection.";
     }
-
     setError(errorMessage);
     setStatusMessage({ text: errorMessage });
-
     setTimeout(() => setStatusMessage(null), 5000);
   };
 
-  // Fetch cards data // Add new state for general cards
-  const [generalBanksData, setGeneralBanksData] = useState({});
-  const [showGeneralCards, setShowGeneralCards] = useState(false);
-  // console.log("General Cards", generalBanksData);
-  // Modify fetchCardsData to handle the new structure
+  const fetchHtmlContent = async (cardId) => {
+    if (!cardId) return;
+
+    setIsLoading(true);
+    setError(null);
+    setSelectedCard(cardId);
+
+    try {
+      const response = await axios.get(`${BASE_COMPARE_URL}${cardId}`, {
+        headers: { "ngrok-skip-browser-warning": "234242" },
+      });
+      setCardData(response.data);
+      navigate(`/compare/${cardId}`, { replace: true });
+    } catch (err) {
+      console.error("Fetch error:", err);
+      handleApiError(err, "Failed to fetch card details");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const fetchCardsData = async () => {
     try {
       const response = await axios.get(CARDS_STATUS_URL, {
@@ -61,14 +73,12 @@ function CardsCompareList() {
         throw new Error("Invalid data format received from server");
       }
 
-      // Separate general cards from regular banks
       const { General, ...regularBanks } = response.data;
       setBanksData(regularBanks);
       setGeneralBanksData(General || {});
 
-      // Select first card if none selected
-      if (!selectedCard) {
-        // Try to find first card from regular banks
+      // Only select first card if there's no routeCardId
+      if (!routeCardId) {
         const firstBank = Object.values(regularBanks)[0];
         if (firstBank?.open.length > 0) {
           fetchHtmlContent(firstBank.open[0].cardId);
@@ -84,29 +94,18 @@ function CardsCompareList() {
     }
   };
 
-  // Fetch HTML content for a card
-  const fetchHtmlContent = async (cardId) => {
-    if (!cardId) return;
+  // Initial data load
+  useEffect(() => {
+    fetchCardsData();
+  }, []);
 
-    setIsLoading(true);
-    setError(null);
-    setSelectedCard(cardId);
-
-    try {
-      const response = await axios.get(`${BASE_COMPARE_URL}${cardId}`, {
-        headers: { "ngrok-skip-browser-warning": "234242" },
-      });
-      setCardData(response.data);
-      // navigate(`/compare/${cardId}`, { replace: true });
-    } catch (err) {
-      console.error("Fetch error:", err);
-      handleApiError(err, "Failed to fetch card details");
-    } finally {
-      setIsLoading(false);
+  // Watch for URL changes and update card data
+  useEffect(() => {
+    if (routeCardId && routeCardId !== selectedCard) {
+      fetchHtmlContent(routeCardId);
     }
-  };
+  }, [routeCardId]);
 
-  // Handle card status toggle
   const handleStatusToggle = async (version) => {
     if (!selectedCard || !cardData || statusUpdateLoading) return;
 
@@ -144,44 +143,9 @@ function CardsCompareList() {
     }
   };
 
-  // Initial load effect
-  useEffect(() => {
-    fetchCardsData();
-  }, []);
-
-  // Route card ID effect
-  useEffect(() => {
-    if (
-      routeCardId &&
-      (Object.keys(banksData).length > 0 ||
-        Object.keys(generalBanksData).length > 0)
-    ) {
-      // Check regular banks
-      const regularCards = Object.values(banksData).flatMap((bank) => [
-        ...bank.open,
-        ...bank.resolve,
-      ]);
-
-      // Check general banks
-      const generalCards = Object.values(generalBanksData).flatMap((bank) => [
-        ...bank.open,
-        ...bank.resolve,
-      ]);
-
-      const validCard = [...regularCards, ...generalCards].find(
-        (card) => card.cardId === routeCardId
-      );
-
-      if (validCard) {
-        fetchHtmlContent(validCard.cardId);
-      }
-    }
-  }, [routeCardId, banksData, generalBanksData, navigate]);
-
-  // Handle styles and scripts
   useEffect(() => {
     if (!cardData?.cardHtml || !containerRef.current) return;
-    console.log("Inside cardsCompare List useEffect");
+
     const handleStyleTags = () => {
       const styleTags = containerRef?.current?.getElementsByTagName("style");
       Array.from(styleTags || []).forEach((styleTag) => {
@@ -222,11 +186,10 @@ function CardsCompareList() {
     handleStyleTags();
     handleScriptTags();
 
-    // Initialize custom functions if they exist
     if (typeof window.initializeTabs === "function") {
       try {
         window.initializeTabs();
-        window.navigateDiff();
+        // window.navigateDiff();
       } catch (err) {
         console.error("Error initializing tabs:", err);
       }
@@ -239,7 +202,7 @@ function CardsCompareList() {
         console.error("Error cleaning up DOM elements:", err);
       }
     }
-  }, [cardData?.cardHtml, fetchCardsData]);
+  }, [cardData?.cardHtml]);
 
   if (error) {
     return (
