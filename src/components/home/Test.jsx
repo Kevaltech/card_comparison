@@ -20,7 +20,9 @@ const Test = () => {
       outputFormat: "side-by-side",
       renderNothingWhenEmpty: true,
     });
-    setDiffOutput(diffOutput1);
+    const text1 = extractTextUsingDOMParser(diffOutput1);
+    setDiffOutput(text1);
+    // console.log("htmltext", text1);
   }, [leftText, rightText]);
 
   const swapTexts = () => {
@@ -59,6 +61,25 @@ const Test = () => {
       alert("Error reading file. Please try again.");
     }
   };
+
+  function extractTextUsingDOMParser(htmlDocument) {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlDocument, "text/html");
+      // Remove script and style elements
+      const scripts = doc.getElementsByTagName("script");
+      const styles = doc.getElementsByTagName("style");
+
+      [...scripts, ...styles].forEach((element) => {
+        element.remove();
+      });
+
+      return doc.body.textContent.trim().replace(/\s+/g, " "); // Replace multiple spaces with single space
+    } catch (error) {
+      console.error("Error parsing HTML:", error);
+      return "";
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

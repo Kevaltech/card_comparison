@@ -63,6 +63,17 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     setVersion(version);
   };
 
+  const handleVersionChangeThroughVersionList = (v) => {
+    versionsChanged.current = true;
+    if (v === 1) {
+      setV1(1);
+      setV2(1);
+    } else {
+      setV1(v - 1);
+      setV2(v);
+    }
+  };
+
   const VersionDropdown = ({
     value,
     onChange,
@@ -136,7 +147,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     if (typeof window.initializeTabs === "function") {
       try {
         window.initializeTabs();
-        window.navigateDiff();
+        // window.navigateDiff();
       } catch (err) {
         console.error("Error initializing tabs:", err);
       }
@@ -196,7 +207,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     if (typeof window.initializeTabs === "function") {
       try {
         window.initializeTabs();
-        window.navigateDiff();
+        // window.navigateDiff();
       } catch (err) {
         console.error("Error initializing tabs:", err);
       }
@@ -210,6 +221,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
       }
     }
   }, [versionData?.cardHtml]);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header Section with Fixed Position */}
@@ -219,8 +231,9 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
             {/* Version Status List */}
             <div className="w-full lg:w-1/4">
               <VersionStatusList
-                data={cardData.status_by_version}
+                data={cardData?.status_by_version}
                 onStatusToggle={onStatusToggle}
+                onVersionChange={handleVersionChangeThroughVersionList}
               />
             </div>
 

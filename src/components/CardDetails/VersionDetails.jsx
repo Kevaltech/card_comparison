@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
-const VersionStatusList = ({ data, onStatusToggle }) => {
+const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
   const [localData, setLocalData] = useState([]);
   const [loading, setLoading] = useState({});
-
+  //   console.log("local", data);
   useEffect(() => {
     // Sort and set initial data
-    const sortedData = [...data].sort((a, b) => a.version - b.version);
+    const sortedData = [...data]?.sort((a, b) => a.version - b.version);
     setLocalData(sortedData);
   }, [data]);
 
@@ -37,14 +38,20 @@ const VersionStatusList = ({ data, onStatusToggle }) => {
   };
 
   return (
-    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-2">
+    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-2 max-h-60 overflow-y-auto">
       <ul className="space-y-2 p-0">
-        {localData.map(({ version, status }) => (
+        {localData?.map(({ version, status }) => (
           <li
             key={version}
             className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
           >
-            <span className="font-medium">Version {version}</span>
+            <button
+              className="py-1 px-2.5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+              onClick={() => onVersionChange(version)}
+            >
+              {" "}
+              <span className="font-medium">Version {version}</span>
+            </button>
             <div className="flex items-center gap-2">
               <span className="text-gray-600">Status:</span>
               <span

@@ -192,6 +192,8 @@ function SearchKeyword() {
     }
   }, [selectedCard?.cardHtml, handleSearch]);
 
+  console.log("serachke", selectedCard);
+
   return (
     <div className="h-screen mt-14 flex flex-col bg-gray-50">
       {/* Search Header */}
