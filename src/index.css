@@ -182,9 +182,17 @@
   white-space: nowrap;
 }
 .d2h-code-side-line {
-  padding: 0 1.5em;
-  width: calc(100% - 2em);
+  padding: 0.3em 4.5em;
+  width: calc(100% - 0em);
 }
+
+.active-change {
+  background-color: #b99101 !important;
+  border: 2px solid #b99101 !important;
+  border-bottom: none !important;
+  padding: 5px !important;
+}
+
 .d2h-code-line-ctn {
   background: none;
   display: inline-block;
@@ -715,3 +723,30 @@
     border: 1px solid var(--d2h-dark-moved-label-color);
   }
 }
+
+/* line folding */
+
+/* .d2h-wrapped-file-diff .d2h-code-line-ctn {
+  white-space: break-spaces;
+}
+
+.d2h-wrapped-file-diff .d2h-code-side-line {
+  width: auto;
+}
+
+.d2h-wrapped-file-diff .d2h-info .d2h-code-side-line {
+  white-space: break-spaces;
+}
+
+.d2h-wrapped-file-diff tr {
+  position: relative;
+}
+
+.d2h-wrapped-file-diff tr .d2h-code-side-linenumber {
+  height: 100%;
+}
+
+.d2h-wrapped-file-diff .d2h-file-side-diff tr .d2h-cntx:nth-child(2),
+.d2h-wrapped-file-diff .d2h-file-side-diff tr .d2h-cntx:nth-child(4) {
+  width: 50%;
+} */

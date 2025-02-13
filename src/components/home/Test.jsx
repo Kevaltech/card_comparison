@@ -1,169 +1,201 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeftRight, Copy, Trash, Upload } from "lucide-react";
 import { createPatch } from "diff";
 import { html } from "diff2html";
-import "diff2html/bundles/css/diff2html.min.css";
-import htmldiff from "htmldiff-js";
+// import "diff2html/bundles/css/diff2html.min.css";
 import { cleanupText } from "../../utils/cleantext";
 
-const Test = ({ leftTextImport, rightTextImport }) => {
-  // Clean up the input texts.
-  const left_text = cleanupText(leftTextImport, {
-    trimLines: true,
-    singleSpaces: false,
-    singleNewlines: true,
-    noEmptyLines: true,
-  });
-  const right_text = cleanupText(rightTextImport, {
-    trimLines: true,
-    singleSpaces: false,
-    singleNewlines: true,
-    noEmptyLines: true,
-  });
-
-  const [leftText, setLeftText] = useState(left_text);
-  const [rightText, setRightText] = useState(right_text);
-  const [diffHtml, setDiffOutput] = useState("");
-  // Instead of storing every changed tr id, we store only one id per changed section.
-  const [changeIds, setChangeIds] = useState([]);
+const Test = ({ changes }) => {
+  /**
+   * changes is an array of objects like:
+   * [
+   *   { 'old_content_1': "old content", 'new_content_1': "new content" },
+   *   { 'old_content_2': "old content", 'new_content_2': "new content" },
+   *   { 'old_content_3': "old content", 'new_content_3': "new content" },
+   * ]
+   */
+  const [tabsData, setTabsData] = useState([]);
+  const [activeTab, setActiveTab] = useState(0);
   const [curChangeIndex, setCurChangeIndex] = useState(-1);
+  const [activeDiffHtml, setActiveDiffHtml] = useState("");
+  const [tabsScanned, setTabsScanned] = useState(false);
+  const hiddenContainersRef = useRef([]);
 
-  const generateDiff = useCallback(() => {
-    const patch = createPatch("text", leftText, rightText, "", "", {
-      context: Number.MAX_SAFE_INTEGER,
-    });
-    const diffOutput = html(patch, {
-      drawFileList: false,
-      matching: "words",
-      outputFormat: "side-by-side",
-      renderNothingWhenEmpty: true,
-    });
-    setDiffOutput(diffOutput);
-  }, [leftText, rightText]);
+  // Build tabsData from the changes array.
+  useEffect(() => {
+    if (!changes || !changes.length) return;
+    const newTabs = changes.map((obj, i) => {
+      const oldKey = Object.keys(obj).find((k) => k.startsWith("old_content_"));
+      const newKey = Object.keys(obj).find((k) => k.startsWith("new_content_"));
+      const tabName = oldKey ? oldKey.replace("old_", "") : `content_${i + 1}`;
+      let oldContent = cleanupText(obj[oldKey] || "", {
+        trimLines: true,
+        singleSpaces: false,
+        singleNewlines: true,
+        noEmptyLines: true,
+      });
+      let newContent = cleanupText(obj[newKey] || "", {
+        trimLines: true,
+        singleSpaces: false,
+        singleNewlines: true,
+        noEmptyLines: true,
+      });
 
-  const swapTexts = () => {
-    const temp = leftText;
-    setLeftText(rightText);
-    setRightText(temp);
-  };
-
-  const clearTexts = () => {
-    setLeftText("");
-    setRightText("");
-    setDiffOutput("");
-    setChangeIds([]);
-    setCurChangeIndex(-1);
-  };
-
-  const copyToClipboard = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (err) {
-      console.error("Failed to copy text:", err);
-    }
-  };
-
-  const handleFileUpload = (side) => async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    try {
-      const text = await file.text();
-      if (side === "left") {
-        setLeftText(text);
-      } else {
-        setRightText(text);
+      if (oldContent === newContent) {
+        oldContent = oldContent + " test_change_1";
+        newContent = newContent + " test_change_2";
       }
-    } catch (error) {
-      console.error("Error reading file:", error);
-      alert("Error reading file. Please try again.");
-    }
-  };
+      const patch = createPatch("text", oldContent, newContent, "", "", {
+        context: Number.MAX_SAFE_INTEGER,
+      });
+      let diffOutput = html(patch, {
+        drawFileList: false,
+        matching: "words",
+        outputFormat: "side-by-side",
+        renderNothingWhenEmpty: false,
+      });
 
-  // Synchronize row heights as before.
+      return {
+        tabName,
+        oldContent,
+        newContent,
+        diffHtml: diffOutput,
+        changeGroups: [], // will be set after scanning
+      };
+    });
+    setTabsData(newTabs);
+    console.log("tabsData", newTabs);
+    setActiveTab(0);
+    setCurChangeIndex(-1);
+    setTabsScanned(false);
+  }, [changes]);
+
+  // Set active diff html when activeTab changes.
   useEffect(() => {
-    if (diffHtml) {
-      setTimeout(() => {
-        const leftTableBody = document.querySelector(
-          ".diff-container .d2h-file-side-diff:first-child .d2h-diff-tbody"
-        );
-        const rightTableBody = document.querySelector(
-          ".diff-container .d2h-file-side-diff:last-child .d2h-diff-tbody"
-        );
-        if (leftTableBody && rightTableBody) {
-          const leftRows = leftTableBody.querySelectorAll("tr");
-          const rightRows = rightTableBody.querySelectorAll("tr");
-          const numRows = Math.min(leftRows.length, rightRows.length);
-          for (let i = 0; i < numRows; i++) {
-            const leftRow = leftRows[i];
-            const rightRow = rightRows[i];
-            const maxHeight = Math.max(
-              leftRow.offsetHeight,
-              rightRow.offsetHeight
-            );
-            leftRow.style.height = `${maxHeight}px`;
-            rightRow.style.height = `${maxHeight}px`;
-          }
+    if (!tabsData[activeTab]) {
+      setActiveDiffHtml("");
+      return;
+    }
+    setActiveDiffHtml(tabsData[activeTab].diffHtml);
+    setCurChangeIndex(-1);
+  }, [activeTab, tabsData]);
+
+  // Synchronize row heights for active diff.
+  useEffect(() => {
+    if (!activeDiffHtml) return;
+    setTimeout(() => {
+      const container = document.querySelector(".active-diff-container");
+      if (!container) return;
+      const leftTableBody = container.querySelector(
+        ".d2h-file-side-diff:first-child .d2h-diff-tbody"
+      );
+      const rightTableBody = container.querySelector(
+        ".d2h-file-side-diff:last-child .d2h-diff-tbody"
+      );
+      if (leftTableBody && rightTableBody) {
+        const leftRows = leftTableBody.querySelectorAll("tr");
+        const rightRows = rightTableBody.querySelectorAll("tr");
+        const numRows = Math.min(leftRows.length, rightRows.length);
+        for (let i = 0; i < numRows; i++) {
+          const leftRow = leftRows[i];
+          const rightRow = rightRows[i];
+          const maxHeight = Math.max(
+            leftRow.offsetHeight,
+            rightRow.offsetHeight
+          );
+          leftRow.style.height = `${maxHeight}px`;
+          rightRow.style.height = `${maxHeight}px`;
         }
-      }, 0);
-    }
-  }, [diffHtml]);
+      }
+    }, 0);
+  }, [activeDiffHtml]);
 
-  // Group consecutive changed rows (changed section) instead of counting every tr.
+  // Scan each tab's diff for change groups.
   useEffect(() => {
-    if (diffHtml) {
-      setTimeout(() => {
-        const diffContainer = document.querySelector(".diff-container");
-        if (!diffContainer) return;
-        const rows = diffContainer.querySelectorAll("tr");
-        const groupIds = [];
-        let groupStarted = false;
-        rows.forEach((row) => {
-          const isChanged =
-            row.querySelector(".d2h-del") || row.querySelector(".d2h-ins");
-          if (isChanged) {
-            if (!groupStarted) {
-              // Mark the start of a new group.
-              if (!row.id) {
-                row.id = "change-group-" + groupIds.length;
-              }
-              groupIds.push(row.id);
-              groupStarted = true;
+    if (!tabsData.length || tabsScanned) return;
+    tabsData.forEach((tab, idx) => {
+      const container = hiddenContainersRef.current[idx];
+      if (!container) return;
+      container.innerHTML = tab.diffHtml;
+      const leftTableBody = container.querySelector(
+        ".d2h-file-side-diff:first-child .d2h-diff-tbody"
+      );
+      const rightTableBody = container.querySelector(
+        ".d2h-file-side-diff:last-child .d2h-diff-tbody"
+      );
+      if (!leftTableBody || !rightTableBody) {
+        tab.changeGroups = [];
+        return;
+      }
+      const leftRows = leftTableBody.querySelectorAll("tr");
+      const rightRows = rightTableBody.querySelectorAll("tr");
+      const minRows = Math.min(leftRows.length, rightRows.length);
+      const groups = [];
+      let groupStarted = false;
+      for (let i = 0; i < minRows; i++) {
+        const leftRow = leftRows[i];
+        const rightRow = rightRows[i];
+        const leftChanged = leftRow.querySelector(".d2h-del, .d2h-ins");
+        const rightChanged = rightRow.querySelector(".d2h-del, .d2h-ins");
+        if (leftChanged || rightChanged) {
+          if (!groupStarted) {
+            if (!leftRow.id) {
+              leftRow.id = `change-section-${groups.length}-tab${idx}`;
             }
-          } else {
-            groupStarted = false;
+            groups.push({ id: leftRow.id, index: i });
+            groupStarted = true;
           }
-        });
-        setChangeIds(groupIds);
-        setCurChangeIndex(-1);
-      }, 0);
-    }
-  }, [diffHtml]);
+        } else {
+          groupStarted = false;
+        }
+      }
+      tab.changeGroups = groups;
+    });
+    setTabsScanned(true);
+    setTabsData([...tabsData]);
+  }, [tabsData, tabsScanned]);
 
-  // Scroll to the next or previous change section.
-  const scrollChange = (direction = ">") => {
-    if (changeIds.length === 0) return;
+  // Previous/Next navigation for active tab.
+  const scrollChange = (direction) => {
+    const activeTabData = tabsData[activeTab];
+    if (!activeTabData || activeTabData.changeGroups.length === 0) return;
+    const groups = activeTabData.changeGroups;
     let newIndex = curChangeIndex;
     if (direction === ">") {
       newIndex = curChangeIndex + 1;
     } else {
       newIndex = curChangeIndex - 1;
     }
-    if (newIndex >= changeIds.length) {
-      newIndex = 0;
+    if (newIndex >= groups.length) newIndex = 0;
+    if (newIndex < 0) newIndex = groups.length - 1;
+    const container = document.querySelector(".active-diff-container");
+    if (!container) return;
+    const leftTableBody = container.querySelector(
+      ".d2h-file-side-diff:first-child .d2h-diff-tbody"
+    );
+    const rightTableBody = container.querySelector(
+      ".d2h-file-side-diff:last-child .d2h-diff-tbody"
+    );
+    if (!leftTableBody || !rightTableBody) return;
+    const leftRows = leftTableBody.querySelectorAll("tr");
+    const rightRows = rightTableBody.querySelectorAll("tr");
+    groups.forEach(({ index }) => {
+      if (leftRows[index]) leftRows[index].classList.remove("active-change");
+      if (rightRows[index]) rightRows[index].classList.remove("active-change");
+    });
+    const group = groups[newIndex];
+    if (leftRows[group.index] && rightRows[group.index]) {
+      leftRows[group.index].scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      leftRows[group.index].classList.add("active-change");
+      rightRows[group.index].classList.add("active-change");
     }
-    if (newIndex < 0) {
-      newIndex = changeIds.length - 1;
-    }
-    const targetElement = document.getElementById(changeIds[newIndex]);
-    if (!targetElement) return;
-    targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
-    // Apply a simple highlight.
-    targetElement.style.backgroundColor = "#fae69e";
-    targetElement.style.padding = "5px";
     setCurChangeIndex(newIndex);
   };
 
-  // Optional: Keyboard shortcuts for Alt+Left/Right.
+  // Keyboard shortcuts for Alt+Arrow keys.
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.altKey && e.key === "ArrowLeft") {
@@ -173,140 +205,72 @@ const Test = ({ leftTextImport, rightTextImport }) => {
       }
     };
     document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [changeIds, curChangeIndex]);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [tabsData, curChangeIndex]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-8xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Text Diff Checker
-          </h1>
-          <p className="text-sm text-gray-600 mt-1">
-            Compare text or code files side by side
-          </p>
-        </div>
-      </header>
-
+    <div className="bg-gray-50 min-h-screen">
       <main className="max-w-8xl mx-auto px-4 py-6">
-        <div className="flex gap-4 mb-6">
-          <button
-            onClick={generateDiff}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Compare Text
-          </button>
-          <button
-            onClick={swapTexts}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-2"
-          >
-            <ArrowLeftRight className="w-4 h-4" /> Swap
-          </button>
-          <button
-            onClick={clearTexts}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-2"
-          >
-            <Trash className="w-4 h-4" /> Clear
-          </button>
+        {/* Tab Buttons */}
+        <div className="flex space-x-4 mb-6">
+          {tabsData.map((tab, idx) => {
+            const count = tab.changeGroups.length;
+            const active = idx === activeTab;
+            return (
+              <button
+                key={idx}
+                onClick={() => {
+                  setActiveTab(idx);
+                  setCurChangeIndex(-1);
+                }}
+                className={`px-3 py-2 rounded-md border ${
+                  active
+                    ? "bg-blue-600 text-white border-blue-700"
+                    : "bg-gray-100 text-gray-700 border-gray-200"
+                } relative`}
+              >
+                {tab.tabName}
+                {count > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                    title={`${count} changes`}
+                  >
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="relative">
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Original Text
-              </label>
-              <div className="flex gap-2">
-                <label
-                  className="cursor-pointer text-gray-500 hover:text-gray-700"
-                  title="Upload file"
-                >
-                  <Upload className="w-4 h-4" />
-                  <input
-                    type="file"
-                    onChange={handleFileUpload("left")}
-                    className="hidden"
-                    accept=".txt,.html,.css,.js,.jsx,.ts,.tsx,.json,.md"
-                  />
-                </label>
-                <button
-                  onClick={() => copyToClipboard(leftText)}
-                  className="text-gray-500 hover:text-gray-700"
-                  title="Copy to clipboard"
-                >
-                  <Copy className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            <textarea
-              value={leftText}
-              onChange={(e) => setLeftText(e.target.value)}
-              className="w-full h-64 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-              placeholder="Enter or upload original text here..."
-            />
-          </div>
-          <div className="relative">
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Modified Text
-              </label>
-              <div className="flex gap-2">
-                <label
-                  className="cursor-pointer text-gray-500 hover:text-gray-700"
-                  title="Upload file"
-                >
-                  <Upload className="w-4 h-4" />
-                  <input
-                    type="file"
-                    onChange={handleFileUpload("right")}
-                    className="hidden"
-                    accept=".txt,.html,.css,.js,.jsx,.ts,.tsx,.json,.md"
-                  />
-                </label>
-                <button
-                  onClick={() => copyToClipboard(rightText)}
-                  className="text-gray-500 hover:text-gray-700"
-                  title="Copy to clipboard"
-                >
-                  <Copy className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            <textarea
-              value={rightText}
-              onChange={(e) => setRightText(e.target.value)}
-              className="w-full h-64 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-              placeholder="Enter or upload modified text here..."
-            />
-          </div>
-        </div>
-
-        {diffHtml && (
+        {/* Active diff view */}
+        {activeDiffHtml && (
           <div className="bg-white rounded-lg shadow-lg p-2 relative">
-            <h2 className="text-xl font-semibold mb-4">Comparison Result</h2>
-            {/* Custom CSS to adjust text wrapping and reduce internal spacing */}
+            <h2 className="text-xl font-semibold mb-4">
+              {tabsData[activeTab]?.tabName} Diff
+            </h2>
             <style>{`
-              .diff-container .d2h-code-line,
-              .diff-container .d2h-code-line-ctn {
+              .active-diff-container .d2h-code-line,
+              .active-diff-container .d2h-code-line-ctn {
                 white-space: pre-wrap;
                 word-break: break-all;
               }
-              .diff-container .d2h-code-wrapper {
+              .active-diff-container .d2h-code-wrapper {
                 padding: 0.25rem !important;
               }
-              .diff-container .d2h-diff-table td {
+              .active-diff-container .d2h-diff-table td {
                 padding: 0.25rem !important;
+              }
+              .active-change {
+                background-color: #fae69e !important;
+                padding: 5px !important;
               }
             `}</style>
             <div
-              className="diff-container"
-              dangerouslySetInnerHTML={{ __html: diffHtml }}
+              className="active-diff-container diff-container"
+              dangerouslySetInnerHTML={{ __html: activeDiffHtml }}
             />
-            {/* Navigation buttons for changed sections */}
-            {changeIds.length > 0 && (
+            {tabsData[activeTab]?.changeGroups?.length > 0 && (
               <div className="fixed z-20 top-64 right-6 bg-white rounded-lg shadow-lg p-2 flex items-center gap-2">
                 <button
                   onClick={() => scrollChange("<")}
@@ -316,7 +280,11 @@ const Test = ({ leftTextImport, rightTextImport }) => {
                   ← Previous
                 </button>
                 <span className="text-sm text-gray-600 px-2">
-                  {curChangeIndex + 1} / {changeIds.length}
+                  {curChangeIndex + 1 <= 0
+                    ? `0 / ${tabsData[activeTab].changeGroups.length}`
+                    : `${curChangeIndex + 1} / ${
+                        tabsData[activeTab].changeGroups.length
+                      }`}
                 </span>
                 <button
                   onClick={() => scrollChange(">")}
@@ -330,6 +298,16 @@ const Test = ({ leftTextImport, rightTextImport }) => {
           </div>
         )}
       </main>
+
+      {/* Hidden containers for scanning each tab's diff */}
+      <div style={{ display: "none" }}>
+        {tabsData.map((_, idx) => (
+          <div
+            key={idx}
+            ref={(el) => (hiddenContainersRef.current[idx] = el)}
+          />
+        ))}
+      </div>
     </div>
   );
 };

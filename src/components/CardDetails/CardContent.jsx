@@ -310,10 +310,9 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
       <button onClick={handleTest}>test page</button>
       {/* Content Section */}
       {test ? (
-        <Test
-          leftTextImport={versionData?.old_content}
-          rightTextImport={versionData?.new_content}
-        />
+        <div>
+          <Test changes={versionData?.changes} />
+        </div>
       ) : (
         <div className="">
           <div
