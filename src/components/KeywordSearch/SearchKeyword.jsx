@@ -34,7 +34,7 @@ function SearchKeyword() {
   const resultsContainerRef = useRef(null);
 
   const UPDATE_STATUS_URL =
-    "https://c44d-59-162-82-6.ngrok-free.app/update-card-status/";
+    "https://c9e5-59-162-82-6.ngrok-free.app/update-card-status/";
 
   const handleSearch = async () => {
     if (!keyword.trim()) {
@@ -47,7 +47,7 @@ function SearchKeyword() {
 
     try {
       const response = await axios.get(
-        `https://c44d-59-162-82-6.ngrok-free.app/search-cards/?keyword=${encodeURIComponent(
+        `https://c9e5-59-162-82-6.ngrok-free.app/search-cards/?keyword=${encodeURIComponent(
           keyword
         )}`,
         {

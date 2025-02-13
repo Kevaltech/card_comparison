@@ -19,6 +19,7 @@ const DiffNavigation = () => {
         (el) =>
           el.id &&
           (el.tagName.toLowerCase() === "del" ||
+            el.tagName.toLowerCase() === "ins" ||
             el.tagName.toLowerCase() === "span")
       )
       .map((el) => el.id);

@@ -22,11 +22,11 @@ function CardsCompareList() {
   const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
 
-  const BASE_COMPARE_URL = "https://c44d-59-162-82-6.ngrok-free.app/compare/";
+  const BASE_COMPARE_URL = "https://c9e5-59-162-82-6.ngrok-free.app/compare/";
   const CARDS_STATUS_URL =
-    "https://c44d-59-162-82-6.ngrok-free.app/cards-by-status/";
+    "https://c9e5-59-162-82-6.ngrok-free.app/cards-by-status/";
   const UPDATE_STATUS_URL =
-    "https://c44d-59-162-82-6.ngrok-free.app/update-card-status/";
+    "https://c9e5-59-162-82-6.ngrok-free.app/update-card-status/";
 
   const handleApiError = (err, defaultMessage) => {
     let errorMessage = defaultMessage;

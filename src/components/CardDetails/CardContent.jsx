@@ -4,6 +4,7 @@ import { formatDate } from "../../utils/formateDate";
 import { ChevronDown, RotateCcw } from "lucide-react";
 import DiffNavigation from "./DiffNavigation";
 import VersionStatusList from "./VersionDetails";
+import Test from "../home/Test";
 
 export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   const [v1, setV1] = useState(
@@ -15,8 +16,13 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   const [isDropdown2Open, setIsDropdown2Open] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [test, setTest] = useState(false);
 
   // Add ref to track if versions were changed manually
+
+  const handleTest = () => {
+    setTest(!test);
+  };
   const versionsChanged = useRef(false);
 
   const versions = Array.from({ length: cardData.version || 5 }, (_, i) => ({
@@ -38,7 +44,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
 
     try {
       const response = await fetch(
-        `https://c44d-59-162-82-6.ngrok-free.app/compare-cards/?cardId=${cardData.cardId}&v1=${v1}&v2=${v2}`,
+        `https://c9e5-59-162-82-6.ngrok-free.app/compare-cards/?cardId=${cardData.cardId}&v1=${v1}&v2=${v2}`,
         {
           headers: { "ngrok-skip-browser-warning": "234242" },
         }
@@ -301,18 +307,25 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
           </div>
         </div>
       </div>
-
+      <button onClick={handleTest}>test page</button>
       {/* Content Section */}
-      <div className="">
-        <div
-          className=" border-2 border-gray-200 border-dashed rounded-lg"
-          ref={containerRef}
-          dangerouslySetInnerHTML={{
-            __html: versionData ? versionData.cardHtml : cardData.cardHtml,
-          }}
+      {test ? (
+        <Test
+          leftTextImport={versionData?.old_content}
+          rightTextImport={versionData?.new_content}
         />
-        <DiffNavigation />
-      </div>
+      ) : (
+        <div className="">
+          <div
+            className=" border-2 border-gray-200 border-dashed rounded-lg"
+            ref={containerRef}
+            dangerouslySetInnerHTML={{
+              __html: versionData ? versionData.cardHtml : cardData.cardHtml,
+            }}
+          />
+          <DiffNavigation />
+        </div>
+      )}
     </div>
   );
 };
