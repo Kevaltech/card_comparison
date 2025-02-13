@@ -28,23 +28,31 @@ const Test = ({ changes }) => {
       const oldKey = Object.keys(obj).find((k) => k.startsWith("old_content_"));
       const newKey = Object.keys(obj).find((k) => k.startsWith("new_content_"));
       const tabName = oldKey ? oldKey.replace("old_", "") : `content_${i + 1}`;
-      let oldContent = cleanupText(obj[oldKey] || "", {
+      const rawOld = obj[oldKey] || "";
+      const rawNew = obj[newKey] || "";
+      // Clean up content.
+      const cleanedOld = cleanupText(rawOld, {
         trimLines: true,
         singleSpaces: false,
         singleNewlines: true,
         noEmptyLines: true,
       });
-      let newContent = cleanupText(obj[newKey] || "", {
+      const cleanedNew = cleanupText(rawNew, {
         trimLines: true,
         singleSpaces: false,
         singleNewlines: true,
         noEmptyLines: true,
       });
+      // If contents are identical, mark artificialDiff so that we ignore change groups later.
+      const artificialDiff = cleanedOld === cleanedNew;
+      // If artificial, append a tiny tweak that differs.
+      const oldContent = artificialDiff
+        ? cleanedOld + " test_change_1"
+        : cleanedOld;
+      const newContent = artificialDiff
+        ? cleanedNew + " test_change_2"
+        : cleanedNew;
 
-      if (oldContent === newContent) {
-        oldContent = oldContent + " test_change_1";
-        newContent = newContent + " test_change_2";
-      }
       const patch = createPatch("text", oldContent, newContent, "", "", {
         context: Number.MAX_SAFE_INTEGER,
       });
@@ -57,10 +65,13 @@ const Test = ({ changes }) => {
 
       return {
         tabName,
+        rawOld: cleanedOld,
+        rawNew: cleanedNew,
         oldContent,
         newContent,
         diffHtml: diffOutput,
-        changeGroups: [], // will be set after scanning
+        changeGroups: [],
+        artificialDiff,
       };
     });
     setTabsData(newTabs);
@@ -149,7 +160,8 @@ const Test = ({ changes }) => {
           groupStarted = false;
         }
       }
-      tab.changeGroups = groups;
+      // If this tab is artificial (i.e. no real difference), ignore any groups.
+      tab.changeGroups = tab.artificialDiff ? [] : groups;
     });
     setTabsScanned(true);
     setTabsData([...tabsData]);
