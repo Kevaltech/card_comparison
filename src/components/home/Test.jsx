@@ -4,8 +4,9 @@ import { createPatch } from "diff";
 import { html } from "diff2html";
 // import "diff2html/bundles/css/diff2html.min.css";
 import { cleanupText } from "../../utils/cleantext";
+import DiffNavigation from "../CardDetails/DiffNavigation";
 
-const Test = ({ changes, Diff }) => {
+const Test = ({ changes, Diff, handleDiff, handleAll }) => {
   /**
    * changes is an array of objects like:
    * [
@@ -75,13 +76,10 @@ const Test = ({ changes, Diff }) => {
       };
     });
     setTabsData(newTabs);
-    // console.log("tabsData", newTabs);
     setActiveTab(0);
     setCurChangeIndex(-1);
     setTabsScanned(false);
   }, [changes, Diff]);
-
-  console.log(Diff);
 
   // Set active diff html when activeTab changes.
   useEffect(() => {
@@ -169,7 +167,7 @@ const Test = ({ changes, Diff }) => {
     setTabsData([...tabsData]);
   }, [tabsData, tabsScanned]);
 
-  // Previous/Next navigation for active tab.
+  // Previous/Next navigation function.
   const scrollChange = (direction) => {
     const activeTabData = tabsData[activeTab];
     if (!activeTabData || activeTabData.changeGroups.length === 0) return;
@@ -209,24 +207,11 @@ const Test = ({ changes, Diff }) => {
     setCurChangeIndex(newIndex);
   };
 
-  // Keyboard shortcuts for Alt+Arrow keys.
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.altKey && e.key === "ArrowLeft") {
-        scrollChange("<");
-      } else if (e.altKey && e.key === "ArrowRight") {
-        scrollChange(">");
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [tabsData, curChangeIndex]);
-
   return (
     <div className="bg-gray-50 min-h-screen">
-      <main className="max-w-8xl mx-auto px-4 py-6">
+      <main className="max-w-8xl mx-auto px-4 py-6 pt-2">
         {/* Tab Buttons */}
-        <div className="flex space-x-4 mb-6">
+        <div className="flex space-x-4 mb-2 justify-center items-center">
           {tabsData.map((tab, idx) => {
             const count = tab.changeGroups.length;
             const active = idx === activeTab;
@@ -237,7 +222,7 @@ const Test = ({ changes, Diff }) => {
                   setActiveTab(idx);
                   setCurChangeIndex(-1);
                 }}
-                className={`px-3 py-2 rounded-md border ${
+                className={`px-2 py-1 h-10  rounded-md border ${
                   active
                     ? "bg-blue-600 text-white border-blue-700"
                     : "bg-gray-100 text-gray-700 border-gray-200"
@@ -255,6 +240,13 @@ const Test = ({ changes, Diff }) => {
               </button>
             );
           })}
+          <DiffNavigation
+            changeGroups={tabsData[activeTab]?.changeGroups}
+            curChangeIndex={curChangeIndex}
+            onNavigate={scrollChange}
+            handleDiff={handleDiff}
+            handleAll={handleAll}
+          />
         </div>
 
         {/* Active diff view */}
@@ -284,31 +276,8 @@ const Test = ({ changes, Diff }) => {
               className="active-diff-container diff-container"
               dangerouslySetInnerHTML={{ __html: activeDiffHtml }}
             />
-            {tabsData[activeTab]?.changeGroups?.length > 0 && (
-              <div className="fixed z-20 top-64 right-6 bg-white rounded-lg shadow-lg p-2 flex items-center gap-2">
-                <button
-                  onClick={() => scrollChange("<")}
-                  className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"
-                  title="Previous change (Alt + ←)"
-                >
-                  ← Previous
-                </button>
-                <span className="text-sm text-gray-600 px-2">
-                  {curChangeIndex + 1 <= 0
-                    ? `0 / ${tabsData[activeTab].changeGroups.length}`
-                    : `${curChangeIndex + 1} / ${
-                        tabsData[activeTab].changeGroups.length
-                      }`}
-                </span>
-                <button
-                  onClick={() => scrollChange(">")}
-                  className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"
-                  title="Next change (Alt + →)"
-                >
-                  Next →
-                </button>
-              </div>
-            )}
+
+            {/* Diff navigation using the separate component */}
           </div>
         )}
       </main>

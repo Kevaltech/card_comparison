@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../utils/formateDate";
 import { ChevronDown, RotateCcw } from "lucide-react";
@@ -87,10 +87,18 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     }
   };
 
-  const handleDiff = () => {
+  // Wrap the handler in useCallback so the reference stays stable.
+  const handleDiff = useCallback((e) => {
+    // e.preventDefault();
     versionsChanged.current = true;
-    setDiff(!diff);
-  };
+    setDiff(true);
+  }, []);
+
+  const handleAll = useCallback((e) => {
+    // e.preventDefault();
+    versionsChanged.current = true;
+    setDiff(false);
+  }, []);
 
   const VersionDropdown = ({
     value,
@@ -319,19 +327,24 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-center space-x-4 mb-6">
-        {/* <button onClick={handleTest}>test page</button> */}
+      <div className="flex items-center justify-center space-x-4 mb-0">
+        {/* <button onClick={handleTest}>test page</button>
         <button
           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
           onClick={handleDiff}
         >
           Diff
-        </button>
+        </button> */}
       </div>
       {/* Content Section */}
       {!test ? (
         <div>
-          <Test changes={versionData?.changes} Diff={diff} />
+          <Test
+            changes={versionData?.changes}
+            Diff={diff}
+            handleDiff={handleDiff}
+            handleAll={handleAll}
+          />
         </div>
       ) : (
         <div className="">
@@ -342,7 +355,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
               __html: versionData ? versionData.cardHtml : cardData.cardHtml,
             }}
           />
-          <DiffNavigation />
+          {/* <DiffNavigation /> */}
         </div>
       )}
     </div>

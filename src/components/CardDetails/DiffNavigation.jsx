@@ -1,171 +1,96 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import NavButton from "./NavButton";
+import { ChevronLeft, ChevronRight, FileText, FileDiff } from "lucide-react";
 
-const DiffNavigation = () => {
-  const [diffIds, setDiffIds] = useState([]);
-  const [curScrollLineIndex, setCurScrollLineIndex] = useState(-1);
+const DiffNavigation = ({
+  changeGroups,
+  curChangeIndex,
+  onNavigate,
+  handleDiff,
+  handleAll,
+}) => {
+  // Only show navigation if there are any change groups.
+  // if (!changeGroups || changeGroups.length === 0) return null;
 
-  const initializeDiffNavigation = () => {
-    // Get currently displayed tab
-    const activeTab = document.querySelector(
-      '.tab-content[style*="display: flex"], .tab-content[style*="background-color:"]'
-    );
-
-    if (!activeTab) return;
-
-    // Get all elements with IDs (these are our diff elements)
-    const diffElements = activeTab.querySelectorAll("[id]");
-    const newDiffIds = Array.from(diffElements)
-      .filter(
-        (el) =>
-          el.id &&
-          (el.tagName.toLowerCase() === "del" ||
-            el.tagName.toLowerCase() === "ins" ||
-            el.tagName.toLowerCase() === "span")
-      )
-      .map((el) => el.id);
-    console.log("new diff", newDiffIds);
-
-    setDiffIds(newDiffIds);
-    setCurScrollLineIndex(-1);
-  };
-
-  const scrollDiff = (direction = ">") => {
-    if (diffIds.length === 0) {
-      return;
-    }
-
-    let newIndex;
-    if (direction === ">") {
-      newIndex = curScrollLineIndex + 1;
-    } else {
-      newIndex = curScrollLineIndex - 1;
-    }
-
-    if (newIndex >= diffIds.length) {
-      newIndex = 0;
-    }
-    if (newIndex < 0) {
-      newIndex = diffIds.length - 1;
-    }
-
-    // Get the current element
-    const currentElement = document.getElementById(diffIds[newIndex]);
-    if (!currentElement) return;
-    console.log("curren", currentElement);
-
-    // Scroll to the element
-    currentElement.scrollIntoView({ behavior: "smooth", block: "center" });
-
-    // Get the element's color for the border
-    const borderColor = "yellow";
-
-    // Add border to current element
-    if (currentElement.children.length > 0) {
-      // If span has child elements, apply outline to them
-      //   currentElement.style.border = `2px solid ${borderColor}`;
-      //   currentElement.style.outline = `2px solid ${borderColor}`;
-      currentElement.querySelectorAll("*").forEach((el) => {
-        el.style.setProperty("background-color", "#fae69e", "important");
-        el.style.padding = "5px";
-        // el.style.border = `2px solid ${borderColor}`;
-      });
-    } else {
-      // If no child elements, apply a highlight (background + border)
-      //   currentElement.style.border = `2px solid ${borderColor}`;
-      currentElement.style.backgroundColor = "#fae69e";
-      currentElement.style.padding = "5px";
-    }
-
-    currentElement.style.setProperty(
-      "background-color",
-      "#fae69e",
-      "important"
-    );
-    currentElement.style.padding = "5px";
-
-    // Only clear other elements if there's more than one diff
-    if (diffIds.length > 1) {
-      // Clear previous outline
-      const prevElement = document.getElementById(
-        diffIds[newIndex - 1 < 0 ? diffIds.length - 1 : newIndex - 1]
-      );
-      if (prevElement && prevElement !== currentElement) {
-        prevElement.style.backgroundColor = "";
-        prevElement.style.padding = "";
-        prevElement.querySelectorAll("*").forEach((el) => {
-          el.style.backgroundColor = "";
-          el.style.padding = "";
-        });
-      }
-
-      // Clear next outline
-      const nextElement = document.getElementById(
-        diffIds[newIndex + 1 >= diffIds.length ? 0 : newIndex + 1]
-      );
-      if (nextElement && nextElement !== currentElement) {
-        nextElement.style.backgroundColor = "";
-        nextElement.style.padding = "";
-        nextElement.querySelectorAll("*").forEach((el) => {
-          el.style.backgroundColor = "";
-          el.style.padding = "";
-        });
-      }
-    }
-
-    setCurScrollLineIndex(newIndex);
-  };
-
+  const [activeButton, setActiveButton] = useState(true);
+  // Optional: add keyboard shortcuts for navigation.
   useEffect(() => {
-    // Initialize on mount
-    initializeDiffNavigation();
-
-    // Add tab change listener
-    const handleTabClick = (e) => {
-      if (e.target.classList.contains("tab-btn")) {
-        setTimeout(initializeDiffNavigation, 100);
-      }
-    };
-
-    // Add keyboard shortcuts
     const handleKeyDown = (e) => {
       if (e.altKey && e.key === "ArrowLeft") {
-        scrollDiff("<");
+        e.preventDefault();
+        onNavigate("<");
       } else if (e.altKey && e.key === "ArrowRight") {
-        scrollDiff(">");
+        e.preventDefault();
+        onNavigate(">");
       }
     };
-
-    document.addEventListener("click", handleTabClick);
     document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onNavigate]);
 
-    // Cleanup
-    return () => {
-      document.removeEventListener("click", handleTabClick);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
+  const handleDiffClick = (e) => {
+    setActiveButton(false);
+    handleDiff();
+  };
+
+  const handleAllClick = (e) => {
+    setActiveButton(true);
+    handleAll();
+  };
 
   return (
-    <div className="fixed z-20 top-64 right-6 bg-white rounded-lg shadow-lg p-2 flex items-center gap-2">
-      <button
-        onClick={() => scrollDiff("<")}
-        className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"
-        title="Previous change (Alt + ←)"
-      >
-        ← Previous
-      </button>
-      <span className="text-sm text-gray-600 px-2">
-        {curScrollLineIndex + 1} / {diffIds.length}
-      </span>
-      <button
-        onClick={() => scrollDiff(">")}
-        className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"
-        title="Next change (Alt + →)"
-      >
-        Next →
-      </button>
+    <div className="bg-gray-50 flex items-center justify-center p-1">
+      <div className="w-full max-w-4xl bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="flex items-center gap-1 p-1.5">
+          <button type="button" onClick={handleAllClick}>
+            <NavButton
+              icon={<FileText size={18} />}
+              label="All"
+              active={activeButton}
+            />
+          </button>
+          <button type="button" onClick={handleDiffClick}>
+            <NavButton
+              icon={<FileDiff size={18} />}
+              label="Diffs"
+              active={!activeButton}
+            />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate("<");
+            }}
+            title="Previous change (Alt + ←)"
+          >
+            <NavButton label="← Previous" />
+          </button>
+          <span
+            className={`
+    flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-gray-100
+    ${true ? "bg-blue-50 text-blue-600" : "text-gray-700"}
+    transition-colors duration-150 ease-in-out
+  `}
+          >
+            {curChangeIndex + 1 <= 0
+              ? `0 / ${changeGroups?.length}`
+              : `${curChangeIndex + 1} / ${changeGroups?.length}`}
+          </span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate(">");
+            }}
+            title="Next change (Alt + →)"
+          >
+            <NavButton label="Next →" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default DiffNavigation;
+export default React.memo(DiffNavigation);
