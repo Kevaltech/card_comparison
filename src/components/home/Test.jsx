@@ -210,8 +210,6 @@ const Test = ({ changes, Diff, handleDiff, handleAll }) => {
   return (
     <div className="bg-gray-50 min-h-screen">
       <main className="max-w-8xl mx-auto px-4 py-6 pt-2">
-        {/* Tab Buttons */}
-
         <div className="flex space-x-4 mb-2 justify-center items-center">
           {tabsData.map((tab, idx) => {
             const count = tab.changeGroups.length;
