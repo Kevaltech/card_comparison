@@ -17,6 +17,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [test, setTest] = useState(false);
+  const [diff, setDiff] = useState(false);
 
   // Add ref to track if versions were changed manually
 
@@ -34,7 +35,13 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     if (v1 && v2 && versionsChanged.current) {
       fetchVersionComparison();
     }
-  }, [v1, v2]);
+  }, [v1, v2, diff]);
+
+  useEffect(() => {
+    if (v1 && v2) {
+      fetchVersionComparison();
+    }
+  }, []);
 
   const fetchVersionComparison = async () => {
     if (!v1 || !v2) return;
@@ -78,6 +85,11 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
       setV1(v - 1);
       setV2(v);
     }
+  };
+
+  const handleDiff = () => {
+    versionsChanged.current = true;
+    setDiff(!diff);
   };
 
   const VersionDropdown = ({
@@ -307,11 +319,19 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
           </div>
         </div>
       </div>
-      <button onClick={handleTest}>test page</button>
+      <div className="flex items-center justify-center space-x-4 mb-6">
+        {/* <button onClick={handleTest}>test page</button> */}
+        <button
+          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+          onClick={handleDiff}
+        >
+          Diff
+        </button>
+      </div>
       {/* Content Section */}
-      {test ? (
+      {!test ? (
         <div>
-          <Test changes={versionData?.changes} />
+          <Test changes={versionData?.changes} Diff={diff} />
         </div>
       ) : (
         <div className="">

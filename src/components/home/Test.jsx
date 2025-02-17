@@ -5,7 +5,7 @@ import { html } from "diff2html";
 // import "diff2html/bundles/css/diff2html.min.css";
 import { cleanupText } from "../../utils/cleantext";
 
-const Test = ({ changes }) => {
+const Test = ({ changes, Diff }) => {
   /**
    * changes is an array of objects like:
    * [
@@ -54,7 +54,7 @@ const Test = ({ changes }) => {
         : cleanedNew;
 
       const patch = createPatch("text", oldContent, newContent, "", "", {
-        context: Number.MAX_SAFE_INTEGER,
+        context: Diff ? 3 : Number.MAX_SAFE_INTEGER,
       });
       let diffOutput = html(patch, {
         drawFileList: false,
@@ -75,11 +75,13 @@ const Test = ({ changes }) => {
       };
     });
     setTabsData(newTabs);
-    console.log("tabsData", newTabs);
+    // console.log("tabsData", newTabs);
     setActiveTab(0);
     setCurChangeIndex(-1);
     setTabsScanned(false);
-  }, [changes]);
+  }, [changes, Diff]);
+
+  console.log(Diff);
 
   // Set active diff html when activeTab changes.
   useEffect(() => {
