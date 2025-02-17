@@ -39,54 +39,56 @@ const DiffNavigation = ({
   };
 
   return (
-    <div className="bg-gray-50 flex items-center justify-center p-1">
-      <div className="w-full max-w-4xl bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="flex items-center gap-1 p-1.5">
-          <button type="button" onClick={handleAllClick}>
-            <NavButton
-              icon={<FileText size={18} />}
-              label="All"
-              active={activeButton}
-            />
-          </button>
-          <button type="button" onClick={handleDiffClick}>
-            <NavButton
-              icon={<FileDiff size={18} />}
-              label="Diffs"
-              active={!activeButton}
-            />
-          </button>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              onNavigate("<");
-            }}
-            title="Previous change (Alt + ←)"
-          >
-            <NavButton label="← Previous" />
-          </button>
-          <span
-            className={`
+    <div className="fixed right-0  transform -translate-x-1/2 z-50">
+      <div className="bg-gray-50 flex items-center justify-center p-1">
+        <div className="w-full max-w-4xl bg-white rounded-lg shadow-sm border border-gray-200">
+          <div className="flex items-center gap-1 p-1.5">
+            <button type="button" onClick={handleAllClick}>
+              <NavButton
+                icon={<FileText size={18} />}
+                label="All"
+                active={activeButton}
+              />
+            </button>
+            <button type="button" onClick={handleDiffClick}>
+              <NavButton
+                icon={<FileDiff size={18} />}
+                label="Diffs"
+                active={!activeButton}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate("<");
+              }}
+              title="Previous change (Alt + ←)"
+            >
+              <NavButton label="← Previous" />
+            </button>
+            <span
+              className={`
     flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-gray-100
     ${true ? "bg-blue-50 text-blue-600" : "text-gray-700"}
     transition-colors duration-150 ease-in-out
   `}
-          >
-            {curChangeIndex + 1 <= 0
-              ? `0 / ${changeGroups?.length}`
-              : `${curChangeIndex + 1} / ${changeGroups?.length}`}
-          </span>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              onNavigate(">");
-            }}
-            title="Next change (Alt + →)"
-          >
-            <NavButton label="Next →" />
-          </button>
+            >
+              {curChangeIndex + 1 <= 0
+                ? `0 / ${changeGroups?.length}`
+                : `${curChangeIndex + 1} / ${changeGroups?.length}`}
+            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate(">");
+              }}
+              title="Next change (Alt + →)"
+            >
+              <NavButton label="Next →" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
