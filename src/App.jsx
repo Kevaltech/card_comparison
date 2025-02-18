@@ -14,7 +14,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Navbar />
+      {/* <Navbar /> */}
       <Routes>
         <Route path="/" element={<CardsCompareLIst />} />
         <Route path="/test" element={<Test />} />

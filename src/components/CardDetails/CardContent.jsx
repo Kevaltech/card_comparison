@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { formatDate } from "../../utils/formateDate";
-import { ChevronDown, RotateCcw } from "lucide-react";
+import { ChevronDown, RotateCcw, Search } from "lucide-react";
 import DiffNavigation from "./DiffNavigation";
 import VersionStatusList from "./VersionDetails";
 import Test from "../home/Test";
@@ -18,6 +18,15 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   const [error, setError] = useState(null);
   const [test, setTest] = useState(false);
   const [diff, setDiff] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleSearchRedirect = () => {
+    navigate("/searchKeyword");
+  };
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   // Add ref to track if versions were changed manually
 
@@ -255,7 +264,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
             {/* Version Status List */}
-            <div className="w-full lg:w-1/4">
+            <div className="w-full lg:w-1/4 pt-2">
               <VersionStatusList
                 data={cardData?.status_by_version}
                 onStatusToggle={onStatusToggle}
@@ -263,66 +272,81 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
               />
             </div>
 
-            {/* Card Details and Controls */}
-            <div className="w-full lg:w-3/4 flex flex-col items-center pr-20">
-              <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
-                <Link
-                  to={cardData?.url}
-                  target="_blank"
-                  className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                >
-                  {cardData.bank_name} {cardData.cardName} ({cardData.cardId})
-                </Link>
-              </h3>
+            <div className="w-full lg:w-3/4 relative">
+              {/* Content Div */}
+              <div className="flex flex-col items-center pr-20 pt-2">
+                <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
+                  <Link
+                    to={cardData?.url}
+                    target="_blank"
+                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                  >
+                    {cardData.bank_name} {cardData.cardName} ({cardData.cardId})
+                  </Link>
+                </h3>
 
-              <div className="flex items-center gap-4 mb-4">
-                {/* <h4 className="text-2xl tracking-tight font-extrabold text-gray-900">
-                  Total Version: {cardData?.version}
-                </h4> */}
-                <span className="text-md font-medium text-gray-900">
-                  Last updated: {formatDate(cardData.last_updated)}
-                </span>
+                <div className="flex items-center gap-4 mb-4">
+                  <span className="text-md font-medium text-gray-900">
+                    Last updated: {formatDate(cardData.last_updated)}
+                  </span>
+                </div>
+
+                {/* Version Controls */}
+                <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
+                  <button
+                    onClick={handleReset}
+                    className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 
+        transition-colors duration-200 flex items-center gap-2"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Reset
+                  </button>
+
+                  <div className="flex flex-wrap gap-4">
+                    <VersionDropdown
+                      value={v1}
+                      onChange={setV1}
+                      isOpen={isDropdown1Open}
+                      selected={v1}
+                      setIsOpen={setIsDropdown1Open}
+                      label="Select Version A"
+                    />
+                    <VersionDropdown
+                      value={v2}
+                      onChange={setV2}
+                      isOpen={isDropdown2Open}
+                      selected={v2}
+                      setIsOpen={setIsDropdown2Open}
+                      label="Select Version B"
+                    />
+                  </div>
+                </div>
+
+                {loading && (
+                  <div className="text-center text-gray-600">
+                    Loading version comparison...
+                  </div>
+                )}
+                {error && (
+                  <div className="text-center text-red-600">Error: {error}</div>
+                )}
               </div>
 
-              {/* Version Controls */}
-              <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
+              {/* searchKeyword Button */}
+              <div className="absolute top-2 right-2">
                 <button
-                  onClick={handleReset}
-                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 
-                  transition-colors duration-200 flex items-center gap-2"
+                  onClick={handleSearchRedirect}
+                  type="button"
+                  className={`flex items-center gap-2 text-white ${
+                    isActive("/searchKeyword")
+                      ? "bg-blue-800 dark:bg-blue-700"
+                      : "bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                  } focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:focus:ring-blue-800`}
                 >
-                  <RotateCcw className="w-4 h-4" />
-                  Reset
+                  <Search className="w-4 h-4" />
+                  Search Keyword
                 </button>
-
-                <div className="flex flex-wrap gap-4">
-                  <VersionDropdown
-                    value={v1}
-                    onChange={setV1}
-                    isOpen={isDropdown1Open}
-                    selected={v1}
-                    setIsOpen={setIsDropdown1Open}
-                    label="Select Version A"
-                  />
-                  <VersionDropdown
-                    value={v2}
-                    onChange={setV2}
-                    isOpen={isDropdown2Open}
-                    selected={v2}
-                    setIsOpen={setIsDropdown2Open}
-                    label="Select Version B"
-                  />
-                </div>
               </div>
-
-              {loading && (
-                <div className="text-center text-gray-600">
-                  Loading version comparison...
-                </div>
-              )}
-              {error && (
-                <div className="text-center text-red-600">Error: {error}</div>
-              )}
             </div>
           </div>
         </div>

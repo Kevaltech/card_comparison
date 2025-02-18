@@ -251,7 +251,7 @@ function CardsCompareList() {
         }}
       >
         {showOverview ? (
-          <div className="p-4 pt-20">
+          <div className="p-4">
             {isLoading ? (
               <div className="flex items-center justify-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
