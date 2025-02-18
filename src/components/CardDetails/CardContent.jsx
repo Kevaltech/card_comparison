@@ -161,7 +161,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   );
 
   const handleReset = () => {
-    versionsChanged.current = false;
+    versionsChanged.current = true;
     setV1(
       cardData?.version - 1 !== 0 ? cardData?.version - 1 : cardData?.version
     );
@@ -251,7 +251,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header Section with Fixed Position */}
-      <div className="w-full bg-white py-4 border-b">
+      <div className="w-full bg-white py-0 pb-2 border-b">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
             {/* Version Status List */}
@@ -276,9 +276,9 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
               </h3>
 
               <div className="flex items-center gap-4 mb-4">
-                <h4 className="text-2xl tracking-tight font-extrabold text-gray-900">
+                {/* <h4 className="text-2xl tracking-tight font-extrabold text-gray-900">
                   Total Version: {cardData?.version}
-                </h4>
+                </h4> */}
                 <span className="text-md font-medium text-gray-900">
                   Last updated: {formatDate(cardData.last_updated)}
                 </span>
@@ -344,6 +344,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
             Diff={diff}
             handleDiff={handleDiff}
             handleAll={handleAll}
+            comparedVersions={versionData?.compared_versions}
           />
         </div>
       ) : (

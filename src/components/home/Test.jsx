@@ -5,8 +5,9 @@ import { html } from "diff2html";
 // import "diff2html/bundles/css/diff2html.min.css";
 import { cleanupText } from "../../utils/cleantext";
 import DiffNavigation from "../CardDetails/DiffNavigation";
+import { formatDate } from "../../utils/formateDate";
 
-const Test = ({ changes, Diff, handleDiff, handleAll }) => {
+const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
   /**
    * changes is an array of objects like:
    * [
@@ -62,6 +63,21 @@ const Test = ({ changes, Diff, handleDiff, handleAll }) => {
         matching: "words",
         outputFormat: "side-by-side",
         renderNothingWhenEmpty: false,
+        rawTemplates: {
+          "tag-file-changed": `<div style="display: flex; width: 100%;">
+              <div style="flex: 1; margin-left:-33px;  padding: 10px;">
+                Version ${comparedVersions.version1} ( ${formatDate(
+            comparedVersions.v1_date
+          )})
+              </div>
+              <div style="flex: 1;  padding: 10px;">
+             Version  ${comparedVersions.version2} ( ${formatDate(
+            comparedVersions.v2_date
+          )})
+              </div>
+          </div>
+          `,
+        },
       });
 
       return {
@@ -208,69 +224,51 @@ const Test = ({ changes, Diff, handleDiff, handleAll }) => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen ">
       <main className="max-w-8xl mx-auto px-4 py-6 pt-2">
-        <div className="flex space-x-4 mb-2 justify-center items-center">
-          {tabsData.map((tab, idx) => {
-            const count = tab.changeGroups.length;
-            const active = idx === activeTab;
-            return (
-              <button
-                key={idx}
-                onClick={() => {
-                  setActiveTab(idx);
-                  setCurChangeIndex(-1);
-                }}
-                className={`px-2 py-1 h-10  rounded-md border ${
-                  active
-                    ? "bg-blue-600 text-white border-blue-700"
-                    : "bg-gray-100 text-gray-700 border-gray-200"
-                } relative`}
-              >
-                {tab.tabName}
-                {count > 0 && (
-                  <span
-                    className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-                    title={`${count} changes`}
-                  >
-                    {count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-          <DiffNavigation
-            changeGroups={tabsData[activeTab]?.changeGroups}
-            curChangeIndex={curChangeIndex}
-            onNavigate={scrollChange}
-            handleDiff={handleDiff}
-            handleAll={handleAll}
-          />
-        </div>
-
         {/* Active diff view */}
         {activeDiffHtml && (
           <div className="bg-white rounded-lg shadow-lg p-2 relative">
-            <h2 className="text-xl font-semibold mb-4">
-              {tabsData[activeTab]?.tabName} Diff
-            </h2>
-            <style>{`
-              .active-diff-container .d2h-code-line,
-              .active-diff-container .d2h-code-line-ctn {
-                white-space: pre-wrap;
-                word-break: break-all;
-              }
-              .active-diff-container .d2h-code-wrapper {
-                padding: 0.25rem !important;
-              }
-              .active-diff-container .d2h-diff-table td {
-                padding: 0.25rem !important;
-              }
-              .active-change {
-                background-color: #fae69e !important;
-                padding: 5px !important;
-              }
-            `}</style>
+            <div className="flex space-x-4 mb-2  items-center">
+              {/* <h2 className="text-xl font-semibold mb-4">
+                {tabsData[activeTab]?.tabName} Diff
+              </h2> */}
+              {tabsData.map((tab, idx) => {
+                const count = tab.changeGroups.length;
+                const active = idx === activeTab;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setActiveTab(idx);
+                      setCurChangeIndex(-1);
+                    }}
+                    className={`px-2 py-1 h-10  rounded-md border ${
+                      active
+                        ? "bg-blue-600 text-white border-blue-700"
+                        : "bg-gray-100 text-gray-700 border-gray-200"
+                    } relative`}
+                  >
+                    {tab.tabName}
+                    {count > 0 && (
+                      <span
+                        className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                        title={`${count} changes`}
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+              <DiffNavigation
+                changeGroups={tabsData[activeTab]?.changeGroups}
+                curChangeIndex={curChangeIndex}
+                onNavigate={scrollChange}
+                handleDiff={handleDiff}
+                handleAll={handleAll}
+              />
+            </div>
             <div
               className="active-diff-container diff-container"
               dangerouslySetInnerHTML={{ __html: activeDiffHtml }}

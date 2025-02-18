@@ -39,7 +39,7 @@ const DiffNavigation = ({
   };
 
   return (
-    <div className="fixed right-0  transform -translate-x-1/2 z-50">
+    <div className="fixed right-0  transform -translate-x-1/2 z-30">
       <div className="bg-gray-50 flex items-center justify-center p-1">
         <div className="w-full max-w-4xl bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center gap-1 p-1.5">

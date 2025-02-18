@@ -724,6 +724,31 @@
   }
 }
 
+.active-diff-container .d2h-code-line,
+.active-diff-container .d2h-code-line-ctn {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.active-diff-container .d2h-code-wrapper {
+  padding: 0.25rem !important;
+}
+.active-diff-container .d2h-diff-table td {
+  padding: 0.25rem !important;
+}
+.active-change {
+  background-color: #fae69e !important;
+  padding: 5px !important;
+}
+
+/* .diff-container table {
+  border-collapse: collapse;
+}
+
+.diff-container td,
+.diff-container th {
+  border: 1px solid #ddd;
+} */
+
 /* line folding */
 
 /* .d2h-wrapped-file-diff .d2h-code-line-ctn {

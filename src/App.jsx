@@ -16,10 +16,10 @@ function App() {
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<CardsCompareLIst />} />
         <Route path="/test" element={<Test />} />
         <Route path="/compare/:cardId" element={<CardsCompareLIst />} />
-        <Route path="/compare" element={<CardsCompareLIst />} />
+        {/* <Route path="/" element={<CardsCompareLIst />} /> */}
         {/* Add a redirect from root to default compare route */}
         {/* <Route path="/" element={<Navigate to="/compare/hdfcc29" replace />} /> */}
         {/* Catch-all route to handle any undefined routes */}

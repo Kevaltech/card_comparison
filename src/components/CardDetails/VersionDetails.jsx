@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { ChevronRight, AlertCircle, CheckCircle, FileText } from "lucide-react";
 
 const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
   const [localData, setLocalData] = useState([]);
   const [loading, setLoading] = useState({});
-  //   console.log("local", data);
+
   useEffect(() => {
-    // Sort and set initial data
     const sortedData = [...data]?.sort((a, b) => a.version - b.version);
     setLocalData(sortedData);
   }, [data]);
@@ -14,11 +13,7 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
   const handleStatusToggle = async (version) => {
     try {
       setLoading((prev) => ({ ...prev, [version]: true }));
-
-      // Call the parent's onStatusToggle function and wait for it to complete
       await onStatusToggle(version);
-
-      // Update local state to reflect the change
       setLocalData((prevData) =>
         prevData.map((item) => {
           if (item.version === version) {
@@ -38,51 +33,90 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
   };
 
   return (
-    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-2 max-h-60 overflow-y-auto">
-      <ul className="space-y-2 p-0">
-        {localData?.map(({ version, status }) => (
-          <li
-            key={version}
-            className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
-          >
-            <button
-              className="py-1 px-2.5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-              onClick={() => onVersionChange(version)}
-            >
-              {" "}
-              <span className="font-medium">Version {version}</span>
-            </button>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-600">Status:</span>
-              <span
-                className={`px-2 py-1 rounded-full text-sm ${
-                  status.toLowerCase() === "open"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-green-100 text-green-700"
-                }`}
-              >
-                {status}
-              </span>
-              <button
-                onClick={() => handleStatusToggle(version)}
-                disabled={loading[version]}
-                className={`focus:outline-none text-white font-small rounded-lg text-sm px-3 py-2
-                  ${
-                    loading[version]
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-yellow-400 hover:bg-yellow-500"
-                  }`}
-              >
-                {loading[version]
-                  ? "Updating..."
-                  : status === "Open"
-                  ? "Resolve"
-                  : "Open"}
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <div className="w-full max-w-4xl bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="flex items-center justify-between p-2 border-b border-gray-200">
+        <div className="flex items-center gap-2">
+          <FileText size={18} className="text-gray-500" />
+          <span className="text-sm font-medium text-gray-700">
+            All Versions ({localData.length})
+          </span>
+        </div>
+      </div>
+      <div className="max-h-40 overflow-y-auto">
+        <table className="w-full">
+          <thead className="sticky top-0 bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                V
+              </th>
+              <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {localData?.map(
+              ({ version, status }) =>
+                version !== 1 && (
+                  <tr key={version} className="hover:bg-gray-50">
+                    <td className="py-2 px-4">
+                      <button
+                        onClick={() => onVersionChange(version)}
+                        className="flex items-center gap-1 text-sm text-gray-700 hover:text-blue-600"
+                      >
+                        V{version}
+                      </button>
+                    </td>
+                    <td className="py-2 px-2">
+                      <div className="flex items-center gap-1.5">
+                        {status.toLowerCase() === "open" ? (
+                          <AlertCircle size={16} className="text-blue-500" />
+                        ) : (
+                          <CheckCircle size={16} className="text-green-500" />
+                        )}
+                        <span
+                          className={`text-sm ${
+                            status.toLowerCase() === "open"
+                              ? "text-blue-600"
+                              : "text-green-600"
+                          }`}
+                        >
+                          {status}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-2 px-2 ">
+                      <button
+                        onClick={() => handleStatusToggle(version)}
+                        disabled={loading[version]}
+                        className={`
+                      inline-flex items-center gap-1 px-3 py-1 text-sm rounded
+                      ${
+                        loading[version]
+                          ? "bg-gray-100 text-gray-400"
+                          : status === "Open"
+                          ? "text-blue-700 bg-blue-50 hover:bg-blue-100"
+                          : "text-green-700 bg-green-50 hover:bg-green-100"
+                      }
+                      transition-colors duration-150 ease-in-out
+                    `}
+                      >
+                        {loading[version]
+                          ? "Updating..."
+                          : status === "Open"
+                          ? "Resolve"
+                          : "open"}
+                      </button>
+                    </td>
+                  </tr>
+                )
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

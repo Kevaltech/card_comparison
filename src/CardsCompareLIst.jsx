@@ -4,6 +4,7 @@ import axios from "axios";
 import { Sidebar } from "./components/CardList/Sidebar";
 import { CardContent } from "./components/CardDetails/CardContent";
 import { Search } from "lucide-react";
+import { Home } from "./components/home/Home";
 
 function CardsCompareList() {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ function CardsCompareList() {
   const [generalBanksData, setGeneralBanksData] = useState({});
   const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
+  const [showOverview, setOverview] = useState(false);
 
   const BASE_COMPARE_URL = "https://c9e5-59-162-82-6.ngrok-free.app/compare/";
   const CARDS_STATUS_URL =
@@ -43,6 +45,7 @@ function CardsCompareList() {
   };
 
   const fetchHtmlContent = async (cardId) => {
+    setOverview(true);
     if (!cardId) return;
 
     setIsLoading(true);
@@ -237,6 +240,8 @@ function CardsCompareList() {
         setIsOpenVisible={setIsOpenDropdownVisible}
         isResolvedVisible={isResolvedDropdownVisible}
         setIsResolvedVisible={setIsResolvedDropdownVisible}
+        setOverview={setOverview}
+        showOverview={showOverview}
       />
       <main
         className="flex-1 overflow-y-auto"
@@ -245,24 +250,28 @@ function CardsCompareList() {
           height: "100vh",
         }}
       >
-        <div className="p-4 pt-20">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            </div>
-          ) : cardData ? (
-            <CardContent
-              key={cardData.cardId}
-              cardData={cardData}
-              onStatusToggle={handleStatusToggle}
-              containerRef={containerRef}
-            />
-          ) : (
-            <div className="text-center p-8">
-              <p className="text-gray-500">Select a card to view details</p>
-            </div>
-          )}
-        </div>
+        {showOverview ? (
+          <div className="p-4 pt-20">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              </div>
+            ) : cardData ? (
+              <CardContent
+                key={cardData.cardId}
+                cardData={cardData}
+                onStatusToggle={handleStatusToggle}
+                containerRef={containerRef}
+              />
+            ) : (
+              <div className="text-center p-8">
+                <p className="text-gray-500">Select a card to view details</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Home />
+        )}
       </main>
     </div>
   );
