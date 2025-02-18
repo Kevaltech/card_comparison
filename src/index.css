@@ -739,39 +739,3 @@
   background-color: #fae69e !important;
   padding: 5px !important;
 }
-
-/* .diff-container table {
-  border-collapse: collapse;
-}
-
-.diff-container td,
-.diff-container th {
-  border: 1px solid #ddd;
-} */
-
-/* line folding */
-
-/* .d2h-wrapped-file-diff .d2h-code-line-ctn {
-  white-space: break-spaces;
-}
-
-.d2h-wrapped-file-diff .d2h-code-side-line {
-  width: auto;
-}
-
-.d2h-wrapped-file-diff .d2h-info .d2h-code-side-line {
-  white-space: break-spaces;
-}
-
-.d2h-wrapped-file-diff tr {
-  position: relative;
-}
-
-.d2h-wrapped-file-diff tr .d2h-code-side-linenumber {
-  height: 100%;
-}
-
-.d2h-wrapped-file-diff .d2h-file-side-diff tr .d2h-cntx:nth-child(2),
-.d2h-wrapped-file-diff .d2h-file-side-diff tr .d2h-cntx:nth-child(4) {
-  width: 50%;
-} */
