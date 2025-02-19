@@ -8,6 +8,10 @@ const DiffNavigation = ({
   onNavigate,
   handleDiff,
   handleAll,
+  setActiveTab,
+  setCurChangeIndex,
+  tabsData,
+  activeTab,
 }) => {
   // Only show navigation if there are any change groups.
   // if (!changeGroups || changeGroups.length === 0) return null;
@@ -39,10 +43,38 @@ const DiffNavigation = ({
   };
 
   return (
-    <div className="fixed right-0  transform -translate-x-1/2 z-30">
-      <div className="bg-gray-50 flex items-center justify-center p-1">
+    <div className="fixed top-30 right-0 transform -translate-x-1/2 z-30">
+      <div className="bg-gray-50 flex items-center justify-center p-1 mb-2">
         <div className="w-full max-w-4xl bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center gap-1 p-1.5">
+            {/* {tabsData.map((tab, idx) => {
+              const count = tab.changeGroups.length;
+              const active = idx === activeTab;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setActiveTab(idx);
+                    setCurChangeIndex(-1);
+                  }}
+                  className={`px-2 py-1 h-9  rounded-md border ${
+                    active
+                      ? "bg-blue-600 text-white border-blue-700"
+                      : "bg-gray-100 text-gray-700 border-gray-200"
+                  } relative`}
+                >
+                  {tab.tabName}
+                  {count > 0 && (
+                    <span
+                      className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                      title={`${count} changes`}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })} */}
             <button type="button" onClick={handleAllClick}>
               <NavButton
                 icon={<FileText size={18} />}

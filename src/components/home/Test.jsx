@@ -229,7 +229,7 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
         {/* Active diff view */}
         {activeDiffHtml && (
           <div className="bg-white rounded-lg shadow-lg p-2 relative">
-            <div className="flex space-x-4 mb-2  items-center">
+            <div className="flex space-x-4 mb-2  items-center  ">
               {/* <h2 className="text-xl font-semibold mb-4">
                 {tabsData[activeTab]?.tabName} Diff
               </h2> */}
@@ -261,12 +261,17 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
                   </button>
                 );
               })}
+
               <DiffNavigation
                 changeGroups={tabsData[activeTab]?.changeGroups}
+                setActiveTab={setActiveTab}
+                setCurChangeIndex={setCurChangeIndex}
                 curChangeIndex={curChangeIndex}
                 onNavigate={scrollChange}
                 handleDiff={handleDiff}
                 handleAll={handleAll}
+                tabsData={tabsData}
+                activeTab={activeTab}
               />
             </div>
             <div

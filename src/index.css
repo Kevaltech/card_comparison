@@ -739,3 +739,15 @@
   background-color: #fae69e !important;
   padding: 5px !important;
 }
+
+.d2h-file-header1 {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* .d2h-file-header {
+  position: sticky;
+  top: 250px;
+  z-index: 1;
+} */

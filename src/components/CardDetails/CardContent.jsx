@@ -196,71 +196,71 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     }
   };
 
-  useEffect(() => {
-    if (!versionData?.cardHtml || !containerRef.current) return;
+  // useEffect(() => {
+  //   if (!versionData?.cardHtml || !containerRef.current) return;
 
-    const handleStyleTags = () => {
-      const styleTags = containerRef?.current?.getElementsByTagName("style");
-      Array.from(styleTags || []).forEach((styleTag) => {
-        if (styleTag.getAttribute("data-processed")) return;
+  //   const handleStyleTags = () => {
+  //     const styleTags = containerRef?.current?.getElementsByTagName("style");
+  //     Array.from(styleTags || []).forEach((styleTag) => {
+  //       if (styleTag.getAttribute("data-processed")) return;
 
-        const newStyleElement = document.createElement("style");
-        Array.from(styleTag.attributes).forEach((attr) => {
-          if (attr.name !== "data-processed") {
-            newStyleElement.setAttribute(attr.name, attr.value);
-          }
-        });
+  //       const newStyleElement = document.createElement("style");
+  //       Array.from(styleTag.attributes).forEach((attr) => {
+  //         if (attr.name !== "data-processed") {
+  //           newStyleElement.setAttribute(attr.name, attr.value);
+  //         }
+  //       });
 
-        newStyleElement.textContent = styleTag.textContent;
-        styleTag.setAttribute("data-processed", "true");
-        document.head.appendChild(newStyleElement);
-      });
-    };
+  //       newStyleElement.textContent = styleTag.textContent;
+  //       styleTag.setAttribute("data-processed", "true");
+  //       document.head.appendChild(newStyleElement);
+  //     });
+  //   };
 
-    const handleScriptTags = () => {
-      const scripts = containerRef.current?.getElementsByTagName("script");
-      Array.from(scripts || []).forEach((script) => {
-        if (script.getAttribute("data-executed")) return;
+  //   const handleScriptTags = () => {
+  //     const scripts = containerRef.current?.getElementsByTagName("script");
+  //     Array.from(scripts || []).forEach((script) => {
+  //       if (script.getAttribute("data-executed")) return;
 
-        const newScript = document.createElement("script");
-        Array.from(script.attributes).forEach((attr) => {
-          if (attr.name !== "data-executed") {
-            newScript.setAttribute(attr.name, attr.value);
-          }
-        });
+  //       const newScript = document.createElement("script");
+  //       Array.from(script.attributes).forEach((attr) => {
+  //         if (attr.name !== "data-executed") {
+  //           newScript.setAttribute(attr.name, attr.value);
+  //         }
+  //       });
 
-        newScript.textContent = script.textContent;
-        script.setAttribute("data-executed", "true");
-        script.parentNode?.removeChild(script);
-        document.body.appendChild(newScript);
-      });
-    };
+  //       newScript.textContent = script.textContent;
+  //       script.setAttribute("data-executed", "true");
+  //       script.parentNode?.removeChild(script);
+  //       document.body.appendChild(newScript);
+  //     });
+  //   };
 
-    handleStyleTags();
-    handleScriptTags();
+  //   handleStyleTags();
+  //   handleScriptTags();
 
-    if (typeof window.initializeTabs === "function") {
-      try {
-        window.initializeTabs();
-        // window.navigateDiff();
-      } catch (err) {
-        console.error("Error initializing tabs:", err);
-      }
-    }
+  //   if (typeof window.initializeTabs === "function") {
+  //     try {
+  //       window.initializeTabs();
+  //       // window.navigateDiff();
+  //     } catch (err) {
+  //       console.error("Error initializing tabs:", err);
+  //     }
+  //   }
 
-    if (typeof window.cleanupDOMElements === "function") {
-      try {
-        window.cleanupDOMElements();
-      } catch (err) {
-        console.error("Error cleaning up DOM elements:", err);
-      }
-    }
-  }, [versionData?.cardHtml]);
+  //   if (typeof window.cleanupDOMElements === "function") {
+  //     try {
+  //       window.cleanupDOMElements();
+  //     } catch (err) {
+  //       console.error("Error cleaning up DOM elements:", err);
+  //     }
+  //   }
+  // }, [versionData?.cardHtml]);
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header Section with Fixed Position */}
-      <div className="w-full bg-white py-0 pb-2 border-b">
+      <div className="d2h-file-header1 w-full bg-white py-0 pb-2 border-b ">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
             {/* Version Status List */}
@@ -359,30 +359,33 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
           Diff
         </button>
       </div> */}
-      {/* Content Section */}
-      {!test ? (
-        <div>
-          <Test
-            changes={versionData?.changes}
-            Diff={diff}
-            handleDiff={handleDiff}
-            handleAll={handleAll}
-            comparedVersions={versionData?.compared_versions}
-          />
-        </div>
-      ) : (
-        <div className="">
-          <button onClick={handleTest}>test page</button>
-          <div
-            className=" border-2 border-gray-200 border-dashed rounded-lg"
-            ref={containerRef}
-            dangerouslySetInnerHTML={{
-              __html: versionData ? versionData.cardHtml : cardData.cardHtml,
-            }}
-          />
-          {/* <DiffNavigation /> */}
-        </div>
-      )}
+
+      <div className="">
+        {/* Content Section */}
+        {!test ? (
+          <div>
+            <Test
+              changes={versionData?.changes}
+              Diff={diff}
+              handleDiff={handleDiff}
+              handleAll={handleAll}
+              comparedVersions={versionData?.compared_versions}
+            />
+          </div>
+        ) : (
+          <div className="">
+            <button onClick={handleTest}>test page</button>
+            {/* <div
+              className=" border-2 border-gray-200 border-dashed rounded-lg"
+              ref={containerRef}
+              dangerouslySetInnerHTML={{
+                __html: versionData ? versionData.cardHtml : cardData.cardHtml,
+              }}
+            /> */}
+            {/* <DiffNavigation /> */}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
