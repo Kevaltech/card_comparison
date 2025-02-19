@@ -260,7 +260,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header Section with Fixed Position */}
-      <div className="d2h-file-header1 w-full bg-white py-0 pb-2 border-b ">
+      <div className="d2h-file-header1 w-full bg-white py-0 pb-2 border-b min-h-56">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
             {/* Version Status List */}

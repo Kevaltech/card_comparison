@@ -746,8 +746,15 @@
   z-index: 1;
 }
 
-/* .d2h-file-header {
+.d2h-file-header {
   position: sticky;
-  top: 250px;
+  top: 265px;
   z-index: 1;
-} */
+}
+
+.d2h-diff-div-2 {
+  position: sticky;
+  top: 215px;
+  z-index: 1;
+  background-color: white;
+}
