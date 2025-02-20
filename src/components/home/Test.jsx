@@ -6,6 +6,7 @@ import { html } from "diff2html";
 import { cleanupText } from "../../utils/cleantext";
 import DiffNavigation from "../CardDetails/DiffNavigation";
 import { formatDate } from "../../utils/formateDate";
+// import BackToTop from "../CardDetails/BackToTop";
 
 const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
   /**
@@ -23,7 +24,6 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
   const [tabsScanned, setTabsScanned] = useState(false);
   const hiddenContainersRef = useRef([]);
 
-  // Build tabsData from the changes array.
   useEffect(() => {
     if (!changes || !changes.length) return;
     const newTabs = changes.map((obj, i) => {
@@ -45,9 +45,12 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
         singleNewlines: true,
         noEmptyLines: true,
       });
-      // If contents are identical, mark artificialDiff so that we ignore change groups later.
+      // console.log("cleanedOld", cleanedOld);
+      // const tabName = cleanedOld.trim().split(/\s+/)[0];
+
+      // Mark artificialDiff if content is identical.
       const artificialDiff = cleanedOld === cleanedNew;
-      // If artificial, append a tiny tweak that differs.
+      // If artificial, append a tweak so that diff is generated.
       const oldContent = artificialDiff
         ? cleanedOld + " test_change_1"
         : cleanedOld;
@@ -75,8 +78,7 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
             comparedVersions.v2_date
           )})
               </div>
-          </div>
-          `,
+          </div>`,
         },
       });
 
@@ -92,7 +94,8 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
       };
     });
     setTabsData(newTabs);
-    setActiveTab(0);
+    // Preserve the current active tab if it exists; otherwise, default to 0.
+    setActiveTab((prevActive) => (newTabs[prevActive] ? prevActive : 0));
     setCurChangeIndex(-1);
     setTabsScanned(false);
   }, [changes, Diff]);
@@ -233,6 +236,7 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
               {/* <h2 className="text-xl font-semibold mb-4">
                 {tabsData[activeTab]?.tabName} Diff
               </h2> */}
+
               {tabsData.map((tab, idx) => {
                 const count = tab.changeGroups.length;
                 const active = idx === activeTab;
@@ -243,10 +247,10 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
                       setActiveTab(idx);
                       setCurChangeIndex(-1);
                     }}
-                    className={`px-2 py-1 h-10  rounded-md border ${
+                    className={`${
                       active
-                        ? "bg-blue-600 text-white border-blue-700"
-                        : "bg-gray-100 text-gray-700 border-gray-200"
+                        ? "text-white bg-blue-700 hover:bg-blue-800  font-medium rounded-lg text-sm px-5 py-2.5 me-2  "
+                        : "text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2  "
                     } relative`}
                   >
                     {tab.tabName}

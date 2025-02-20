@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import BanksList from "./BanksList";
+import BackToTop from "../CardDetails/BackToTop";
 
 export const Sidebar = ({
   banksData,
