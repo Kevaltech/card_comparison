@@ -81,14 +81,14 @@ function CardsCompareList() {
       setGeneralBanksData(General || {});
 
       // Only select first card if there's no routeCardId
-      if (!routeCardId) {
-        const firstBank = Object.values(regularBanks)[0];
-        if (firstBank?.open.length > 0) {
-          fetchHtmlContent(firstBank.open[0].cardId);
-        } else if (firstBank?.resolve.length > 0) {
-          fetchHtmlContent(firstBank.resolve[0].cardId);
-        }
-      }
+      // if (!routeCardId) {
+      //   const firstBank = Object.values(regularBanks)[0];
+      //   if (firstBank?.open.length > 0) {
+      //     fetchHtmlContent(firstBank.open[0].cardId);
+      //   } else if (firstBank?.resolve.length > 0) {
+      //     fetchHtmlContent(firstBank.resolve[0].cardId);
+      //   }
+      // }
     } catch (err) {
       console.error("Error fetching cards data:", err);
       handleApiError(err, "Failed to load cards data");

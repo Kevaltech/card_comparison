@@ -228,7 +228,7 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
 
   return (
     <div className="bg-gray-50 min-h-screen ">
-      <main className="max-w-8xl mx-auto px-4 py-6 pt-2">
+      <main className="max-w-8xl mx-auto px-4 py-6 pt-0">
         {/* Active diff view */}
         {activeDiffHtml && (
           <div className="bg-white rounded-lg shadow-lg p-2  relative">

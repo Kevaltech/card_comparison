@@ -727,7 +727,8 @@
 .active-diff-container .d2h-code-line,
 .active-diff-container .d2h-code-line-ctn {
   white-space: pre-wrap;
-  word-break: break-all;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .active-diff-container .d2h-code-wrapper {
   padding: 0.25rem !important;
@@ -743,18 +744,23 @@
 .d2h-file-header1 {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 10;
 }
 
 .d2h-file-header {
   position: sticky;
-  top: 265px;
+  top: 275px;
   z-index: 1;
 }
 
 .d2h-diff-div-2 {
   position: sticky;
-  top: 215px;
+  top: 220px;
   z-index: 1;
+  padding-top: 5px;
   background-color: white;
+}
+
+.d2h-file-versionDropdown {
+  z-index: 10;
 }

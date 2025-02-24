@@ -119,59 +119,89 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     setIsOpen,
     label,
     selected,
-  }) => (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative px-6 py-3 rounded-xl bg-white border border-gray-200 shadow-sm
-                 text-gray-900 font-medium flex items-center justify-between w-56
-                 hover:border-primary/50 hover:shadow-md transition-all duration-300 ease-out"
-        type="button"
-      >
-        {value ? `Version ${value}` : label}
-        <ChevronDown
-          className={`w-5 h-5 transition-transform duration-300 ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
-      </button>
+    // versions,
+    // handleVersionChange,
+  }) => {
+    const dropdownRef = useRef(null);
 
-      {isOpen && (
-        <div
-          className="absolute w-56 rounded-xl bg-white border border-gray-200 shadow-lg
-                   transform transition-all duration-300 ease-out z-50"
-          style={{
-            top: "auto",
-            left: "0",
-            marginTop: "0.5rem",
-            maxHeight: "300px",
-            overflowY: "auto",
-          }}
+    // Close dropdown when clicking outside
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    // Close dropdown on any scroll event
+    const handleScroll = () => {
+      setIsOpen(false);
+    };
+
+    useEffect(() => {
+      if (isOpen) {
+        // Listen for clicks outside the dropdown
+        document.addEventListener("mousedown", handleClickOutside);
+        // Use capturing so that scroll events from any element (not just window) are caught
+        document.addEventListener("scroll", handleScroll, true);
+      } else {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("scroll", handleScroll, true);
+      }
+      // Cleanup listeners on unmount or when isOpen changes
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("scroll", handleScroll, true);
+      };
+    }, [isOpen]);
+
+    return (
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="relative px-6 py-3 rounded-xl bg-white border border-gray-200 shadow-sm text-gray-900 font-medium flex items-center justify-between w-56 hover:border-primary/50 hover:shadow-md transition-all duration-300 ease-out"
+          type="button"
         >
-          <div className="py-2">
-            {versions.map((version) => (
-              <button
-                key={version?.id}
-                onClick={() => {
-                  handleVersionChange(version?.id, onChange);
-                  setIsOpen(false);
-                }}
-                className={`w-full px-6 py-2 text-left hover:bg-gray-50 transition-colors
-                       ${
-                         selected?.id === version?.id
-                           ? "text-primary font-medium"
-                           : "text-gray-700"
-                       }`}
-              >
-                {version?.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+          {value ? `Version ${value}` : label}
+          <ChevronDown
+            className={`w-5 h-5 transition-transform duration-300 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
 
+        {isOpen && (
+          <div
+            className="absolute w-56 rounded-xl bg-white border border-gray-200 shadow-lg transform transition-all duration-300 ease-out z-50"
+            style={{
+              top: "auto",
+              left: "0",
+              marginTop: "0.5rem",
+              maxHeight: "300px",
+              overflowY: "auto",
+            }}
+          >
+            <div className="py-2">
+              {versions.map((version) => (
+                <button
+                  key={version.id}
+                  onClick={() => {
+                    handleVersionChange(version.id, onChange);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full px-6 py-2 text-left hover:bg-gray-50 transition-colors ${
+                    selected === version.id
+                      ? "text-primary font-medium"
+                      : "text-gray-700"
+                  }`}
+                >
+                  {version.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
   const handleReset = () => {
     versionsChanged.current = true;
     setV1(
@@ -265,9 +295,9 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
       {/* Header Section with Fixed Position */}
       <div className="d2h-file-header1 w-full bg-white py-0 pb-2 border-b min-h-56">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
-            {/* Version Status List */}
-            <div className="w-full lg:w-1/4 pt-2">
+          <div className="flex items-start gap-4 justify-between">
+            {/* Version Status List (Left) */}
+            <div className="w-1/4 pt-2">
               <VersionStatusList
                 data={cardData?.status_by_version}
                 onStatusToggle={onStatusToggle}
@@ -275,81 +305,79 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
               />
             </div>
 
-            <div className="w-full lg:w-3/4 relative">
-              {/* Content Div */}
-              <div className="flex flex-col items-center pr-20 pt-2">
-                <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
-                  <Link
-                    to={cardData?.url}
-                    target="_blank"
-                    className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                  >
-                    {cardData.bank_name} {cardData.cardName} ({cardData.cardId})
-                  </Link>
-                </h3>
-
-                <div className="flex items-center gap-4 mb-4">
-                  <span className="text-md font-medium text-gray-900">
-                    Last updated: {formatDate(cardData.last_updated)}
-                  </span>
-                </div>
-
-                {/* Version Controls */}
-                <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
-                  <button
-                    onClick={handleReset}
-                    className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 
-        transition-colors duration-200 flex items-center gap-2"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    Reset
-                  </button>
-
-                  <div className="flex flex-wrap gap-4">
-                    <VersionDropdown
-                      value={v1}
-                      onChange={setV1}
-                      isOpen={isDropdown1Open}
-                      selected={v1}
-                      setIsOpen={setIsDropdown1Open}
-                      label="Select Version A"
-                    />
-                    <VersionDropdown
-                      value={v2}
-                      onChange={setV2}
-                      isOpen={isDropdown2Open}
-                      selected={v2}
-                      setIsOpen={setIsDropdown2Open}
-                      label="Select Version B"
-                    />
-                  </div>
-                </div>
-
-                {loading && (
-                  <div className="text-center text-gray-600">
-                    Loading version comparison...
-                  </div>
-                )}
-                {error && (
-                  <div className="text-center text-red-600">Error: {error}</div>
-                )}
-              </div>
-
-              {/* searchKeyword Button */}
-              <div className="absolute top-2 right-2">
-                <button
-                  onClick={handleSearchRedirect}
-                  type="button"
-                  className={`flex items-center gap-2 text-white ${
-                    isActive("/searchKeyword")
-                      ? "bg-blue-800 dark:bg-blue-700"
-                      : "bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
-                  } focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:focus:ring-blue-800`}
+            {/* Content Div (Center) */}
+            <div className="flex-grow flex flex-col items-center pt-2">
+              <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
+                <Link
+                  to={cardData?.url}
+                  target="_blank"
+                  className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                 >
-                  <Search className="w-4 h-4" />
-                  Search Keyword
-                </button>
+                  {cardData.bank_name} {cardData.cardName} ({cardData.cardId})
+                </Link>
+              </h3>
+
+              <div className="flex items-center gap-4 mb-4">
+                <span className="text-md font-medium text-gray-900">
+                  Last updated: {formatDate(cardData.last_updated)}
+                </span>
               </div>
+
+              {/* Version Controls */}
+              <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
+                <button
+                  onClick={handleReset}
+                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 
+          transition-colors duration-200 flex items-center gap-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </button>
+
+                <div className="flex flex-wrap gap-4">
+                  <VersionDropdown
+                    value={v1}
+                    onChange={setV1}
+                    isOpen={isDropdown1Open}
+                    selected={v1}
+                    setIsOpen={setIsDropdown1Open}
+                    label="Select Version A"
+                  />
+                  <VersionDropdown
+                    value={v2}
+                    onChange={setV2}
+                    isOpen={isDropdown2Open}
+                    selected={v2}
+                    setIsOpen={setIsDropdown2Open}
+                    label="Select Version B"
+                  />
+                </div>
+              </div>
+
+              {loading && (
+                <div className="text-center text-gray-600">
+                  Loading version comparison...
+                </div>
+              )}
+              {error && (
+                <div className="text-center text-red-600">Error: {error}</div>
+              )}
+            </div>
+
+            {/* SearchKeyword Button (Right) */}
+            <div className="w-1/4 flex justify-end">
+              <button
+                onClick={handleSearchRedirect}
+                type="button"
+                className={`flex items-center gap-2 text-white ${
+                  isActive("/searchKeyword")
+                    ? "bg-blue-800 dark:bg-blue-700"
+                    : "bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                } focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:focus:ring-blue-800`}
+              >
+                <Search className="w-4 h-4" />
+                Search Keyword
+              </button>
             </div>
           </div>
         </div>
