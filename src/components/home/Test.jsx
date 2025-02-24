@@ -49,7 +49,17 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
       // const tabName = cleanedOld.trim().split(/\s+/)[0];
 
       // Mark artificialDiff if content is identical.
-      const artificialDiff = cleanedOld === cleanedNew;
+      let artificialDiff = false;
+      if (cleanedOld && cleanedNew) {
+        if (cleanedOld === cleanedNew) {
+          artificialDiff = cleanedOld === cleanedNew;
+        } else if (
+          cleanedOld.includes("No Content Found") ||
+          cleanedNew.includes("No Content Found")
+        ) {
+          artificialDiff = true;
+        }
+      }
       // If artificial, append a tweak so that diff is generated.
       const oldContent = artificialDiff
         ? cleanedOld + " test_change_1"
