@@ -24,12 +24,6 @@ function CardsCompareList() {
   const [statusMessage, setStatusMessage] = useState(null);
   const [showOverview, setOverview] = useState(false);
 
-  const BASE_COMPARE_URL = "https://c9e5-59-162-82-6.ngrok-free.app/compare/";
-  const CARDS_STATUS_URL =
-    "https://c9e5-59-162-82-6.ngrok-free.app/cards-by-status/";
-  const UPDATE_STATUS_URL =
-    "https://c9e5-59-162-82-6.ngrok-free.app/update-card-status/";
-
   const handleApiError = (err, defaultMessage) => {
     let errorMessage = defaultMessage;
     if (err.response) {
@@ -53,9 +47,12 @@ function CardsCompareList() {
     setSelectedCard(cardId);
 
     try {
-      const response = await axios.get(`${BASE_COMPARE_URL}${cardId}`, {
-        headers: { "ngrok-skip-browser-warning": "234242" },
-      });
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_COMPARE_URL}${cardId}`,
+        {
+          headers: { "ngrok-skip-browser-warning": "234242" },
+        }
+      );
       setCardData(response.data);
       navigate(`/compare/${cardId}`, { replace: true });
     } catch (err) {
@@ -68,9 +65,12 @@ function CardsCompareList() {
 
   const fetchCardsData = async () => {
     try {
-      const response = await axios.get(CARDS_STATUS_URL, {
-        headers: { "ngrok-skip-browser-warning": "234242" },
-      });
+      const response = await axios.get(
+        `${import.meta.env.VITE_CARDS_STATUS_URL}`,
+        {
+          headers: { "ngrok-skip-browser-warning": "234242" },
+        }
+      );
 
       if (!response.data || typeof response.data !== "object") {
         throw new Error("Invalid data format received from server");
@@ -117,7 +117,7 @@ function CardsCompareList() {
 
     try {
       const response = await axios.put(
-        `${UPDATE_STATUS_URL}${selectedCard}/${version}/`,
+        `${import.meta.env.VITE_UPDATE_STATUS_URL}${selectedCard}/${version}/`,
         {
           headers: { "ngrok-skip-browser-warning": "234242" },
         }

@@ -47,7 +47,7 @@ function SearchKeyword() {
 
     try {
       const response = await axios.get(
-        `https://c9e5-59-162-82-6.ngrok-free.app/search-cards/?keyword=${encodeURIComponent(
+        `${import.meta.env.VITE_SEARCH_KEYWORDS_URL}=${encodeURIComponent(
           keyword
         )}`,
         {
@@ -104,9 +104,12 @@ function SearchKeyword() {
     setError(null);
 
     try {
-      const response = await axios.put(`${UPDATE_STATUS_URL}${selectedCard}/`, {
-        headers: { "ngrok-skip-browser-warning": "234242" },
-      });
+      const response = await axios.put(
+        `${import.meta.env.VITE_UPDATE_STATUS_URL}${selectedCard}/`,
+        {
+          headers: { "ngrok-skip-browser-warning": "234242" },
+        }
+      );
 
       if (response.data.status === "success") {
         setStatusMessage({
