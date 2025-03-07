@@ -19,7 +19,7 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
           if (item.version === version) {
             return {
               ...item,
-              status: item.status === "Open" ? "Resolved" : "Open",
+              status: item.status === "Open" ? "Closed" : "Pending",
             };
           }
           return item;
@@ -38,7 +38,7 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
         <div className="flex items-center gap-2">
           <FileText size={18} className="text-gray-500" />
           <span className="text-sm font-medium text-gray-700">
-            All Versions ({localData.length})
+            Total versions ({localData.length})
           </span>
         </div>
       </div>
@@ -47,7 +47,7 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
           <thead className="sticky top-0 bg-gray-50 border-b border-gray-200">
             <tr>
               <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                V
+                Versions
               </th>
               <th className="text-left py-2 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
@@ -65,26 +65,26 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
                     <td className="py-2 px-4">
                       <button
                         onClick={() => onVersionChange(version)}
-                        className="flex items-center gap-1 text-sm text-gray-700 hover:text-blue-600"
+                        className="flex items-center gap-1 font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       >
-                        V{version}
+                        {version - 1} - {version}
                       </button>
                     </td>
                     <td className="py-2 px-2">
                       <div className="flex items-center gap-1.5">
-                        {status.toLowerCase() === "open" ? (
+                        {/* {status.toLowerCase() === "open" ? (
                           <AlertCircle size={16} className="text-blue-500" />
                         ) : (
                           <CheckCircle size={16} className="text-green-500" />
-                        )}
+                        )} */}
                         <span
                           className={`text-sm ${
                             status.toLowerCase() === "open"
-                              ? "text-blue-600"
-                              : "text-green-600"
+                              ? "text-red-600"
+                              : ""
                           }`}
                         >
-                          {status}
+                          {status === "Open" ? "Pending" : "Closed"}
                         </span>
                       </div>
                     </td>
@@ -98,8 +98,8 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
                         loading[version]
                           ? "bg-gray-100 text-gray-400"
                           : status === "Open"
-                          ? "text-blue-700 bg-blue-50 hover:bg-blue-100"
-                          : "text-green-700 bg-green-50 hover:bg-green-100"
+                          ? "bg-gray-100 text-black-400 hover:bg-blue-100"
+                          : "bg-gray-100 text-black-400 hover:bg-green-100"
                       }
                       transition-colors duration-150 ease-in-out
                     `}
@@ -107,8 +107,8 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
                         {loading[version]
                           ? "Updating..."
                           : status === "Open"
-                          ? "Resolve"
-                          : "open"}
+                          ? "Close"
+                          : "Pending"}
                       </button>
                     </td>
                   </tr>

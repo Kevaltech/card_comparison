@@ -296,15 +296,21 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
       <div className="d2h-file-header1 w-full bg-white py-0 pb-2 border-b min-h-56">
         <div className="container mx-auto px-4">
           <div className="flex items-start gap-4 justify-between">
-            {/* Version Status List (Left) */}
-            <div className="w-1/4 pt-2">
-              <VersionStatusList
-                data={cardData?.status_by_version}
-                onStatusToggle={onStatusToggle}
-                onVersionChange={handleVersionChangeThroughVersionList}
-              />
+            {/* SearchKeyword Button (Right) */}
+            <div className="w-1/8 flex justify-end mt-4">
+              <button
+                onClick={handleSearchRedirect}
+                type="button"
+                className={`flex items-center gap-2 text-white ${
+                  isActive("/searchKeyword")
+                    ? "bg-blue-800 dark:bg-blue-700"
+                    : "bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                } focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:focus:ring-blue-800`}
+              >
+                <Search className="w-4 h-4" />
+                Search Keyword
+              </button>
             </div>
-
             {/* Content Div (Center) */}
             <div className="flex-grow flex flex-col items-center pt-2">
               <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
@@ -325,15 +331,6 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
 
               {/* Version Controls */}
               <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
-                <button
-                  onClick={handleReset}
-                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 
-          transition-colors duration-200 flex items-center gap-2"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  Reset
-                </button>
-
                 <div className="flex flex-wrap gap-4">
                   <VersionDropdown
                     value={v1}
@@ -352,6 +349,14 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
                     label="Select Version B"
                   />
                 </div>
+                <button
+                  onClick={handleReset}
+                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 
+          transition-colors duration-200 flex items-center gap-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset
+                </button>
               </div>
 
               {loading && (
@@ -364,20 +369,13 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
               )}
             </div>
 
-            {/* SearchKeyword Button (Right) */}
-            <div className="w-1/4 flex justify-end">
-              <button
-                onClick={handleSearchRedirect}
-                type="button"
-                className={`flex items-center gap-2 text-white ${
-                  isActive("/searchKeyword")
-                    ? "bg-blue-800 dark:bg-blue-700"
-                    : "bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
-                } focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:focus:ring-blue-800`}
-              >
-                <Search className="w-4 h-4" />
-                Search Keyword
-              </button>
+            {/* Version Status List (Left) */}
+            <div className="w-1/4 pt-2">
+              <VersionStatusList
+                data={cardData?.status_by_version}
+                onStatusToggle={onStatusToggle}
+                onVersionChange={handleVersionChangeThroughVersionList}
+              />
             </div>
           </div>
         </div>
