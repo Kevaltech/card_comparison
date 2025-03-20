@@ -9,6 +9,7 @@ export const BankSection = ({
 }) => {
   const [isOpenVisible, setIsOpenVisible] = useState(false);
   const [isResolveVisible, setIsResolveVisible] = useState(false);
+  // console.log("cards", cards);
 
   // Auto-expand sections if they contain the selected card
   useEffect(() => {
@@ -36,6 +37,21 @@ export const BankSection = ({
 
   const resolveSortedData =
     cards?.resolve?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+
+  function formateDate(date1) {
+    const date = new Date(date1);
+    const shortDate = date
+      .toLocaleString("en-IN", {
+        month: "short",
+        day: "2-digit",
+        year: "2-digit",
+      })
+      .replace(",", "");
+
+    return shortDate;
+  }
+
+  // console.log("openSortedData", openSortedData);
 
   return (
     <div className="pl-4">
@@ -81,6 +97,9 @@ export const BankSection = ({
                       <span className="font-medium">{card.name}</span>
                       <span className="text-xs text-gray-500 ml-2">
                         #{card.cardId}
+                      </span>
+                      <span className="text-xs text-gray-500 ml-2">
+                        {formateDate(card.last_update)}
                       </span>
                     </div>
                   </button>
@@ -133,6 +152,9 @@ export const BankSection = ({
                     <span className="font-medium">{card.name}</span>
                     <span className="text-xs text-gray-500 ml-2">
                       #{card.cardId}
+                    </span>
+                    <span className="text-xs text-gray-500 ml-2">
+                      {formateDate(card.last_update)}
                     </span>
                   </div>
                 </button>

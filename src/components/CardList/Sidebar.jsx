@@ -15,6 +15,7 @@ export const Sidebar = ({
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchRef = useRef(null);
+  console.log("banksData", banksData);
 
   const totalCards = Object.values(banksData).reduce(
     (total, bank) => total + bank?.open?.length + bank?.resolve?.length,

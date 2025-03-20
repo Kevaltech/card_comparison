@@ -19,7 +19,7 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
           if (item.version === version) {
             return {
               ...item,
-              status: item.status === "Open" ? "Closed" : "Pending",
+              status: item.status === "Open" ? "Closed" : "Open",
             };
           }
           return item;
@@ -61,11 +61,15 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
             {localData?.map(
               ({ version, status }) =>
                 version !== 1 && (
-                  <tr key={version} className="hover:bg-gray-50">
+                  <tr
+                    key={version}
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => onVersionChange(version)}
+                  >
                     <td className="py-2 px-4">
                       <button
                         onClick={() => onVersionChange(version)}
-                        className="flex items-center gap-1 font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                        className="flex items-center gap-1 font-medium text-blue-600 dark:text-blue-500 "
                       >
                         {version - 1} - {version}
                       </button>
@@ -108,7 +112,7 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
                           ? "Updating..."
                           : status === "Open"
                           ? "Close"
-                          : "Pending"}
+                          : "Open"}
                       </button>
                     </td>
                   </tr>

@@ -220,7 +220,7 @@ function CardsCompareList() {
 
   return (
     <div>
-      {statusMessage && (
+      {/* {statusMessage && (
         <div className="fixed top-4 right-4 z-50">
           <div
             className="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 D:bg-gray-800 D:text-yellow-300"
@@ -229,7 +229,7 @@ function CardsCompareList() {
             <span className="font-medium">{statusMessage.text}</span>
           </div>
         </div>
-      )}
+      )} */}
 
       <Sidebar
         banksData={banksData}
