@@ -96,9 +96,9 @@ export const BankSection = ({
                     <div className="w-full text-left truncate">
                       <span className="font-medium">{card.name}</span>
                       <span className="text-xs text-gray-500 ml-2">
-                        #{card.cardId}
+                        #{card.cardId} -
                       </span>
-                      <span className="text-xs text-gray-500 ml-2">
+                      <span className="text-xs text-gray-500 ml-1">
                         {formateDate(card.last_update)}
                       </span>
                     </div>
