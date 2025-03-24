@@ -239,6 +239,12 @@ export const Home = () => {
               <tr>
                 <th
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  // onClick={() => requestSort("card_name")}
+                >
+                  Id
+                </th>
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                   onClick={() => requestSort("card_name")}
                 >
                   Card Details {getSortIcon("card_name")}
@@ -261,8 +267,18 @@ export const Home = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {getSortedCards().map((card) => (
-                <tr key={card.CardId} className="hover:bg-gray-50">
+              {getSortedCards().map((card, index) => (
+                <tr
+                  key={card.CardId}
+                  className="cursor-pointer hover:bg-gray-50"
+                  onClick={() => handleSearchRedirect(card.CardId)}
+                >
+                  <td className="px-6 py-4">
+                    <div className="flex items-center">
+                      {/* <Building2 className="w-4 h-4 text-gray-400 mr-2" /> */}
+                      <span className="text-sm text-gray-900">{index + 1}</span>
+                    </div>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center">
                       <div>

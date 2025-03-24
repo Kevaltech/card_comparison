@@ -10,6 +10,7 @@ export const Sidebar = ({
   generalBankData,
   setOverview,
   showOverview,
+  fetchCardsData,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -169,6 +170,7 @@ export const Sidebar = ({
               data={data}
               selectedCard={selectedCard}
               onCardSelect={onCardSelect}
+              fetchCardsData={fetchCardsData}
             />
           ))}
         </ul>
@@ -185,6 +187,7 @@ export const Sidebar = ({
               data={data}
               selectedCard={selectedCard}
               onCardSelect={onCardSelect}
+              fetchCardsData={fetchCardsData}
             />
           ))}
         </ul>

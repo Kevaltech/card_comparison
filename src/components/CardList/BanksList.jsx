@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { BankSection } from "./BankSection";
 
-function BanksList({ bankName, data, selectedCard, onCardSelect }) {
+function BanksList({
+  bankName,
+  data,
+  selectedCard,
+  onCardSelect,
+  fetchCardsData,
+}) {
   const [isOpenVisible, setIsOpenVisible] = useState(false);
   // Auto-expand the section if it contains the selected card
   React.useEffect(() => {
@@ -38,6 +44,7 @@ function BanksList({ bankName, data, selectedCard, onCardSelect }) {
             cards={data}
             selectedCard={selectedCard}
             onCardSelect={onCardSelect}
+            fetchCardsData={fetchCardsData}
           />
         </React.Fragment>
       )}

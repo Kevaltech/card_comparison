@@ -242,6 +242,7 @@ function CardsCompareList() {
         setIsResolvedVisible={setIsResolvedDropdownVisible}
         setOverview={setOverview}
         showOverview={showOverview}
+        fetchCardsData={fetchCardsData}
       />
       <main
         className="flex-1 overflow-y-auto"
