@@ -104,6 +104,7 @@ export const Sidebar = ({
       }}
       aria-label="Sidebar"
     >
+      {/* Search Input */}
       <div className="relative p-4 pb-2" ref={searchRef}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -123,7 +124,6 @@ export const Sidebar = ({
             </button>
           )}
         </div>
-
         {/* Search Results Dropdown */}
         {isSearching && searchResults.length > 0 && (
           <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
@@ -151,46 +151,56 @@ export const Sidebar = ({
         )}
       </div>
 
-      <div className="h-full px-3 py-4 pb-20 overflow-y-auto bg-gray-50 D:bg-gray-800">
-        <ul className="space-y-2 font-medium">
-          <li className="px-0">
-            <button onClick={() => setOverview(!showOverview)}>
-              <h6 className="text-lg font-bold D:text-white">Overview</h6>
-            </button>
-          </li>
-          <li className="px-0">
-            <h6 className="text-lg font-bold D:text-white">
-              Total Cards in DB: {totalCards}
-            </h6>
-          </li>
-          {Object.entries(banksData).map(([bankName, data]) => (
-            <BanksList
-              key={bankName}
-              bankName={bankName}
-              data={data}
-              selectedCard={selectedCard}
-              onCardSelect={onCardSelect}
-              fetchCardsData={fetchCardsData}
-            />
-          ))}
-        </ul>
-        <ul className="space-y-2 font-medium mt-6">
-          <li className="px-0">
-            <h6 className="text-lg font-bold D:text-white">
-              General links ({totalGeneralCards})
-            </h6>
-          </li>
-          {Object.entries(generalBankData).map(([bankName, data]) => (
-            <BanksList
-              key={bankName}
-              bankName={bankName}
-              data={data}
-              selectedCard={selectedCard}
-              onCardSelect={onCardSelect}
-              fetchCardsData={fetchCardsData}
-            />
-          ))}
-        </ul>
+      {/* Container for fixed Overview and scrollable content */}
+      <div className="h-full flex flex-col">
+        {/* Fixed Overview Section */}
+        <div className="px-3 py-2 bg-gray-50 D:bg-gray-800">
+          <ul className="space-y-2 font-medium">
+            <li className="px-0">
+              <button onClick={() => setOverview(!showOverview)}>
+                <h6 className="text-lg font-bold D:text-white">Overview</h6>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 px-3 py-4 pb-20 overflow-y-auto bg-gray-50 D:bg-gray-800">
+          <ul className="space-y-2 font-medium">
+            <li className="px-0">
+              <h6 className="text-lg font-bold D:text-white">
+                Total Cards in DB: {totalCards}
+              </h6>
+            </li>
+            {Object.entries(banksData).map(([bankName, data]) => (
+              <BanksList
+                key={bankName}
+                bankName={bankName}
+                data={data}
+                selectedCard={selectedCard}
+                onCardSelect={onCardSelect}
+                fetchCardsData={fetchCardsData}
+              />
+            ))}
+          </ul>
+          <ul className="space-y-2 font-medium mt-6">
+            <li className="px-0">
+              <h6 className="text-lg font-bold D:text-white">
+                General links ({totalGeneralCards})
+              </h6>
+            </li>
+            {Object.entries(generalBankData).map(([bankName, data]) => (
+              <BanksList
+                key={bankName}
+                bankName={bankName}
+                data={data}
+                selectedCard={selectedCard}
+                onCardSelect={onCardSelect}
+                fetchCardsData={fetchCardsData}
+              />
+            ))}
+          </ul>
+        </div>
       </div>
     </aside>
   );
