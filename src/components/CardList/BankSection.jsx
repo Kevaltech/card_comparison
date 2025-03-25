@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -9,26 +9,34 @@ import {
   MoveRight,
   MoveLeft,
   Focus,
+  Filter,
 } from "lucide-react";
 import axios from "axios";
 
-export const BankSection = ({
+const BankSection = ({
   bankName,
   cards,
   selectedCard,
   onCardSelect,
   fetchCardsData,
+  // Received state and state setters from BanksList
+  isOpenSectionVisible,
+  setIsOpenSectionVisible,
+  isResolveSectionVisible,
+  setIsResolveSectionVisible,
+  openSortDropdownVisible,
+  setOpenSortDropdownVisible,
+  resolveSortDropdownVisible,
+  setResolveSortDropdownVisible,
+  selectedOpenDates,
+  setSelectedOpenDates,
+  selectedResolveDates,
+  setSelectedResolveDates,
+  selectedOpenCards,
+  setSelectedOpenCards,
+  selectedResolveCards,
+  setSelectedResolveCards,
 }) => {
-  const [isOpenVisible, setIsOpenVisible] = useState(false);
-  const [isResolveVisible, setIsResolveVisible] = useState(false);
-  const [openSortDropdownVisible, setOpenSortDropdownVisible] = useState(false);
-  const [resolveSortDropdownVisible, setResolveSortDropdownVisible] =
-    useState(false);
-  const [selectedOpenDates, setSelectedOpenDates] = useState([]);
-  const [selectedResolveDates, setSelectedResolveDates] = useState([]);
-  const [selectedOpenCards, setSelectedOpenCards] = useState([]);
-  const [selectedResolveCards, setSelectedResolveCards] = useState([]);
-
   const openDropdownRef = useRef(null);
   const resolveDropdownRef = useRef(null);
 
@@ -65,7 +73,7 @@ export const BankSection = ({
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         openDropdownRef.current &&
@@ -85,7 +93,7 @@ export const BankSection = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (selectedCard) {
       const isInOpenSection = cards?.open?.some(
         (card) => card.cardId === selectedCard
@@ -95,10 +103,10 @@ export const BankSection = ({
       );
 
       if (isInOpenSection) {
-        setIsOpenVisible(true);
+        setIsOpenSectionVisible(true);
       }
       if (isInResolveSection) {
-        setIsResolveVisible(true);
+        setIsResolveSectionVisible(true);
       }
     }
   }, [selectedCard, cards]);
@@ -258,7 +266,7 @@ export const BankSection = ({
           <div className="relative">
             <div className="flex items-center justify-between">
               <button
-                onClick={() => setIsOpenVisible(!isOpenVisible)}
+                onClick={() => setIsOpenSectionVisible(!isOpenSectionVisible)}
                 className="flex items-center flex-1 p-2 text-gray-900 rounded-lg hover:bg-gray-100 group"
               >
                 <span className="flex items-center gap-2">
@@ -266,8 +274,15 @@ export const BankSection = ({
                   <span className="text-sm font-medium">
                     Open ({filteredOpenCards.length})
                   </span>
+                  {selectedOpenDates.length > 0 && (
+                    <Filter
+                      size={14}
+                      className="text-blue-600"
+                      title="Filters applied"
+                    />
+                  )}
                 </span>
-                {isOpenVisible ? (
+                {isOpenSectionVisible ? (
                   <ChevronUp
                     size={18}
                     className="text-gray-400 group-hover:text-gray-600"
@@ -279,7 +294,7 @@ export const BankSection = ({
                   />
                 )}
               </button>
-              {isOpenVisible && (
+              {isOpenSectionVisible && (
                 <div className="flex items-center gap-2">
                   {filteredOpenCards.length > 0 && (
                     <div className="flex items-center gap-2">
@@ -315,12 +330,25 @@ export const BankSection = ({
                       onClick={() =>
                         setOpenSortDropdownVisible(!openSortDropdownVisible)
                       }
-                      className={`p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors ${
-                        selectedOpenDates.length > 0 ? "text-blue-600" : ""
+                      className={`p-2 rounded-lg transition-colors ${
+                        selectedOpenDates.length > 0
+                          ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                          : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                       }`}
-                      title="Filter by dates"
+                      title={`Filter by dates${
+                        selectedOpenDates.length
+                          ? ` (${selectedOpenDates.length} selected)`
+                          : ""
+                      }`}
                     >
-                      <Calendar size={16} />
+                      <Calendar
+                        size={16}
+                        className={
+                          selectedOpenDates.length > 0
+                            ? "text-blue-600"
+                            : "text-gray-500"
+                        }
+                      />
                     </button>
                     <SortDropdown
                       visible={openSortDropdownVisible}
@@ -328,12 +356,22 @@ export const BankSection = ({
                       selectedDates={selectedOpenDates}
                       onDateSelect={setSelectedOpenDates}
                     />
+
+                    {selectedOpenDates.length > 0 && (
+                      <button
+                        onClick={() => setSelectedOpenDates([])}
+                        className="text-gray-400 hover:text-gray-600"
+                        title="Clear selection"
+                      >
+                        <X size={16} />
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
             </div>
           </div>
-          {isOpenVisible && (
+          {isOpenSectionVisible && (
             <ul className="space-y-1 pl-6">
               {filteredOpenCards.map((card) => (
                 <li key={card.cardId}>
@@ -383,7 +421,9 @@ export const BankSection = ({
         <div className="relative">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => setIsResolveVisible(!isResolveVisible)}
+              onClick={() =>
+                setIsResolveSectionVisible(!isResolveSectionVisible)
+              }
               className="flex items-center flex-1 p-2 text-gray-900 rounded-lg hover:bg-gray-100 group"
             >
               <span className="flex items-center gap-2">
@@ -391,8 +431,15 @@ export const BankSection = ({
                 <span className="text-sm font-medium">
                   Resolved ({filteredResolveCards.length})
                 </span>
+                {selectedResolveDates.length > 0 && (
+                  <Filter
+                    size={14}
+                    className="text-blue-600"
+                    title="Filters applied"
+                  />
+                )}
               </span>
-              {isResolveVisible ? (
+              {isResolveSectionVisible ? (
                 <ChevronUp
                   size={18}
                   className="text-gray-400 group-hover:text-gray-600"
@@ -404,7 +451,7 @@ export const BankSection = ({
                 />
               )}
             </button>
-            {isResolveVisible && (
+            {isResolveSectionVisible && (
               <div className="flex items-center gap-2">
                 {filteredResolveCards.length > 0 && (
                   <div className="flex items-center gap-2">
@@ -440,12 +487,25 @@ export const BankSection = ({
                     onClick={() =>
                       setResolveSortDropdownVisible(!resolveSortDropdownVisible)
                     }
-                    className={`p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors ${
-                      selectedResolveDates.length > 0 ? "text-blue-600" : ""
+                    className={`p-2 rounded-lg transition-colors ${
+                      selectedResolveDates.length > 0
+                        ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                     }`}
-                    title="Filter by dates"
+                    title={`Filter by dates${
+                      selectedResolveDates.length
+                        ? ` (${selectedResolveDates.length} selected)`
+                        : ""
+                    }`}
                   >
-                    <Calendar size={16} />
+                    <Calendar
+                      size={16}
+                      className={
+                        selectedResolveDates.length > 0
+                          ? "text-blue-600"
+                          : "text-gray-500"
+                      }
+                    />
                   </button>
                   <SortDropdown
                     visible={resolveSortDropdownVisible}
@@ -453,12 +513,21 @@ export const BankSection = ({
                     selectedDates={selectedResolveDates}
                     onDateSelect={setSelectedResolveDates}
                   />
+                  {selectedResolveDates.length > 0 && (
+                    <button
+                      onClick={() => setSelectedResolveDates([])}
+                      className="text-gray-400 hover:text-gray-600"
+                      title="Clear selection"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
                 </div>
               </div>
             )}
           </div>
         </div>
-        {isResolveVisible && (
+        {isResolveSectionVisible && (
           <ul className="space-y-1 pl-6">
             {filteredResolveCards.map((card) => (
               <li key={card.cardId}>
@@ -504,3 +573,5 @@ export const BankSection = ({
     </div>
   );
 };
+
+export default BankSection;
