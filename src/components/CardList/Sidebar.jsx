@@ -99,8 +99,8 @@ export const Sidebar = ({
       id="default-sidebar"
       className="fixed top-0 left-0 z-40 h-screen transition-transform -translate-x-full sm:translate-x-0"
       style={{
-        width: "min(90vw, max(300px, 23%))",
-        maxWidth: "500px",
+        width: "min(90vw, max(300px, 27%))",
+        maxWidth: "600px",
       }}
       aria-label="Sidebar"
     >

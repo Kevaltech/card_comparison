@@ -247,7 +247,7 @@ function CardsCompareList() {
       <main
         className="flex-1 overflow-y-auto"
         style={{
-          marginLeft: "min(90vw, max(300px, 23%))",
+          marginLeft: "min(90vw, max(300px, 27%))",
           height: "100vh",
         }}
       >

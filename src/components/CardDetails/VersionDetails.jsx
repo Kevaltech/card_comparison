@@ -111,7 +111,7 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
                           status.toLowerCase() === "open" ? "text-red-600" : ""
                         }`}
                       >
-                        {status === "Open" ? "Pending" : "Closed"}
+                        {status === "Open" ? "Open" : "Closed"}
                       </span>
                     </div>
                   </td>
