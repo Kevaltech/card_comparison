@@ -239,7 +239,8 @@ const BankSection = ({
                 >
                   <span>{date}</span>
                   {selectedDates.includes(date) && (
-                    <CheckCircle2 size={14} className="text-blue-600" />
+                    // <CheckCircle2 size={14} className="text-blue-600" />
+                    <X size={16} className="text-red-400" />
                   )}
                 </button>
               </li>
