@@ -40,6 +40,7 @@ const BankSection = ({
   const openDropdownRef = useRef(null);
   const resolveDropdownRef = useRef(null);
 
+  console.log("BankSection", bankName, cards);
   const updateMultipleCardsStatus = async (cardIds, newStatus) => {
     try {
       const response = await axios.post(
@@ -295,6 +296,20 @@ const BankSection = ({
                   />
                 )}
               </button>
+              {selectedOpenCards.length > 0 && (
+                <button
+                  onClick={() =>
+                    updateMultipleCardsStatus(selectedOpenCards, 0)
+                  }
+                  className="p-2 mr-2 text-gray-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1"
+                  title="Close selected cards"
+                >
+                  {/* <MoveRight size={16} /> */}
+                  <span className="text-sm">
+                    Close ({selectedOpenCards.length})
+                  </span>
+                </button>
+              )}
               {isOpenSectionVisible && (
                 <div className="flex items-center gap-2">
                   {filteredOpenCards.length > 0 && (
@@ -312,20 +327,7 @@ const BankSection = ({
                       <span className="text-sm text-gray-500">Select all</span>
                     </div>
                   )}
-                  {selectedOpenCards.length > 0 && (
-                    <button
-                      onClick={() =>
-                        updateMultipleCardsStatus(selectedOpenCards, 0)
-                      }
-                      className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
-                      title="Close selected cards"
-                    >
-                      <MoveRight size={16} />
-                      <span className="text-sm">
-                        Close ({selectedOpenCards.length})
-                      </span>
-                    </button>
-                  )}
+
                   <div className="relative" ref={openDropdownRef}>
                     <button
                       onClick={() =>
@@ -454,6 +456,20 @@ const BankSection = ({
             </button>
             {isResolveSectionVisible && (
               <div className="flex items-center gap-2">
+                {selectedResolveCards.length > 0 && (
+                  <button
+                    onClick={() =>
+                      updateMultipleCardsStatus(selectedResolveCards, 1)
+                    }
+                    className="p-2 mr-2 text-gray-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1"
+                    title="Reopen selected cards"
+                  >
+                    {/* <MoveLeft size={16} /> */}
+                    <span className="text-sm">
+                      Open ({selectedResolveCards.length})
+                    </span>
+                  </button>
+                )}
                 {filteredResolveCards.length > 0 && (
                   <div className="flex items-center gap-2">
                     <input
@@ -469,20 +485,7 @@ const BankSection = ({
                     <span className="text-sm text-gray-500">Select all</span>
                   </div>
                 )}
-                {selectedResolveCards.length > 0 && (
-                  <button
-                    onClick={() =>
-                      updateMultipleCardsStatus(selectedResolveCards, 1)
-                    }
-                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
-                    title="Reopen selected cards"
-                  >
-                    <MoveLeft size={16} />
-                    <span className="text-sm">
-                      Open ({selectedResolveCards.length})
-                    </span>
-                  </button>
-                )}
+
                 <div className="relative" ref={resolveDropdownRef}>
                   <button
                     onClick={() =>

@@ -47,7 +47,7 @@ function BanksList({
         <span className="flex items-center gap-2">
           <span>
             {bankName} ({data?.open?.length + data?.resolve?.length},{" "}
-            {data?.open?.length})
+            {data?.open?.length}, {data?.resolve?.length})
           </span>
           {hasActiveFilters && (
             <Filter

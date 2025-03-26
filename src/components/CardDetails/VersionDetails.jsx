@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 import { ChevronRight, AlertCircle, CheckCircle, FileText } from "lucide-react";
 import { formatDate } from "../../utils/formateDate";
 
-const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
+const VersionStatusList = ({
+  data,
+  onStatusToggle,
+  onVersionChange,
+  activeVersion,
+}) => {
   const [localData, setLocalData] = useState([]);
   const [loading, setLoading] = useState({});
   console.log("locatData", data);
@@ -91,7 +96,9 @@ const VersionStatusList = ({ data, onStatusToggle, onVersionChange }) => {
               return (
                 <tr
                   key={version}
-                  className="hover:bg-gray-50 cursor-pointer"
+                  className={`hover:bg-gray-50 cursor-pointer ${
+                    activeVersion === version ? "bg-blue-100" : ""
+                  }`}
                   onClick={() => onVersionChange(version)}
                 >
                   <td className="py-2 px-4">

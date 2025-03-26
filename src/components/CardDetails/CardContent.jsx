@@ -375,6 +375,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
                 data={cardData?.status_by_version}
                 onStatusToggle={onStatusToggle}
                 onVersionChange={handleVersionChangeThroughVersionList}
+                activeVersion={v2}
               />
             </div>
           </div>
