@@ -301,7 +301,7 @@ const BankSection = ({
                   onClick={() =>
                     updateMultipleCardsStatus(selectedOpenCards, 0)
                   }
-                  className="p-2 mr-2 text-gray-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1"
+                  className="p-2 mr-2 text-gray-500 hover:text-blue-700 bg-blue-100 rounded-lg transition-colors flex items-center gap-1"
                   title="Close selected cards"
                 >
                   {/* <MoveRight size={16} /> */}
