@@ -301,7 +301,7 @@ const BankSection = ({
                   onClick={() =>
                     updateMultipleCardsStatus(selectedOpenCards, 0)
                   }
-                  className="p-2 mr-2 text-gray-500 hover:text-blue-700 bg-blue-100 rounded-lg transition-colors flex items-center gap-1"
+                  className="p-1.5 mr-2 text-gray-500 hover:text-blue-700 bg-blue-100 rounded-lg transition-colors flex items-center gap-1"
                   title="Close selected cards"
                 >
                   {/* <MoveRight size={16} /> */}
@@ -389,7 +389,7 @@ const BankSection = ({
                       onClick={() => onCardSelect(card.cardId)}
                       className={`flex-1 flex items-center w-full p-2 text-sm rounded-lg transition-colors ${
                         selectedCard === card.cardId
-                          ? "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                          ? "bg-blue-100 text-blue-700 hover:bg-blue-100"
                           : "text-gray-700 hover:bg-gray-100"
                       }`}
                       title={`${bankName} ${card.name} (ID ${card.cardId})`}
@@ -461,7 +461,7 @@ const BankSection = ({
                     onClick={() =>
                       updateMultipleCardsStatus(selectedResolveCards, 1)
                     }
-                    className="p-2 mr-2 text-gray-500 bg-blue-100 hover:text-blue-700  rounded-lg transition-colors flex items-center gap-1"
+                    className="p-1.5 mr-2 text-gray-500 bg-blue-100 hover:text-blue-700  rounded-lg transition-colors flex items-center gap-1"
                     title="Reopen selected cards"
                   >
                     {/* <MoveLeft size={16} /> */}
@@ -546,7 +546,7 @@ const BankSection = ({
                     onClick={() => onCardSelect(card.cardId)}
                     className={`flex-1 flex items-center w-full p-2 text-sm rounded-lg transition-colors ${
                       selectedCard === card.cardId
-                        ? "bg-blue-200 text-blue-700 hover:bg-blue-100"
+                        ? "bg-blue-100 text-blue-700 hover:bg-blue-100"
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                     title={`${bankName} ${card.name} (ID ${card.cardId})`}
