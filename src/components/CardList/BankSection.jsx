@@ -296,7 +296,7 @@ const BankSection = ({
                   />
                 )}
               </button>
-              {selectedOpenCards.length > 0 && (
+              {isOpenSectionVisible && selectedOpenCards.length > 0 && (
                 <button
                   onClick={() =>
                     updateMultipleCardsStatus(selectedOpenCards, 0)
@@ -461,7 +461,7 @@ const BankSection = ({
                     onClick={() =>
                       updateMultipleCardsStatus(selectedResolveCards, 1)
                     }
-                    className="p-2 mr-2 text-gray-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1"
+                    className="p-2 mr-2 text-gray-500 bg-blue-100 hover:text-blue-700  rounded-lg transition-colors flex items-center gap-1"
                     title="Reopen selected cards"
                   >
                     {/* <MoveLeft size={16} /> */}
