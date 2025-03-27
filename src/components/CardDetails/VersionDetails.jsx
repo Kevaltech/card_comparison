@@ -125,11 +125,11 @@ const VersionStatusList = ({
                   <td className="py-2 px-2 ">
                     <button
                       onClick={() => handleStatusToggle(version)}
-                      disabled={loading[version]}
+                      disabled={activeVersion !== version}
                       className={`
               inline-flex items-center gap-1 px-3 py-1 text-sm rounded
               ${
-                loading[version]
+                loading[version] || activeVersion !== version
                   ? "bg-gray-100 text-gray-400"
                   : status === "Open"
                   ? "bg-gray-100 text-black-400 hover:bg-blue-100"

@@ -57,6 +57,20 @@ export const Sidebar = ({
     return cards;
   };
 
+  function sortObjectByKeys(obj) {
+    return Object.keys(obj)
+      .sort()
+      .reduce((sortedObj, key) => {
+        sortedObj[key] = obj[key];
+        return sortedObj;
+      }, {});
+  }
+
+  const sortedBankData = sortObjectByKeys(banksData);
+  const sortedGeneralBankData = sortObjectByKeys(generalBankData);
+
+  // console.log("sortedBankData", sortedBankData);
+
   // Search function
   useEffect(() => {
     if (searchTerm.trim()) {
@@ -172,7 +186,7 @@ export const Sidebar = ({
                 Total Cards in DB: {totalCards}
               </h6>
             </li>
-            {Object.entries(banksData).map(([bankName, data]) => (
+            {Object.entries(sortedBankData).map(([bankName, data]) => (
               <BanksList
                 key={bankName}
                 bankName={bankName}
@@ -189,7 +203,7 @@ export const Sidebar = ({
                 General links ({totalGeneralCards})
               </h6>
             </li>
-            {Object.entries(generalBankData).map(([bankName, data]) => (
+            {Object.entries(sortedGeneralBankData).map(([bankName, data]) => (
               <BanksList
                 key={bankName}
                 bankName={bankName}
