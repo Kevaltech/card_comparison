@@ -48,6 +48,16 @@ export const Home = () => {
     navigate(`/compare/${cardId}`);
   };
 
+  const clearSearch = (columnKey) => {
+    setFilters((prev) => ({
+      ...prev,
+      [columnKey]: {
+        ...prev[columnKey],
+        searchTerm: "",
+      },
+    }));
+  };
+
   // Click outside handler
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -266,13 +276,27 @@ export const Home = () => {
         className="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
       >
         <div className="p-2">
-          <input
-            type="text"
-            placeholder={`Search ${columnKey}...`}
-            className="w-full px-2 py-1 border rounded mb-2"
-            value={searchTerm}
-            onChange={(e) => handleFilterSearch(columnKey, e.target.value)}
-          />
+          <div className="relative mb-2">
+            <input
+              type="text"
+              placeholder={`Search ${columnKey}...`}
+              className="w-full px-2 py-1 border rounded pr-7"
+              value={searchTerm}
+              onChange={(e) => handleFilterSearch(columnKey, e.target.value)}
+            />
+            {searchTerm && (
+              <button
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleFilterSearch(columnKey, "");
+                }}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
           <div className="max-h-48 overflow-y-auto">
             {uniqueValues
               .filter((value) =>
@@ -436,9 +460,16 @@ export const Home = () => {
       {/* Open Cards List */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
         <h2 className="text-lg font-semibold mb-4">Open Cards</h2>
-        <div className="">
+        <div
+          className="overflow-x-auto"
+          style={{
+            minHeight: "600px", // Initial minimum height
+            height: "auto", // Grow with content
+            maxHeight: "80vh", // Prevent excessive height
+          }}
+        >
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 sticky top-0 bg-gray-50 z-10">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Id
