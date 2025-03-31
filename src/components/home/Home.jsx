@@ -249,18 +249,24 @@ export const Home = () => {
   const getUniqueFilterValues = (key) => {
     if (!stats || !stats.openCardsList) return [];
 
-    const values = stats.openCardsList.map((card) => {
+    let values = stats.openCardsList.map((card) => {
       if (key === "last_update") {
-        return new Date(card[key]).toLocaleDateString();
+        return new Date(card[key]).toLocaleDateString(); // Keep last_update as is
       } else if (key === "card_details") {
-        // Return combined card name and ID
         return `${card.card_name} #${card.CardId}`;
       }
       return card[key];
     });
 
-    // Create unique set
-    return [...new Set(values)];
+    // Remove duplicates
+    let uniqueValues = [...new Set(values)];
+
+    // Sort only for card_details and bank_name
+    if (key === "card_details" || key === "bank_name") {
+      uniqueValues.sort((a, b) => a.localeCompare(b));
+    }
+
+    return uniqueValues;
   };
 
   // Render filter dropdown
