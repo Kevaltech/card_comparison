@@ -400,7 +400,7 @@ const BankSection = ({
                           #{card.cardId} -
                         </span>
                         <span className="text-xs text-gray-500 ml-1">
-                          {formatDate(card.last_update)}
+                          {formatDate(card.open_update)}
                         </span>
                       </div>
                     </button>
