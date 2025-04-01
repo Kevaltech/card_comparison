@@ -29,7 +29,7 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
     const newTabs = changes.map((obj, i) => {
       const oldKey = Object.keys(obj).find((k) => k.startsWith("old_content_"));
       const newKey = Object.keys(obj).find((k) => k.startsWith("new_content_"));
-      const tabName = oldKey ? oldKey.replace("old_", "") : `content_${i + 1}`;
+      const tabName = obj["tab_name"];
       const rawOld = obj[oldKey] || "";
       const rawNew = obj[newKey] || "";
       // Clean up content.
