@@ -366,103 +366,99 @@ export const Home = () => {
     <div className="p-6 max-w-7xl mx-auto min-h-screen overflow-auto">
       <h1 className="text-2xl font-bold mb-6">Dashboard Overview</h1>
       {/* Main Cards Stats */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Main Cards</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="p-2 bg-blue-50 rounded-lg w-fit mb-4">
-              <BarChart3 className="w-6 h-6 text-blue-500" />
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold mb-2">Main Cards</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div className="bg-white rounded-lg shadow hover:shadow-lg p-3 transition-all">
+            <div className="flex items-center">
+              <BarChart3 className="w-5 h-5 text-blue-500 mr-2" />
+              <h3 className="text-sm font-medium text-gray-500">Total Cards</h3>
             </div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">
-              Total Cards
-            </h3>
-            <div className="flex items-baseline">
-              <span className="text-2xl font-bold">
-                {stats.mainCards.total}
-              </span>
-              <span className="ml-2 text-sm text-gray-500">cards</span>
+            <div className="flex items-baseline mt-1">
+              <span className="text-xl font-bold">{stats.mainCards.total}</span>
+              <span className="ml-2 text-xs text-gray-500">cards</span>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="p-2 bg-yellow-50 rounded-lg w-fit mb-4">
-              <AlertCircle className="w-6 h-6 text-yellow-500" />
+          <div className="bg-white rounded-lg shadow hover:shadow-lg p-3 transition-all">
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 text-yellow-500 mr-2" />
+              <h3 className="text-sm font-medium text-gray-500">Open Cards</h3>
             </div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">
-              Open Cards
-            </h3>
-            <div className="flex items-baseline">
-              <span className="text-2xl font-bold">{stats.mainCards.open}</span>
-              <span className="ml-2 text-sm text-gray-500">pending</span>
+            <div className="flex items-baseline mt-1">
+              <span className="text-xl font-bold">{stats.mainCards.open}</span>
+              <span className="ml-2 text-xs text-gray-500">pending</span>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="p-2 bg-green-50 rounded-lg w-fit mb-4">
-              <CheckCircle2 className="w-6 h-6 text-green-500" />
+          <div className="bg-white rounded-lg shadow hover:shadow-lg p-3 transition-all">
+            <div className="flex items-center">
+              <CheckCircle2 className="w-5 h-5 text-green-500 mr-2" />
+              <h3 className="text-sm font-medium text-gray-500">
+                Resolved Cards
+              </h3>
             </div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">
-              Resolved Cards
-            </h3>
-            <div className="flex items-baseline">
-              <span className="text-2xl font-bold">
+            <div className="flex items-baseline mt-1">
+              <span className="text-xl font-bold">
                 {stats.mainCards.resolved}
               </span>
-              <span className="ml-2 text-sm text-gray-500">completed</span>
+              <span className="ml-2 text-xs text-gray-500">completed</span>
             </div>
           </div>
         </div>
       </div>
-      {/* General Cards Stats */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">General Cards</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="p-2 bg-purple-50 rounded-lg w-fit mb-4">
-              <Star className="w-6 h-6 text-purple-500" />
+
+      {/* General Links */}
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold mb-2">General Links</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div className="bg-white rounded-lg shadow hover:shadow-lg p-3 transition-all">
+            <div className="flex items-center">
+              <Star className="w-5 h-5 text-purple-500 mr-2" />
+              <h3 className="text-sm font-medium text-gray-500">
+                Total General Links
+              </h3>
             </div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">
-              Total General Cards
-            </h3>
-            <div className="flex items-baseline">
-              <span className="text-2xl font-bold">
+            <div className="flex items-baseline mt-1">
+              <span className="text-xl font-bold">
                 {stats.generalCards.total}
               </span>
-              <span className="ml-2 text-sm text-gray-500">cards</span>
+              <span className="ml-2 text-xs text-gray-500">cards</span>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="p-2 bg-yellow-50 rounded-lg w-fit mb-4">
-              <AlertCircle className="w-6 h-6 text-yellow-500" />
+          <div className="bg-white rounded-lg shadow hover:shadow-lg p-3 transition-all">
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 text-yellow-500 mr-2" />
+              <h3 className="text-sm font-medium text-gray-500">
+                Open General Links
+              </h3>
             </div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">
-              Open General Cards
-            </h3>
-            <div className="flex items-baseline">
-              <span className="text-2xl font-bold">
+            <div className="flex items-baseline mt-1">
+              <span className="text-xl font-bold">
                 {stats.generalCards.open}
               </span>
-              <span className="ml-2 text-sm text-gray-500">pending</span>
+              <span className="ml-2 text-xs text-gray-500">pending</span>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="p-2 bg-green-50 rounded-lg w-fit mb-4">
-              <CheckCircle2 className="w-6 h-6 text-green-500" />
+          <div className="bg-white rounded-lg shadow hover:shadow-lg p-3 transition-all">
+            <div className="flex items-center">
+              <CheckCircle2 className="w-5 h-5 text-green-500 mr-2" />
+              <h3 className="text-sm font-medium text-gray-500">
+                Resolved General Links
+              </h3>
             </div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">
-              Resolved General Cards
-            </h3>
-            <div className="flex items-baseline">
-              <span className="text-2xl font-bold">
+            <div className="flex items-baseline mt-1">
+              <span className="text-xl font-bold">
                 {stats.generalCards.resolved}
               </span>
-              <span className="ml-2 text-sm text-gray-500">completed</span>
+              <span className="ml-2 text-xs text-gray-500">completed</span>
             </div>
           </div>
         </div>
       </div>
+
       {/* Open Cards List */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
         <h2 className="text-lg font-semibold mb-4">Open Cards</h2>
