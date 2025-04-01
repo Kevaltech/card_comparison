@@ -183,7 +183,7 @@ export const Sidebar = ({
           <ul className="space-y-2 font-medium">
             <li className="px-0">
               <h6 className="text-lg font-bold D:text-white">
-                Total Cards in DB: {totalCards}
+                Cards ({totalCards})
               </h6>
             </li>
             {Object.entries(sortedBankData).map(([bankName, data]) => (
