@@ -23,27 +23,24 @@ const BANKS = [
 
 function SearchKeyword() {
   const [keyword, setKeyword] = useState("");
-  const [allResults, setAllResults] = useState([]); // Store all fetched results
-  const [displayedResults, setDisplayedResults] = useState([]); // Store filtered results
+  const [allResults, setAllResults] = useState(null); // Changed to `null` initially
+  const [displayedResults, setDisplayedResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
   const [selectedBanks, setSelectedBanks] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const containerRef = useRef(null);
-  const resultsContainerRef = useRef(null);
-
-  const UPDATE_STATUS_URL =
-    "https://c9e5-59-162-82-6.ngrok-free.app/update-card-status/";
 
   const handleSearch = async () => {
     if (!keyword.trim()) {
-      setError("Please enter a search keyword");
+      setError("Please enter a search keyword.");
       return;
     }
 
     setLoading(true);
     setError("");
+    setAllResults(null); // Reset results before fetching
 
     try {
       const response = await axios.get(
@@ -51,23 +48,22 @@ function SearchKeyword() {
           keyword
         )}`,
         {
-          headers: {
-            "ngrok-skip-browser-warning": "234242",
-          },
+          headers: { "ngrok-skip-browser-warning": "234242" },
         }
       );
 
-      setAllResults(response.data.results);
+      setAllResults(response.data); // Store entire response
       filterResults(response.data.results, selectedBanks);
     } catch (err) {
-      setError(err.response?.data?.error || err.message || "Search failed");
+      setError("Search failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Function to filter results based on selected banks
   const filterResults = (results, banks) => {
+    if (!results) return;
+
     const filtered =
       banks.length > 0
         ? results.filter((card) =>
@@ -78,6 +74,7 @@ function SearchKeyword() {
             )
           )
         : results;
+
     setDisplayedResults(filtered);
   };
 
@@ -85,8 +82,9 @@ function SearchKeyword() {
     const newSelection = selectedBanks.includes(bank)
       ? selectedBanks.filter((b) => b !== bank)
       : [...selectedBanks, bank];
+
     setSelectedBanks(newSelection);
-    filterResults(allResults, newSelection);
+    filterResults(allResults?.results, newSelection);
   };
 
   const handleCardClick = (card) => {
@@ -97,109 +95,8 @@ function SearchKeyword() {
     setSelectedCard(null);
   };
 
-  const handleStatusToggle = async () => {
-    if (!selectedCard || !cardData || statusUpdateLoading) return;
-
-    setStatusUpdateLoading(true);
-    setError(null);
-
-    try {
-      const response = await axios.put(
-        `${import.meta.env.VITE_UPDATE_STATUS_URL}${selectedCard}/`,
-        {
-          headers: { "ngrok-skip-browser-warning": "234242" },
-        }
-      );
-
-      if (response.data.status === "success") {
-        setStatusMessage({
-          text: `Successfully updated card status to ${response.data.data.status}`,
-        });
-
-        await fetchCardsData();
-        setCardData((prev) =>
-          prev
-            ? {
-                ...prev,
-                cardStatus: response.data.data.status,
-              }
-            : null
-        );
-      }
-    } catch (err) {
-      handleApiError(err, "Failed to update card status");
-    } finally {
-      setStatusUpdateLoading(false);
-      setTimeout(() => setStatusMessage(null), 5000);
-    }
-  };
-
-  useEffect(() => {
-    if (!selectedCard?.cardHtml || !containerRef.current) return;
-
-    const handleStyleTags = () => {
-      const styleTags = containerRef.current?.getElementsByTagName("style");
-      Array.from(styleTags || []).forEach((styleTag) => {
-        if (styleTag.getAttribute("data-processed")) return;
-
-        const newStyleElement = document.createElement("style");
-        Array.from(styleTag.attributes).forEach((attr) => {
-          if (attr.name !== "data-processed") {
-            newStyleElement.setAttribute(attr.name, attr.value);
-          }
-        });
-
-        newStyleElement.textContent = styleTag.textContent;
-        styleTag.setAttribute("data-processed", "true");
-        document.head.appendChild(newStyleElement);
-      });
-    };
-
-    const handleScriptTags = () => {
-      const scripts = containerRef.current?.getElementsByTagName("script");
-      Array.from(scripts || []).forEach((script) => {
-        if (script.getAttribute("data-executed")) return;
-
-        const newScript = document.createElement("script");
-        Array.from(script.attributes).forEach((attr) => {
-          if (attr.name !== "data-executed") {
-            newScript.setAttribute(attr.name, attr.value);
-          }
-        });
-
-        newScript.textContent = script.textContent;
-        script.setAttribute("data-executed", "true");
-        script.parentNode?.removeChild(script);
-        document.body.appendChild(newScript);
-      });
-    };
-
-    handleStyleTags();
-    handleScriptTags();
-
-    // Initialize custom functions if they exist
-    if (typeof window.initializeTabs === "function") {
-      try {
-        window.initializeTabs();
-      } catch (err) {
-        console.error("Error initializing tabs:", err);
-      }
-    }
-
-    if (typeof window.cleanupDOMElements === "function") {
-      try {
-        window.cleanupDOMElements();
-      } catch (err) {
-        console.error("Error cleaning up DOM elements:", err);
-      }
-    }
-  }, [selectedCard?.cardHtml, handleSearch]);
-
-  console.log("serachke", selectedCard);
-
   return (
     <div className="h-screen mt-14 flex flex-col bg-gray-50">
-      {/* Search Header */}
       <div className="flex-none bg-white shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
@@ -216,14 +113,14 @@ function SearchKeyword() {
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
               <SlidersHorizontal className="w-5 h-5" />
             </button>
             <button
               onClick={handleSearch}
               disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             >
               {loading ? "Searching..." : "Search"}
             </button>
@@ -232,10 +129,8 @@ function SearchKeyword() {
         </div>
       </div>
 
-      {/* Main Content with Sidebar */}
       <div className="flex-0 overflow-hidden">
         <div className="h-full flex">
-          {/* Filter Sidebar */}
           <div
             className={`w-64 bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300 ${
               showFilters ? "translate-x-0" : "-translate-x-full"
@@ -264,8 +159,7 @@ function SearchKeyword() {
             </div>
           </div>
 
-          {/* Results Area */}
-          <div ref={resultsContainerRef} className="flex-1 overflow-y-auto">
+          <div ref={containerRef} className="flex-1 overflow-y-auto">
             <div className="max-w-7xl mx-auto px-4 py-2">
               {selectedCard ? (
                 <div>
@@ -276,11 +170,7 @@ function SearchKeyword() {
                     <ChevronLeft className="w-4 h-4 mr-1" />
                     Back to results
                   </button>
-                  <CardContent
-                    cardData={selectedCard}
-                    onStatusToggle={handleStatusToggle}
-                    containerRef={containerRef}
-                  />
+                  <CardContent cardData={selectedCard} />
                 </div>
               ) : displayedResults.length > 0 ? (
                 <div className="space-y-2">
@@ -312,7 +202,13 @@ function SearchKeyword() {
               ) : (
                 <div className="text-center py-12">
                   <p className="text-gray-500">
-                    {keyword ? "No results found" : "Enter a keyword to search"}
+                    {loading
+                      ? "Fetching results..."
+                      : allResults
+                      ? allResults.count === 0
+                        ? "No matches found"
+                        : null
+                      : "Enter a keyword to search"}
                   </p>
                 </div>
               )}
