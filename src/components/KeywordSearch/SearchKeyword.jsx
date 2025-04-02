@@ -114,12 +114,12 @@ function SearchKeyword() {
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             </div>
-            <button
+            {/* <button
               onClick={() => setShowFilters(!showFilters)}
               className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
               <SlidersHorizontal className="w-5 h-5" />
-            </button>
+            </button> */}
             <button
               onClick={handleSearch}
               disabled={loading}
@@ -136,29 +136,37 @@ function SearchKeyword() {
         <div className="h-full flex">
           {/* Left Filters Panel */}
           <div
-            className={`w-64 bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300 ${
-              showFilters ? "translate-x-0" : "-translate-x-full"
-            } lg:translate-x-0`}
+            className={`w-64 bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300  lg:translate-x-0`}
           >
             <div className="p-4 pl-20">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Filter by Bank
               </h3>
               <div className="space-y-2">
-                {BANKS.map((bank) => (
-                  <label
-                    key={bank}
-                    className="flex items-center space-x-2 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedBanks.includes(bank)}
-                      onChange={() => handleBankFilter(bank)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-gray-700">{bank}</span>
-                  </label>
-                ))}
+                {BANKS.map((bank) => {
+                  const count =
+                    allResults?.results.filter(
+                      (card) =>
+                        card.bank_name.trim().toLowerCase() ===
+                        bank.trim().toLowerCase()
+                    ).length || 0;
+                  return (
+                    <label
+                      key={bank}
+                      className="flex items-center space-x-2 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedBanks.includes(bank)}
+                        onChange={() => handleBankFilter(bank)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-gray-700">
+                        {bank} ({count})
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -174,7 +182,7 @@ function SearchKeyword() {
               ) : selectedCard ? (
                 // When a card is selected, show Back to results and card details.
                 <>
-                  <div className="sticky top-0 bg-white z-10 py-2 w-64">
+                  <div className="sticky top-0 bg-white z-10 py-2">
                     <button
                       onClick={handleBack}
                       className="flex items-center text-blue-600 hover:text-blue-700 mb-1"
