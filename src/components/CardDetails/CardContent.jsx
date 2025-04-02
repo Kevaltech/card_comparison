@@ -11,6 +11,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
   const [v1, setV1] = useState(
     cardData?.version - 1 !== 0 ? cardData?.version - 1 : cardData?.version
   );
+  console.log("cardData11", cardData);
   const [v2, setV2] = useState(cardData?.version);
   const [versionData, setVersionData] = useState(null);
   const [isDropdown1Open, setIsDropdown1Open] = useState(false);

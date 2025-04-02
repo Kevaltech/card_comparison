@@ -4,6 +4,7 @@ import axios from "axios";
 import { formatDate } from "../../utils/formateDate";
 import { Link } from "react-router-dom";
 import { CardContent } from "../CardDetails/CardContent";
+import KeywordCardContent from "./KeywordCardContent";
 
 const BANKS = [
   "SBI",
@@ -31,6 +32,8 @@ function SearchKeyword() {
   const [selectedBanks, setSelectedBanks] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const containerRef = useRef(null);
+
+  console.log("allResults", allResults);
 
   const handleSearch = async () => {
     if (!keyword.trim()) {
@@ -96,7 +99,7 @@ function SearchKeyword() {
   };
 
   return (
-    <div className="h-screen mt-14 flex flex-col bg-gray-50">
+    <div className="h-screen mt-10 flex flex-col bg-gray-50">
       <div className="flex-none bg-white shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
@@ -162,7 +165,7 @@ function SearchKeyword() {
           <div ref={containerRef} className="flex-1 overflow-y-auto">
             <div className="max-w-7xl mx-auto px-4 py-2">
               {selectedCard ? (
-                <div>
+                <div className="sticky top-0 bg-white z-1 py-2">
                   <button
                     onClick={handleBack}
                     className="flex items-center text-blue-600 hover:text-blue-700 mb-1"
@@ -170,7 +173,10 @@ function SearchKeyword() {
                     <ChevronLeft className="w-4 h-4 mr-1" />
                     Back to results
                   </button>
-                  <CardContent cardData={selectedCard} />
+                  <KeywordCardContent
+                    cardData2={selectedCard}
+                    keyword={keyword}
+                  />
                 </div>
               ) : displayedResults.length > 0 ? (
                 <div className="space-y-2">
@@ -181,7 +187,7 @@ function SearchKeyword() {
                     <div
                       key={`${result.cardId}-${index}`}
                       onClick={() => handleCardClick(result)}
-                      className="bg-white rounded-lg shadow-sm p-6 pb-1 cursor-pointer hover:shadow-md transition-shadow border border-gray-100"
+                      className="bg-white rounded-lg shadow-sm p-1 px-4 cursor-pointer hover:shadow-md transition-shadow border border-gray-100"
                     >
                       <div className="flex justify-between items-start">
                         <div>
