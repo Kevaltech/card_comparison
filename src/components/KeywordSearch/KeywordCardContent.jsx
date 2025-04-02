@@ -63,6 +63,9 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
   const cardId = cardData2.cardId;
   const version = cardData2.version;
 
+  // Remove surrounding quotes if present.
+  const cleanKeyword = keyword.replace(/^"|"$/g, "");
+
   const [cardData, setCardData] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
   const [curKeywordIndex, setCurKeywordIndex] = useState(0);
@@ -96,7 +99,7 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
         setCurKeywordIndex(0);
       }
     }
-  }, [cardData, activeTab, keyword]);
+  }, [cardData, activeTab, cleanKeyword]);
 
   // Update the style of the active highlighted keyword.
   useEffect(() => {
@@ -114,7 +117,7 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
         }
       });
     }
-  }, [curKeywordIndex, cardData, activeTab, keyword]);
+  }, [curKeywordIndex, cardData, activeTab, cleanKeyword]);
 
   if (!cardData) {
     return <div>Loading...</div>;
@@ -122,7 +125,8 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
 
   const { cardName, last_updated, url, bank_name, changes } = cardData;
   const originalContent = changes[activeTab].content || "";
-  const highlightedContent = highlightTextNodes(originalContent, keyword);
+  // Use the cleaned keyword for highlighting.
+  const highlightedContent = highlightTextNodes(originalContent, cleanKeyword);
 
   // Navigate to next highlighted occurrence.
   const onNextKeyword = () => {
@@ -185,7 +189,7 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
               {changes.map((tab, index) => {
                 const tabKeywordCount = countTextOccurrences(
                   tab.content,
-                  keyword
+                  cleanKeyword
                 );
                 return (
                   <button

@@ -168,6 +168,9 @@ function SearchKeyword() {
                   );
                 })}
               </div>
+              <h2 className="text-xl font-semibold text-gray-900 my-2">
+                Total results: {allResults?.results?.length}
+              </h2>
             </div>
           </div>
 
