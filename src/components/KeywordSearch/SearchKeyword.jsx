@@ -3,7 +3,6 @@ import { Search, ChevronLeft, SlidersHorizontal } from "lucide-react";
 import axios from "axios";
 import { formatDate } from "../../utils/formateDate";
 import { Link } from "react-router-dom";
-import { CardContent } from "../CardDetails/CardContent";
 import KeywordCardContent from "./KeywordCardContent";
 
 const BANKS = [
@@ -24,7 +23,7 @@ const BANKS = [
 
 function SearchKeyword() {
   const [keyword, setKeyword] = useState("");
-  const [allResults, setAllResults] = useState(null); // Changed to `null` initially
+  const [allResults, setAllResults] = useState(null); // Initially null
   const [displayedResults, setDisplayedResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -100,6 +99,7 @@ function SearchKeyword() {
 
   return (
     <div className="h-screen mt-10 flex flex-col bg-gray-50">
+      {/* Top Search Bar */}
       <div className="flex-none bg-white shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
@@ -134,6 +134,7 @@ function SearchKeyword() {
 
       <div className="flex-0 overflow-hidden">
         <div className="h-full flex">
+          {/* Left Filters Panel */}
           <div
             className={`w-64 bg-white border-r border-gray-200 overflow-y-auto transition-all duration-300 ${
               showFilters ? "translate-x-0" : "-translate-x-full"
@@ -162,23 +163,32 @@ function SearchKeyword() {
             </div>
           </div>
 
+          {/* Results / Card Details */}
           <div ref={containerRef} className="flex-1 overflow-y-auto">
             <div className="max-w-7xl mx-auto px-4 py-2">
-              {selectedCard ? (
-                <div className="sticky top-0 bg-white z-1 py-2">
-                  <button
-                    onClick={handleBack}
-                    className="flex items-center text-blue-600 hover:text-blue-700 mb-1"
-                  >
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    Back to results
-                  </button>
+              {loading ? (
+                // Display fetching message when loading is true.
+                <div className="text-center py-12">
+                  <p className="text-gray-500">Fetching results...</p>
+                </div>
+              ) : selectedCard ? (
+                // When a card is selected, show Back to results and card details.
+                <>
+                  <div className="sticky top-0 bg-white z-10 py-2 w-64">
+                    <button
+                      onClick={handleBack}
+                      className="flex items-center text-blue-600 hover:text-blue-700 mb-1"
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      Back to results
+                    </button>
+                  </div>
                   <KeywordCardContent
                     cardData2={selectedCard}
                     keyword={keyword}
                   />
-                </div>
-              ) : displayedResults.length > 0 ? (
+                </>
+              ) : displayedResults && displayedResults.length > 0 ? (
                 <div className="space-y-2">
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">
                     Total results: {displayedResults.length}
@@ -208,12 +218,10 @@ function SearchKeyword() {
               ) : (
                 <div className="text-center py-12">
                   <p className="text-gray-500">
-                    {loading
-                      ? "Fetching results..."
-                      : allResults
+                    {allResults
                       ? allResults.count === 0
                         ? "No matches found"
-                        : null
+                        : "Enter a keyword to search"
                       : "Enter a keyword to search"}
                   </p>
                 </div>

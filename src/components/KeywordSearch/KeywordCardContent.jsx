@@ -159,8 +159,8 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
 
   return (
     <div className="container mx-auto p-4 pt-0">
-      <div className="flex flex-col items-center sticky top-0 bg-white z-10 py-2">
-        <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
+      <div className="flex flex-col items-center sticky top-0 bg-white z-1 py-2">
+        <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900 ">
           <Link
             to={url}
             target="_blank"
