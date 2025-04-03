@@ -6,19 +6,19 @@ import { Link } from "react-router-dom";
 import KeywordCardContent from "./KeywordCardContent";
 
 const BANKS = [
-  "SBI",
-  "Axis",
-  "RBL",
-  "IndusInd",
-  "HDFC",
-  "ICICI",
-  "Yes",
-  "IDFC",
-  "Standard Chartered",
-  "AU",
   "Amex",
-  "HSBC",
+  "AU",
+  "Axis",
   "Federal",
+  "HDFC",
+  "HSBC",
+  "ICICI",
+  "IDFC",
+  "IndusInd",
+  "RBL",
+  "SBI",
+  "Standard Chartered",
+  "Yes",
 ];
 
 function SearchKeyword() {
