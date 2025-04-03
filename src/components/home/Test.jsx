@@ -64,10 +64,10 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
       const artificialDiff = cleanedOld === cleanedNew;
       // If artificial, append a tweak so that diff is generated.
       const oldContent = artificialDiff
-        ? cleanedOld + " test_change_1"
+        ? cleanedOld + " dummy_text_please_ignore_1"
         : cleanedOld;
       const newContent = artificialDiff
-        ? cleanedNew + " test_change_2"
+        ? cleanedNew + " dummy_text_please_ignore_2"
         : cleanedNew;
 
       const patch = createPatch("text", oldContent, newContent, "", "", {
