@@ -379,11 +379,9 @@ export const Home = () => {
       <div className="flex items-start gap-4 justify-between">
         <h1 className="text-2xl font-bold mb-6">Dashboard Overview</h1>
         <div className="w-1/8 flex justify-end ">
-          <Link
-            to={"/searchKeyword"}
-            target="_blank"
-            // onClick={handleSearchKeywordRedirect}
-            // type="button"
+          <button
+            onClick={handleSearchKeywordRedirect}
+            type="button"
             className={`flex items-center gap-2 text-white ${
               isActive("/searchKeyword")
                 ? "bg-blue-800 dark:bg-blue-700"
@@ -392,7 +390,21 @@ export const Home = () => {
           >
             <Search className="w-4 h-4" />
             {/* Search Keyword */}
-          </Link>
+          </button>
+          {/* <Link
+                to={"/searchKeyword"}
+                // target="_blank"
+                //  onClick={handleSearchRedirect}
+                 type="button"
+                className={`flex items-center gap-2 text-white ${
+                  isActive("/searchKeyword")
+                    ? "bg-blue-800 dark:bg-blue-700"
+                    : "bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                } focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:focus:ring-blue-800`}
+              >
+                <Search className="w-4 h-4" />
+               
+              </Link> */}
         </div>
       </div>{" "}
       {/* Main Cards Stats */}
