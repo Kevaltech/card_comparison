@@ -340,12 +340,16 @@ function SearchKeyword() {
                               {versions.map((card) => (
                                 <button
                                   key={`${card.cardId}-${card.version}`}
-                                  onClick={() => handleCardClick(card)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCardClick(card);
+                                  }}
                                   className="px-2 py-1 text-xs bg-gray-50 text-gray-600 border border-gray-100 rounded-md hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-colors"
                                 >
                                   v{card.version}
                                 </button>
                               ))}
+
                               <button
                                 onClick={() =>
                                   handleCardClick(versions[versions.length - 1])
