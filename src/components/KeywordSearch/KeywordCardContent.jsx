@@ -63,6 +63,8 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
   const cardId = cardData2.cardId;
   const version = cardData2.version;
 
+  console.log("cardData2", cardData2);
+
   // Remove surrounding quotes if present.
   const cleanKeyword = keyword.replace(/^"|"$/g, "");
 
@@ -168,7 +170,7 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
           <Link
             to={url}
             target="_blank"
-            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+            className="font-medium text-blue-600 dark:text-blue-500 hover:underline "
           >
             {bank_name} {cardName} ({cardData.cardId})
           </Link>
@@ -176,6 +178,9 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
         <div className="flex items-center gap-4 mb-4">
           <span className="text-md font-medium text-gray-900">
             Last updated: {formatDate(cardData.last_updated)}
+          </span>
+          <span className="text-lg font-medium text-gray-1000">
+            version - {cardData.version}
           </span>
         </div>
       </div>

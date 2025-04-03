@@ -297,21 +297,6 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
       <div className="d2h-file-header1 w-full bg-white py-0 pb-2 border-b min-h-56">
         <div className="container mx-auto px-4">
           <div className="flex items-start gap-4 justify-between">
-            {/* SearchKeyword Button (Right) */}
-            <div className="w-1/8 flex justify-end mt-4">
-              <button
-                onClick={handleSearchRedirect}
-                type="button"
-                className={`flex items-center gap-2 text-white ${
-                  isActive("/searchKeyword")
-                    ? "bg-blue-800 dark:bg-blue-700"
-                    : "bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
-                } focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:focus:ring-blue-800`}
-              >
-                <Search className="w-4 h-4" />
-                {/* Search Keyword */}
-              </button>
-            </div>
             {/* Content Div (Center) */}
             <div className=" flex flex-col items-center pt-2">
               <h3 className="mb-4 text-3xl tracking-tight font-extrabold text-gray-900">
@@ -378,6 +363,23 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
                 onVersionChange={handleVersionChangeThroughVersionList}
                 activeVersion={v2}
               />
+            </div>
+            {/* SearchKeyword Button (Right) */}
+            <div className="w-1/8 flex justify-end mt-4">
+              <Link
+                to={"/searchKeyword"}
+                target="_blank"
+                // onClick={handleSearchRedirect}
+                // type="button"
+                className={`flex items-center gap-2 text-white ${
+                  isActive("/searchKeyword")
+                    ? "bg-blue-800 dark:bg-blue-700"
+                    : "bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                } focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:focus:ring-blue-800`}
+              >
+                <Search className="w-4 h-4" />
+                {/* Search Keyword */}
+              </Link>
             </div>
           </div>
         </div>

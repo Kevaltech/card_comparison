@@ -15,9 +15,10 @@ export const Sidebar = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [areCardsExpanded, setAreCardsExpanded] = useState(false);
   const searchRef = useRef(null);
-  console.log("banksData", banksData);
 
+  // Calculate totals
   const totalCards = Object.values(banksData).reduce(
     (total, bank) => total + bank?.open?.length + bank?.resolve?.length,
     0
@@ -55,6 +56,11 @@ export const Sidebar = ({
       }
     });
     return cards;
+  };
+
+  // Toggle expand/collapse all cards
+  const toggleCardsExpanded = () => {
+    setAreCardsExpanded((prev) => !prev);
   };
 
   function sortObjectByKeys(obj) {
@@ -181,10 +187,16 @@ export const Sidebar = ({
         {/* Scrollable Content */}
         <div className="flex-1 px-3 py-4 pb-20 overflow-y-auto bg-gray-50 D:bg-gray-800">
           <ul className="space-y-2 font-medium">
-            <li className="px-0">
+            <li className="px-0 flex justify-between items-center">
               <h6 className="text-lg font-bold D:text-white">
                 Cards ({totalCards})
               </h6>
+              <span
+                className="cursor-pointer text-sm text-blue-600"
+                onClick={toggleCardsExpanded}
+              >
+                {areCardsExpanded ? "Collapse all" : "Expand all"}
+              </span>
             </li>
             {Object.entries(sortedBankData).map(([bankName, data]) => (
               <BanksList
@@ -194,6 +206,7 @@ export const Sidebar = ({
                 selectedCard={selectedCard}
                 onCardSelect={onCardSelect}
                 fetchCardsData={fetchCardsData}
+                expandAll={areCardsExpanded}
               />
             ))}
           </ul>
@@ -211,8 +224,9 @@ export const Sidebar = ({
                 selectedCard={selectedCard}
                 onCardSelect={onCardSelect}
                 fetchCardsData={fetchCardsData}
+                expandAll={areCardsExpanded}
               />
-            ))}
+            ))}{" "}
           </ul>
         </div>
       </div>

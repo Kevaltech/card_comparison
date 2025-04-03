@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   BarChart3,
@@ -16,8 +17,9 @@ import {
   ArrowUpDown,
   Filter,
   X,
+  Search,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+// import { Link, useNavigate } from "react-router-dom";
 
 export const Home = () => {
   const [stats, setStats] = useState(null);
@@ -27,6 +29,16 @@ export const Home = () => {
     key: null,
     direction: "ascending",
   });
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleSearchKeywordRedirect = () => {
+    navigate("/searchKeyword");
+  };
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   // New state for filters
   const [filters, setFilters] = useState({
@@ -42,7 +54,7 @@ export const Home = () => {
     last_update: useRef(null),
   };
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleSearchRedirect = (cardId) => {
     navigate(`/compare/${cardId}`);
@@ -364,7 +376,25 @@ export const Home = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto min-h-screen overflow-auto">
-      <h1 className="text-2xl font-bold mb-6">Dashboard Overview</h1>
+      <div className="flex items-start gap-4 justify-between">
+        <h1 className="text-2xl font-bold mb-6">Dashboard Overview</h1>
+        <div className="w-1/8 flex justify-end ">
+          <Link
+            to={"/searchKeyword"}
+            target="_blank"
+            // onClick={handleSearchKeywordRedirect}
+            // type="button"
+            className={`flex items-center gap-2 text-white ${
+              isActive("/searchKeyword")
+                ? "bg-blue-800 dark:bg-blue-700"
+                : "bg-blue-700 hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+            } focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:focus:ring-blue-800`}
+          >
+            <Search className="w-4 h-4" />
+            {/* Search Keyword */}
+          </Link>
+        </div>
+      </div>{" "}
       {/* Main Cards Stats */}
       <div className="mb-4">
         <h2 className="text-xl font-semibold mb-2">Main Cards</h2>
@@ -407,7 +437,6 @@ export const Home = () => {
           </div>
         </div>
       </div>
-
       {/* General Links */}
       <div className="mb-4">
         <h2 className="text-xl font-semibold mb-2">General Links</h2>
@@ -458,7 +487,6 @@ export const Home = () => {
           </div>
         </div>
       </div>
-
       {/* Open Cards List */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
         <h2 className="text-lg font-semibold mb-4">Open Cards</h2>

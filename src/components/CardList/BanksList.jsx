@@ -8,6 +8,7 @@ function BanksList({
   selectedCard,
   onCardSelect,
   fetchCardsData,
+  expandAll, // new prop from parent
 }) {
   const [isOpenVisible, setIsOpenVisible] = useState(false);
   // States moved from BankSection
@@ -24,6 +25,11 @@ function BanksList({
   // Check if any filters are applied
   const hasActiveFilters =
     selectedOpenDates.length > 0 || selectedResolveDates.length > 0;
+
+  // Update local expand/collapse state when global expandAll prop changes
+  useEffect(() => {
+    setIsOpenVisible(expandAll);
+  }, [expandAll]);
 
   // Auto-expand the section if it contains the selected card
   useEffect(() => {
@@ -46,8 +52,7 @@ function BanksList({
       >
         <span className="flex items-center gap-2">
           <span>
-            {bankName} ({data?.open?.length + data?.resolve?.length},{" "}
-            {data?.open?.length}, {data?.resolve?.length})
+            {bankName} ({data?.open?.length}, {data?.resolve?.length})
           </span>
           {hasActiveFilters && (
             <Filter

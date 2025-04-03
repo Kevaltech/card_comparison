@@ -122,21 +122,21 @@ const VersionStatusList = ({
                       </span>
                     </div>
                   </td>
-                  <td className="py-2 px-2 ">
+                  <td className="py-2 px-2 relative group">
                     <button
                       onClick={() => handleStatusToggle(version)}
                       disabled={activeVersion !== version}
                       className={`
-              inline-flex items-center gap-1 px-3 py-1 text-sm rounded
-              ${
-                loading[version] || activeVersion !== version
-                  ? "bg-gray-100 text-gray-400"
-                  : status === "Open"
-                  ? "bg-gray-100 text-black-400 hover:bg-blue-100"
-                  : "bg-gray-100 text-black-400 hover:bg-green-100"
-              }
-              transition-colors duration-150 ease-in-out
-            `}
+      inline-flex items-center gap-1 px-3 py-1 text-sm rounded border
+      ${
+        loading[version] || activeVersion !== version
+          ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+          : status === "Open"
+          ? "bg-gray-100 text-black-400 hover:bg-blue-100"
+          : "bg-gray-100 text-black-400 hover:bg-green-100"
+      }
+      transition-colors duration-150 ease-in-out
+    `}
                     >
                       {loading[version]
                         ? "Updating..."
@@ -144,6 +144,19 @@ const VersionStatusList = ({
                         ? "Close"
                         : "Open"}
                     </button>
+
+                    {/* Tooltip positioned to the left */}
+                    {activeVersion !== version && (
+                      <div
+                        className="absolute right-full top-1/2 -translate-y-1/2 mr-2 w-48 
+        rounded-lg bg-white px-3 py-2 text-xs text-gray-900 border border-gray-200 shadow-md z-10
+        opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                      >
+                        Cannot change status unless the version is accessed
+                        first.
+                        <div className="absolute top-1/2 -translate-y-1/2 left-full ml-1 w-2 h-2 rotate-45 bg-white border border-gray-200"></div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
