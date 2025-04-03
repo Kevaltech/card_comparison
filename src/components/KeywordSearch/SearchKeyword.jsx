@@ -133,7 +133,7 @@ function SearchKeyword() {
 
   const calculateTotalGroupedCards = (results) => {
     const uniqueCards = new Set();
-    results.forEach((card) => {
+    results?.forEach((card) => {
       const key = `${card.cardName}-${card.bank_name}`;
       uniqueCards.add(key);
     });
@@ -141,7 +141,9 @@ function SearchKeyword() {
   };
 
   // After fetching results
-  const totalGroupedCardsCount = calculateTotalGroupedCards(allResults.results);
+  const totalGroupedCardsCount = calculateTotalGroupedCards(
+    allResults?.results
+  );
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -310,7 +312,12 @@ function SearchKeyword() {
                         className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-50 group"
                       >
                         <div className="flex justify-between items-center">
-                          <div className="flex-1">
+                          <div
+                            className="flex-1 cursor-pointer"
+                            onClick={() =>
+                              handleCardClick(versions[versions.length - 1])
+                            }
+                          >
                             <div className="flex items-center">
                               <div className="flex-1">
                                 <h2 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
