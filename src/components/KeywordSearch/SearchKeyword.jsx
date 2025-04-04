@@ -17,7 +17,7 @@ const BANKS = [
   "IndusInd",
   "RBL",
   "SBI",
-  "Standard Chartered",
+  "SCB",
   "Yes",
 ];
 
@@ -185,7 +185,7 @@ function SearchKeyword() {
       <div className="flex-1 overflow-hidden">
         <div className="h-full flex">
           {/* Left Filters Panel */}
-          <div className="w-71 bg-white border-r border-gray-100 overflow-y-auto transition-all duration-300 lg:translate-x-0 pt-4">
+          <div className="w-60 bg-white border-r border-gray-100 overflow-y-auto transition-all duration-300 lg:translate-x-0 pt-4">
             <div className="px-4 pl-8">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-medium uppercase tracking-wide text-gray-500">

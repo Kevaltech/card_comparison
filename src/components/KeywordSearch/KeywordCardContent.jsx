@@ -78,7 +78,9 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
   useEffect(() => {
     // Adjust the URL as needed.
     fetch(
-      `https://e015-59-162-82-6.ngrok-free.app/get-tabs-content/?cardId=${cardId}&version=${version}`,
+      `${
+        import.meta.env.VITE_KEYWORD_CONTENT_URL
+      }/?cardId=${cardId}&version=${version}`,
       {
         headers: { "ngrok-skip-browser-warning": "234242" },
       }
