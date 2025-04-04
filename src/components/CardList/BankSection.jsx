@@ -40,7 +40,7 @@ const BankSection = ({
   const openDropdownRef = useRef(null);
   const resolveDropdownRef = useRef(null);
 
-  console.log("BankSection", bankName, cards);
+  // console.log("BankSection", bankName, cards);
   const updateMultipleCardsStatus = async (cardIds, newStatus) => {
     try {
       const response = await axios.post(

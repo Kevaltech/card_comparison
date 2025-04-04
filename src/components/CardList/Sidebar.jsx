@@ -177,7 +177,10 @@ export const Sidebar = ({
         <div className="px-3 py-2 bg-gray-50 D:bg-gray-800">
           <ul className="space-y-2 font-medium">
             <li className="px-0">
-              <button onClick={() => setOverview(!showOverview)}>
+              <button
+                onClick={() => setOverview(!showOverview)}
+                className="w-full flex items-center justify-between  text-sm font-medium text-left text-gray-900 rounded-lg hover:bg-gray-100 D:hover:bg-gray-700 D:text-white D:hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100"
+              >
                 <h6 className="text-lg font-bold D:text-white">Overview</h6>
               </button>
             </li>
