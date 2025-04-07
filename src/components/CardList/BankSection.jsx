@@ -122,15 +122,24 @@ const BankSection = ({
 
   function formatDate(date1) {
     const date = new Date(date1);
-    const shortDate = date
-      .toLocaleString("en-IN", {
-        month: "short",
-        day: "2-digit",
-        year: "2-digit",
-      })
-      .replace(",", "");
 
-    return shortDate;
+    // Create a formatter for just day, month, year
+    const formatter = new Intl.DateTimeFormat("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "2-digit",
+    });
+
+    // Break into parts
+    const parts = formatter.formatToParts(date);
+
+    // Extract
+    const day = parts.find((p) => p.type === "day").value;
+    const month = parts.find((p) => p.type === "month").value;
+    const year = parts.find((p) => p.type === "year").value;
+
+    // Reassemble with hyphens
+    return `${day}-${month}-${year}`;
   }
 
   const getUniqueDates = (data) => {
