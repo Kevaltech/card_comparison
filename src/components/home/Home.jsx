@@ -635,7 +635,7 @@ export const Home = () => {
                 <tr
                   key={card.CardId}
                   className="cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleSearchRedirect(card.CardId)}
+                  // onClick={() => handleSearchRedirect(card.CardId)}
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center">
@@ -675,13 +675,14 @@ export const Home = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <button
-                      onClick={() => handleSearchRedirect(card.CardId)}
+                    <Link
+                      // onClick={() => handleSearchRedirect(card.CardId)}
+                      to={`/compare/${card.CardId}`}
                       className="flex items-center gap-1 text-blue-500 hover:text-blue-600"
                     >
                       <span className="text-sm">View Details</span>
                       <ArrowUpRight className="w-4 h-4" />
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}

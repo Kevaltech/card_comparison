@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Home } from "./components/home/Home";
 import Navbar from "./components/nav/Navbar";
 import Test from "./components/home/Test";
+import KeywordCardContent from "./components/KeywordSearch/KeywordCardContent";
 
 function App() {
   return (
@@ -25,6 +26,11 @@ function App() {
         {/* Catch-all route to handle any undefined routes */}
         {/* <Route path="*" element={<Navigate to="/compare/hdfcc29" replace />} /> */}
         <Route path="/searchKeyword" element={<SearchKeyword />} />
+        {/* The new route for opening card details in a new tab */}
+        <Route
+          path="/searchKeyword/:cardId/:version"
+          element={<SearchKeyword />}
+        />
       </Routes>
     </BrowserRouter>
   );

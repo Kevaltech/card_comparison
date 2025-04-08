@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Search, ChevronLeft, X, ArrowRight, Check, Home } from "lucide-react";
 import axios from "axios";
 import { formatDate } from "../../utils/formateDate";
@@ -145,6 +145,39 @@ function SearchKeyword() {
     allResults?.results
   );
 
+  // After setting groupedResults, create a sorted array of entries
+
+  const sortedResults = useMemo(() => {
+    if (!groupedResults) return [];
+
+    // Convert groupedResults object to array of [key, cards] entries
+    return (
+      Object.entries(groupedResults)
+        .map(([key, cards]) => {
+          // Extract the first card to get the bank_name and cardName
+          const firstCard = cards[0];
+          return {
+            key,
+            cards,
+            bank_name: firstCard.bank_name,
+            cardName: firstCard.cardName,
+          };
+        })
+        // First sort by bank_name alphabetically
+        .sort((a, b) => {
+          // First level: sort by bank_name
+          const bankComparison = a.bank_name.localeCompare(b.bank_name);
+
+          // If bank names are the same, sort by cardName
+          if (bankComparison === 0) {
+            return a.cardName.localeCompare(b.cardName);
+          }
+
+          return bankComparison;
+        })
+    );
+  }, [groupedResults]);
+
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Top Search Bar */}
@@ -204,7 +237,7 @@ function SearchKeyword() {
             <div className="px-4 pl-8">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-medium uppercase tracking-wide text-gray-500">
-                  Filter by Bank
+                  Select all bank
                 </h3>
 
                 <button
@@ -319,64 +352,70 @@ function SearchKeyword() {
                     {Object.keys(groupedResults).length} cards found for "
                     {keyword}"
                   </h2>
-                  {Object.entries(groupedResults).map(([cardKey, versions]) => {
-                    const firstCard = versions[0];
+                  {sortedResults.map(({ key, cards }) => {
+                    const firstCard = cards[0];
                     return (
                       <div
-                        key={cardKey}
+                        key={key}
                         className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-50 group"
                       >
-                        <div className="flex justify-between items-center">
-                          <div
-                            className="flex-1 cursor-pointer"
-                            onClick={() =>
-                              handleCardClick(versions[versions.length - 1])
-                            }
-                          >
-                            <div className="flex items-center">
-                              <div className="flex-1">
-                                <h2 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                  {firstCard.cardName} ({firstCard.cardId})
-                                </h2>
-                                <p className="text-xs text-gray-500">
-                                  {firstCard.bank_name} • {versions.length}{" "}
-                                  version{versions.length > 1 ? "s" : ""}
-                                </p>
+                        <Link
+                          to={`/searchKeyword/${
+                            cards[cards.length - 1].cardId
+                          }/${cards[cards.length - 1].version}`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div
+                              className="flex-1 cursor-pointer"
+                              onClick={() =>
+                                handleCardClick(cards[cards.length - 1])
+                              }
+                            >
+                              <div className="flex items-center">
+                                <div className="flex-1">
+                                  <h2 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                    {firstCard.cardName} ({firstCard.cardId})
+                                  </h2>
+                                  <p className="text-xs text-gray-500">
+                                    {firstCard.bank_name} • {cards.length}{" "}
+                                    version{cards.length > 1 ? "s" : ""}
+                                  </p>
+                                </div>
+                                <span className="text-xs text-gray-400 mr-2 whitespace-nowrap">
+                                  Updated{" "}
+                                  {formatDate(
+                                    cards[cards.length - 1].last_updated
+                                  )}
+                                </span>
                               </div>
-                              <span className="text-xs text-gray-400 mr-2 whitespace-nowrap">
-                                Updated{" "}
-                                {formatDate(
-                                  versions[versions.length - 1].last_updated
-                                )}
-                              </span>
-                            </div>
 
-                            <div className="mt-2 flex flex-wrap gap-1.5">
-                              {versions.map((card) => (
+                              <div className="mt-2 flex flex-wrap gap-1.5">
+                                {cards.map((card) => (
+                                  <button
+                                    key={`${card.cardId}-${card.version}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleCardClick(card);
+                                    }}
+                                    className="px-2 py-1 text-xs bg-gray-50 text-gray-600 border border-gray-100 rounded-md hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-colors"
+                                  >
+                                    v{card.version}
+                                  </button>
+                                ))}
+
                                 <button
-                                  key={`${card.cardId}-${card.version}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleCardClick(card);
-                                  }}
-                                  className="px-2 py-1 text-xs bg-gray-50 text-gray-600 border border-gray-100 rounded-md hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-colors"
+                                  onClick={() =>
+                                    handleCardClick(cards[cards.length - 1])
+                                  }
+                                  className="ml-auto flex items-center text-xs text-blue-500 hover:text-blue-700 font-medium"
                                 >
-                                  v{card.version}
+                                  View latest
+                                  <ArrowRight className="w-3 h-3 ml-1" />
                                 </button>
-                              ))}
-
-                              <button
-                                onClick={() =>
-                                  handleCardClick(versions[versions.length - 1])
-                                }
-                                className="ml-auto flex items-center text-xs text-blue-500 hover:text-blue-700 font-medium"
-                              >
-                                View latest
-                                <ArrowRight className="w-3 h-3 ml-1" />
-                              </button>
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        </Link>
                       </div>
                     );
                   })}

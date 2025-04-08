@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import KeywordNavigation from "./KeywordNavigation"; // Adjust the import path as needed
 import { Link } from "react-router-dom";
 import { formatDate } from "../../utils/formateDate";
+import { useParams } from "react-router-dom";
 
 // Helper to escape regex special characters.
 function escapeRegExp(string) {
@@ -60,8 +61,9 @@ function highlightTextNodes(htmlContent, keyword) {
 }
 
 const KeywordCardContent = ({ cardData2, keyword }) => {
-  const cardId = cardData2.cardId;
-  const version = cardData2.version;
+  const { cardId, version } = useParams();
+  //   const cardId = cardData2.cardId;
+  //   const version = cardData2.version;
 
   console.log("cardData2", cardData2);
 
@@ -128,7 +130,7 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
   }
 
   const { cardName, last_updated, url, bank_name, changes } = cardData;
-  const originalContent = changes[activeTab].content || "";
+  const originalContent = changes[activeTab]?.content || "";
   // Use the cleaned keyword for highlighting.
   const highlightedContent = highlightTextNodes(originalContent, cleanKeyword);
 
