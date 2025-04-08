@@ -17,6 +17,7 @@ function App() {
         <Route path="/" element={<CardsCompareLIst />} />
         <Route path="/test" element={<Test />} />
         <Route path="/compare/:cardId" element={<CardsCompareLIst />} />
+        <Route path="/overview/:overview" element={<CardsCompareLIst />} />
 
         {/* <Route path="/" element={<CardsCompareLIst />} /> */}
         {/* Add a redirect from root to default compare route */}

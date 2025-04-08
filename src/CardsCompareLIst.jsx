@@ -9,6 +9,8 @@ import { Home } from "./components/home/Home";
 function CardsCompareList() {
   const navigate = useNavigate();
   const { cardId: routeCardId } = useParams();
+  // const { overview } = useParams("overview");
+  // console.log("overviewId", overview);
   const containerRef = useRef(null);
 
   const [isLoading, setIsLoading] = useState(true);
