@@ -10,8 +10,6 @@ import Navbar from "./components/nav/Navbar";
 import Test from "./components/home/Test";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <BrowserRouter>
       {/* <Navbar /> */}

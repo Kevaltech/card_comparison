@@ -366,7 +366,7 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
             </div>
             {/* SearchKeyword Button (Right) */}
             <div className="w-1/8 flex justify-end mt-4">
-              <button
+              {/* <button
                 onClick={handleSearchRedirect}
                 type="button"
                 className={`flex items-center gap-2 text-white ${
@@ -376,13 +376,13 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
                 } focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:focus:ring-blue-800`}
               >
                 <Search className="w-4 h-4" />
-                {/* Search Keyword */}
-              </button>
-              {/* <Link
+               
+              </button> */}
+              <Link
                 to={"/searchKeyword"}
-                // target="_blank"
+                target="_blank"
                 //  onClick={handleSearchRedirect}
-                 type="button"
+                type="button"
                 className={`flex items-center gap-2 text-white ${
                   isActive("/searchKeyword")
                     ? "bg-blue-800 dark:bg-blue-700"
@@ -390,23 +390,14 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
                 } focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:focus:ring-blue-800`}
               >
                 <Search className="w-4 h-4" />
-               
-              </Link> */}
+              </Link>
             </div>
           </div>
         </div>
       </div>
-      {/* <div className="flex items-center justify-center space-x-4 mb-0">
-        <button
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-          onClick={handleDiff}
-        >
-          Diff
-        </button>
-      </div> */}
 
+      {/* Content Section */}
       <div className="">
-        {/* Content Section */}
         {!test ? (
           <div>
             <Test
