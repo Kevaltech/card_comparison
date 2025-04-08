@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Search, ChevronLeft, X, ArrowRight, Check } from "lucide-react";
+import { Search, ChevronLeft, X, ArrowRight, Check, Home } from "lucide-react";
 import axios from "axios";
 import { formatDate } from "../../utils/formateDate";
 import { Link } from "react-router-dom";
@@ -148,9 +148,19 @@ function SearchKeyword() {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Top Search Bar */}
-      <div className="flex-none bg-white shadow-sm pl-32">
+      <div className="flex-none bg-white shadow-sm">
         <div className="max-w-5xl mx-auto px-6 py-6">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            {/* Home button */}
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition"
+            >
+              <Home className="w-5 h-5" />
+              <span className="font-medium">Home</span>
+            </Link>
+
+            {/* Search input */}
             <div className="flex-1 relative">
               <input
                 type="text"
@@ -158,7 +168,7 @@ function SearchKeyword() {
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                 placeholder="Search in card comparisons..."
-                className="w-full px-4 py-2 pl-10 h-11 border-none bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                className="w-full pl-10 pr-4 py-2 h-11 border-none bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
               {keyword && (
@@ -170,15 +180,20 @@ function SearchKeyword() {
                 </button>
               )}
             </div>
+
+            {/* Search button with proper width */}
             <button
               onClick={handleSearch}
               disabled={loading}
-              className="h-11 px-6 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 font-medium transition-all flex items-center"
+              className="h-11 px-6 min-w-[120px] bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 font-medium transition-all flex items-center justify-center"
             >
               {loading ? "Searching..." : "Search"}
             </button>
           </div>
-          {error && <p className="mt-2 text-red-600 text-sm">{error}</p>}
+
+          {error && (
+            <p className="mt-2 text-center text-red-600 text-sm">{error}</p>
+          )}
         </div>
       </div>
 

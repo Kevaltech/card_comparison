@@ -421,7 +421,7 @@ export const Home = () => {
                 <span className="text-xl font-bold">
                   {stats.mainCards.total}
                 </span>
-                <span className="ml-1 text-xs text-gray-500">cards</span>
+                {/* <span className="ml-1 text-xs text-gray-500">cards</span> */}
               </div>
             </div>
           </div>
@@ -436,7 +436,7 @@ export const Home = () => {
                 <span className="text-xl font-bold">
                   {stats.mainCards.open}
                 </span>
-                <span className="ml-1 text-xs text-gray-500">pending</span>
+                {/* <span className="ml-1 text-xs text-gray-500">pending</span> */}
               </div>
             </div>
           </div>
@@ -451,7 +451,7 @@ export const Home = () => {
                 <span className="text-xl font-bold">
                   {stats.mainCards.resolved}
                 </span>
-                <span className="ml-1 text-xs text-gray-500">completed</span>
+                {/* <span className="ml-1 text-xs text-gray-500">completed</span> */}
               </div>
             </div>
           </div>
@@ -471,7 +471,7 @@ export const Home = () => {
                 <span className="text-xl font-bold">
                   {stats.generalCards.total}
                 </span>
-                <span className="ml-1 text-xs text-gray-500">cards</span>
+                {/* <span className="ml-1 text-xs text-gray-500">cards</span> */}
               </div>
             </div>
           </div>
@@ -486,7 +486,7 @@ export const Home = () => {
                 <span className="text-xl font-bold">
                   {stats.generalCards.open}
                 </span>
-                <span className="ml-1 text-xs text-gray-500">pending</span>
+                {/* <span className="ml-1 text-xs text-gray-500">pending</span> */}
               </div>
             </div>
           </div>
@@ -501,7 +501,7 @@ export const Home = () => {
                 <span className="text-xl font-bold">
                   {stats.generalCards.resolved}
                 </span>
-                <span className="ml-1 text-xs text-gray-500">completed</span>
+                {/* <span className="ml-1 text-xs text-gray-500">completed</span> */}
               </div>
             </div>
           </div>
