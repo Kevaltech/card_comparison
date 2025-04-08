@@ -15,6 +15,7 @@ const BANKS = [
   "ICICI",
   "IDFC",
   "IndusInd",
+  "Kotak",
   "RBL",
   "SBI",
   "SCB",
