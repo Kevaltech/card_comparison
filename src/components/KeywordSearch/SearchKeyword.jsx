@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Search, ChevronLeft, X, ArrowRight, Home } from "lucide-react";
 import axios from "axios";
 import { formatDate } from "../../utils/formateDate";
@@ -189,6 +189,38 @@ function SearchKeyword() {
     allResults?.results
   );
 
+  // Fix for the sortedResults implementation
+  const sortedResults = useMemo(() => {
+    if (!groupedResults) return [];
+
+    // Convert groupedResults object to array of objects with key and cards properties
+    return (
+      Object.entries(groupedResults)
+        .map(([key, cards]) => {
+          // Extract the first card to get the bank_name and cardName
+          const firstCard = cards[0];
+          return {
+            key,
+            cards,
+            bank_name: firstCard.bank_name,
+            cardName: firstCard.cardName,
+          };
+        })
+        // First sort by bank_name alphabetically
+        .sort((a, b) => {
+          // First level: sort by bank_name
+          const bankComparison = a.bank_name.localeCompare(b.bank_name);
+
+          // If bank names are the same, sort by cardName
+          if (bankComparison === 0) {
+            return a.cardName.localeCompare(b.cardName);
+          }
+
+          return bankComparison;
+        })
+    );
+  }, [groupedResults]);
+
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Top Search Bar */}
@@ -366,18 +398,20 @@ function SearchKeyword() {
                   />
                 </>
               ) : Object.keys(groupedResults).length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <h2 className="text-lg font-medium text-gray-900 mb-4">
                     {Object.keys(groupedResults).length} cards found for "
                     {keyword}"
                   </h2>
-                  {Object.entries(groupedResults).map(([cardKey, versions]) => {
+
+                  {sortedResults.map((item) => {
+                    const versions = item.cards;
                     const firstCard = versions[0];
                     const latestCard = versions[versions.length - 1];
                     return (
                       <div
-                        key={cardKey}
-                        className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-50 group"
+                        key={item.key}
+                        className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow px-3 py-1 border border-gray-50 group"
                         onContextMenu={(e) => handleContextMenu(e, latestCard)}
                       >
                         <div className="flex justify-between items-center">
@@ -386,21 +420,21 @@ function SearchKeyword() {
                             onClick={() => handleCardClick(latestCard)}
                           >
                             <div className="flex items-center">
-                              <div className="flex-1">
+                              <div className="flex-1 flex items-center gap-2">
                                 <h2 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                                   {firstCard.cardName} ({firstCard.cardId})
                                 </h2>
                                 <p className="text-xs text-gray-500">
                                   {firstCard.bank_name} • {versions.length}{" "}
-                                  version
-                                  {versions.length > 1 ? "s" : ""}
+                                  version{versions.length > 1 ? "s" : ""}
                                 </p>
                               </div>
+
                               <span className="text-xs text-gray-400 mr-2 whitespace-nowrap">
                                 Updated {formatDate(latestCard.last_updated)}
                               </span>
                             </div>
-                            <div className="mt-2 flex flex-wrap gap-1.5">
+                            <div className="mt-1 flex flex-wrap gap-1.5">
                               {versions.map((card) => (
                                 <button
                                   key={`${card.cardId}-${card.version}`}
