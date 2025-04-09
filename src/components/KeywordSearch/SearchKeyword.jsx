@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Search, ChevronLeft, X, ArrowRight, Check, Home } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { Search, ChevronLeft, X, ArrowRight, Home } from "lucide-react";
 import axios from "axios";
 import { formatDate } from "../../utils/formateDate";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import KeywordCardContent from "./KeywordCardContent";
 
 const BANKS = [
@@ -15,7 +15,6 @@ const BANKS = [
   "ICICI",
   "IDFC",
   "IndusInd",
-  "Kotak",
   "RBL",
   "SBI",
   "SCB",
@@ -23,6 +22,7 @@ const BANKS = [
 ];
 
 function SearchKeyword() {
+  const [searchParams] = useSearchParams();
   const [keyword, setKeyword] = useState("");
   const [allResults, setAllResults] = useState(null);
   const [displayedResults, setDisplayedResults] = useState([]);
@@ -31,31 +31,62 @@ function SearchKeyword() {
   const [error, setError] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
   const [selectedBanks, setSelectedBanks] = useState([]);
-  const [showFilters, setShowFilters] = useState(false);
+  const [contextMenu, setContextMenu] = useState(null);
   const containerRef = useRef(null);
+
+  // Load persisted search results on mount and check for query params.
+  useEffect(() => {
+    const stored = sessionStorage.getItem("searchResults");
+    if (stored) {
+      const parsedData = JSON.parse(stored);
+      setAllResults(parsedData);
+      filterResults(parsedData.results, selectedBanks);
+    }
+    const selectedCardParam = searchParams.get("selectedCard");
+    const keywordParam = searchParams.get("keyword");
+    if (keywordParam) {
+      setKeyword(keywordParam);
+    }
+    if (selectedCardParam && stored) {
+      const { results } = JSON.parse(stored);
+      const matchingCard = results.find(
+        (card) => `${card.cardId}_${card.version}` === selectedCardParam
+      );
+      if (matchingCard) {
+        setSelectedCard(matchingCard);
+      }
+    }
+  }, []);
+
+  // Global click to close custom context menu
+  useEffect(() => {
+    const handleClick = () => {
+      if (contextMenu) setContextMenu(null);
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [contextMenu]);
 
   const handleSearch = async () => {
     if (!keyword.trim()) {
       setError("Please enter a search keyword.");
       return;
     }
-
     setLoading(true);
     setError("");
     setAllResults(null);
     setGroupedResults({});
+    setSelectedCard(null);
 
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_SEARCH_KEYWORDS_URL}=${encodeURIComponent(
           keyword
         )}`,
-        {
-          headers: { "ngrok-skip-browser-warning": "234242" },
-        }
+        { headers: { "ngrok-skip-browser-warning": "234242" } }
       );
-
       setAllResults(response.data);
+      sessionStorage.setItem("searchResults", JSON.stringify(response.data));
       filterResults(response.data.results, selectedBanks);
     } catch (err) {
       setError("Search failed. Please try again.");
@@ -66,7 +97,6 @@ function SearchKeyword() {
 
   const filterResults = (results, banks) => {
     if (!results) return;
-
     const filtered =
       banks.length > 0
         ? results.filter((card) =>
@@ -80,22 +110,16 @@ function SearchKeyword() {
 
     setDisplayedResults(filtered);
 
-    // Group results by card name
+    // Group results by card name and bank.
     const grouped = filtered.reduce((acc, card) => {
-      // Create a key combining card name and bank name to avoid conflicts
       const key = `${card.cardName}-${card.bank_name}`;
-      if (!acc[key]) {
-        acc[key] = [];
-      }
+      if (!acc[key]) acc[key] = [];
       acc[key].push(card);
       return acc;
     }, {});
-
-    // Sort versions within each group
     Object.keys(grouped).forEach((key) => {
       grouped[key].sort((a, b) => a.version - b.version);
     });
-
     setGroupedResults(grouped);
   };
 
@@ -103,25 +127,40 @@ function SearchKeyword() {
     const newSelection = selectedBanks.includes(bank)
       ? selectedBanks.filter((b) => b !== bank)
       : [...selectedBanks, bank];
-
     setSelectedBanks(newSelection);
     filterResults(allResults?.results, newSelection);
   };
 
   const handleToggleAllBanks = () => {
     if (selectedBanks.length === BANKS.length) {
-      // Clear all selections
       setSelectedBanks([]);
       filterResults(allResults?.results, []);
     } else {
-      // Select all banks
       setSelectedBanks([...BANKS]);
       filterResults(allResults?.results, [...BANKS]);
     }
   };
 
+  // Left-click: show card details in same tab.
   const handleCardClick = (card) => {
     setSelectedCard(card);
+  };
+
+  // Right-click: show custom context menu.
+  const handleContextMenu = (e, card) => {
+    e.preventDefault();
+    setContextMenu({ x: e.pageX, y: e.pageY, card });
+  };
+
+  // Open card details in new tab using URL with query parameters.
+  const openCardInNewTab = (card) => {
+    const cardIdentifier = `${card.cardId}_${card.version}`;
+    const detailsUrl = `${
+      window.location.origin
+    }/searchKeyword?selectedCard=${cardIdentifier}&keyword=${encodeURIComponent(
+      keyword
+    )}`;
+    window.open(detailsUrl, "_blank");
   };
 
   const handleBack = () => {
@@ -141,43 +180,9 @@ function SearchKeyword() {
     return uniqueCards.size;
   };
 
-  // After fetching results
   const totalGroupedCardsCount = calculateTotalGroupedCards(
     allResults?.results
   );
-
-  // After setting groupedResults, create a sorted array of entries
-
-  const sortedResults = useMemo(() => {
-    if (!groupedResults) return [];
-
-    // Convert groupedResults object to array of [key, cards] entries
-    return (
-      Object.entries(groupedResults)
-        .map(([key, cards]) => {
-          // Extract the first card to get the bank_name and cardName
-          const firstCard = cards[0];
-          return {
-            key,
-            cards,
-            bank_name: firstCard.bank_name,
-            cardName: firstCard.cardName,
-          };
-        })
-        // First sort by bank_name alphabetically
-        .sort((a, b) => {
-          // First level: sort by bank_name
-          const bankComparison = a.bank_name.localeCompare(b.bank_name);
-
-          // If bank names are the same, sort by cardName
-          if (bankComparison === 0) {
-            return a.cardName.localeCompare(b.cardName);
-          }
-
-          return bankComparison;
-        })
-    );
-  }, [groupedResults]);
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -185,7 +190,6 @@ function SearchKeyword() {
       <div className="flex-none bg-white shadow-sm">
         <div className="max-w-5xl mx-auto px-6 py-6">
           <div className="flex items-center gap-4">
-            {/* Home button */}
             <Link
               to="/"
               className="flex items-center gap-2 text-gray-700 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition"
@@ -193,8 +197,6 @@ function SearchKeyword() {
               <Home className="w-5 h-5" />
               <span className="font-medium">Home</span>
             </Link>
-
-            {/* Search input */}
             <div className="flex-1 relative">
               <input
                 type="text"
@@ -214,8 +216,6 @@ function SearchKeyword() {
                 </button>
               )}
             </div>
-
-            {/* Search button with proper width */}
             <button
               onClick={handleSearch}
               disabled={loading}
@@ -224,7 +224,6 @@ function SearchKeyword() {
               {loading ? "Searching..." : "Search"}
             </button>
           </div>
-
           {error && (
             <p className="mt-2 text-center text-red-600 text-sm">{error}</p>
           )}
@@ -238,35 +237,26 @@ function SearchKeyword() {
             <div className="px-4 pl-8">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-medium uppercase tracking-wide text-gray-500">
-                  Select all bank
+                  Filter by Bank
                 </h3>
-
                 <button
                   onClick={handleToggleAllBanks}
-                  className={`
-                    relative inline-flex h-6 w-11 items-center rounded-full
-                    transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
-                    ${
-                      selectedBanks.length === BANKS.length
-                        ? "bg-indigo-600"
-                        : "bg-gray-200"
-                    }
-                  `}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                    selectedBanks.length === BANKS.length
+                      ? "bg-indigo-600"
+                      : "bg-gray-200"
+                  }`}
                 >
                   <span className="sr-only">Toggle switch</span>
                   <span
-                    className={`
-                      inline-block h-4 w-4 transform rounded-full bg-white transition duration-300 ease-in-out
-                      ${
-                        selectedBanks.length === BANKS.length
-                          ? "translate-x-6"
-                          : "translate-x-1"
-                      }
-                    `}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-300 ease-in-out ${
+                      selectedBanks.length === BANKS.length
+                        ? "translate-x-6"
+                        : "translate-x-1"
+                    }`}
                   />
                 </button>
               </div>
-
               <div className="space-y-1 overflow-y-auto pr-2">
                 {BANKS.map((bank) => {
                   const count = allResults?.results
@@ -305,7 +295,6 @@ function SearchKeyword() {
                   );
                 })}
               </div>
-
               <div className="mt-6 mb-2 pt-4 border-t border-gray-100">
                 <h2 className="text-sm font-medium text-gray-500">
                   {totalGroupedCardsCount} cards found
@@ -321,7 +310,10 @@ function SearchKeyword() {
           </div>
 
           {/* Results / Card Details */}
-          <div ref={containerRef} className="flex-1 overflow-y-auto pr-28">
+          <div
+            ref={containerRef}
+            className="flex-1 overflow-y-auto pr-28 relative"
+          >
             <div className="max-w-5xl mx-auto px-6 py-6">
               {loading ? (
                 <div className="flex justify-center items-center py-16">
@@ -353,70 +345,58 @@ function SearchKeyword() {
                     {Object.keys(groupedResults).length} cards found for "
                     {keyword}"
                   </h2>
-                  {sortedResults.map(({ key, cards }) => {
-                    const firstCard = cards[0];
+                  {Object.entries(groupedResults).map(([cardKey, versions]) => {
+                    const firstCard = versions[0];
+                    const latestCard = versions[versions.length - 1];
                     return (
                       <div
-                        key={key}
+                        key={cardKey}
                         className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-3 border border-gray-50 group"
+                        onContextMenu={(e) => handleContextMenu(e, latestCard)}
                       >
-                        <Link
-                          to={`/searchKeyword/${
-                            cards[cards.length - 1].cardId
-                          }/${cards[cards.length - 1].version}`}
-                        >
-                          <div className="flex justify-between items-center">
-                            <div
-                              className="flex-1 cursor-pointer"
-                              onClick={() =>
-                                handleCardClick(cards[cards.length - 1])
-                              }
-                            >
-                              <div className="flex items-center">
-                                <div className="flex-1">
-                                  <h2 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                    {firstCard.cardName} ({firstCard.cardId})
-                                  </h2>
-                                  <p className="text-xs text-gray-500">
-                                    {firstCard.bank_name} • {cards.length}{" "}
-                                    version{cards.length > 1 ? "s" : ""}
-                                  </p>
-                                </div>
-                                <span className="text-xs text-gray-400 mr-2 whitespace-nowrap">
-                                  Updated{" "}
-                                  {formatDate(
-                                    cards[cards.length - 1].last_updated
-                                  )}
-                                </span>
+                        <div className="flex justify-between items-center">
+                          <div
+                            className="flex-1 cursor-pointer"
+                            onClick={() => handleCardClick(latestCard)}
+                          >
+                            <div className="flex items-center">
+                              <div className="flex-1">
+                                <h2 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                  {firstCard.cardName} ({firstCard.cardId})
+                                </h2>
+                                <p className="text-xs text-gray-500">
+                                  {firstCard.bank_name} • {versions.length}{" "}
+                                  version
+                                  {versions.length > 1 ? "s" : ""}
+                                </p>
                               </div>
-
-                              <div className="mt-2 flex flex-wrap gap-1.5">
-                                {cards.map((card) => (
-                                  <button
-                                    key={`${card.cardId}-${card.version}`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleCardClick(card);
-                                    }}
-                                    className="px-2 py-1 text-xs bg-gray-50 text-gray-600 border border-gray-100 rounded-md hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-colors"
-                                  >
-                                    v{card.version}
-                                  </button>
-                                ))}
-
+                              <span className="text-xs text-gray-400 mr-2 whitespace-nowrap">
+                                Updated {formatDate(latestCard.last_updated)}
+                              </span>
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-1.5">
+                              {versions.map((card) => (
                                 <button
-                                  onClick={() =>
-                                    handleCardClick(cards[cards.length - 1])
-                                  }
-                                  className="ml-auto flex items-center text-xs text-blue-500 hover:text-blue-700 font-medium"
+                                  key={`${card.cardId}-${card.version}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCardClick(card);
+                                  }}
+                                  className="px-2 py-1 text-xs bg-gray-50 text-gray-600 border border-gray-100 rounded-md hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-colors"
                                 >
-                                  View latest
-                                  <ArrowRight className="w-3 h-3 ml-1" />
+                                  v{card.version}
                                 </button>
-                              </div>
+                              ))}
+                              <button
+                                onClick={() => handleCardClick(latestCard)}
+                                className="ml-auto flex items-center text-xs text-blue-500 hover:text-blue-700 font-medium"
+                              >
+                                View latest
+                                <ArrowRight className="w-3 h-3 ml-1" />
+                              </button>
                             </div>
                           </div>
-                        </Link>
+                        </div>
                       </div>
                     );
                   })}
@@ -441,6 +421,27 @@ function SearchKeyword() {
                 </div>
               )}
             </div>
+            {contextMenu && (
+              <div
+                style={{
+                  position: "fixed",
+                  top: contextMenu.y,
+                  left: contextMenu.x,
+                  zIndex: 1000,
+                  backgroundColor: "white",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  boxShadow: "0px 0px 10px rgba(0,0,0,0.2)",
+                }}
+              >
+                <div
+                  onClick={() => openCardInNewTab(contextMenu.card)}
+                  style={{ padding: "8px 12px", cursor: "pointer" }}
+                >
+                  Open in New Tab
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
