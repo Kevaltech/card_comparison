@@ -240,7 +240,7 @@ function SearchKeyword() {
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                placeholder="Search in card comparisons..."
+                placeholder="Search within cards..."
                 className="w-full pl-10 pr-4 py-2 h-11 border-none bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
@@ -470,12 +470,12 @@ function SearchKeyword() {
                         ? allResults.count === 0
                           ? "No matches found"
                           : "Ready to search"
-                        : "Enter a keyword to search"}
+                        : "Enter a keyword to search within cards"}
                     </p>
                     <p className="text-gray-400 text-sm">
                       {allResults && allResults.count === 0
                         ? "Try using different keywords or removing filters"
-                        : "Search for card comparisons by keyword"}
+                        : ""}
                     </p>
                   </div>
                 </div>
