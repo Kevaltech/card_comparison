@@ -320,21 +320,33 @@ const BankSection = ({
                   </span>
                 </button>
               )}
+
               {isOpenSectionVisible && (
                 <div className="flex items-center gap-2">
                   {filteredOpenCards.length > 0 && (
                     <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={
+                      <span className="text-sm text-gray-500">Select all</span>
+                      <button
+                        onClick={handleSelectAllOpen}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                           selectedOpenCards.length ===
                             filteredOpenCards.length &&
                           filteredOpenCards.length > 0
-                        }
-                        onChange={handleSelectAllOpen}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-500">Select all</span>
+                            ? "bg-blue-600"
+                            : "bg-gray-200"
+                        }`}
+                      >
+                        <span className="sr-only">Toggle switch</span>
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-300 ease-in-out ${
+                            selectedOpenCards.length ===
+                              filteredOpenCards.length &&
+                            filteredOpenCards.length > 0
+                              ? "translate-x-6"
+                              : "translate-x-1"
+                          }`}
+                        />
+                      </button>
                     </div>
                   )}
 
@@ -387,7 +399,7 @@ const BankSection = ({
           {isOpenSectionVisible && (
             <ul className="space-y-1 pl-6">
               {filteredOpenCards.map((card) => (
-                <li key={card.cardId}>
+                <li key={card.cardId} className="group relative">
                   <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -396,7 +408,6 @@ const BankSection = ({
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
                     <Link
-                      // onClick={() => onCardSelect(card.cardId)}
                       to={`/compare/${card.cardId}`}
                       className={`flex-1 flex items-center w-full p-2 text-sm rounded-lg transition-colors ${
                         selectedCard === card.cardId
@@ -415,12 +426,23 @@ const BankSection = ({
                         </span>
                       </div>
                     </Link>
+
+                    {/* Google Flights-style "Only" button */}
                     <button
                       onClick={() => handleOnlySelectOpen(card.cardId)}
-                      className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      className={`
+                              opacity-0 group-hover:opacity-100 transition-opacity
+                              text-xs text-blue-500 px-2 py-1 rounded
+                              ${
+                                selectedOpenCards.length === 1 &&
+                                selectedOpenCards[0] === card.cardId
+                                  ? "bg-blue-50 font-medium"
+                                  : "hover:bg-gray-100"
+                              }
+            `}
                       title="Select only this card"
                     >
-                      <Focus size={16} />
+                      Only
                     </button>
                   </div>
                 </li>
@@ -481,19 +503,31 @@ const BankSection = ({
                     </span>
                   </button>
                 )}
+
                 {filteredResolveCards.length > 0 && (
                   <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={
+                    <span className="text-sm text-gray-500">Select all</span>
+                    <button
+                      onClick={handleSelectAllResolve}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                         selectedResolveCards.length ===
                           filteredResolveCards.length &&
                         filteredResolveCards.length > 0
-                      }
-                      onChange={handleSelectAllResolve}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-500">Select all</span>
+                          ? "bg-blue-600"
+                          : "bg-gray-200"
+                      }`}
+                    >
+                      <span className="sr-only">Toggle switch</span>
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-300 ease-in-out ${
+                          selectedResolveCards.length ===
+                            filteredResolveCards.length &&
+                          filteredResolveCards.length > 0
+                            ? "translate-x-6"
+                            : "translate-x-1"
+                        }`}
+                      />
+                    </button>
                   </div>
                 )}
 
@@ -545,7 +579,7 @@ const BankSection = ({
         {isResolveSectionVisible && (
           <ul className="space-y-1 pl-6">
             {filteredResolveCards.map((card) => (
-              <li key={card.cardId}>
+              <li key={card.cardId} className="group relative">
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -553,8 +587,9 @@ const BankSection = ({
                     onChange={() => handleResolveCardSelect(card.cardId)}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <button
-                    onClick={() => onCardSelect(card.cardId)}
+                  <Link
+                    // onClick={() => onCardSelect(card.cardId)}
+                    to={`/compare/${card.cardId}`}
                     className={`flex-1 flex items-center w-full p-2 text-sm rounded-lg transition-colors ${
                       selectedCard === card.cardId
                         ? "bg-blue-100 text-blue-700 hover:bg-blue-100"
@@ -571,13 +606,24 @@ const BankSection = ({
                         {formatDate(card.last_update)}
                       </span>
                     </div>
-                  </button>
+                  </Link>
+
+                  {/* Google Flights-style "Only" button */}
                   <button
                     onClick={() => handleOnlySelectResolve(card.cardId)}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className={`
+                            opacity-0 group-hover:opacity-100 transition-opacity
+                            text-xs text-blue-500 px-2 py-1 rounded
+                            ${
+                              selectedResolveCards.length === 1 &&
+                              selectedResolveCards[0] === card.cardId
+                                ? "bg-blue-50 font-medium"
+                                : "hover:bg-gray-100"
+                            }
+                          `}
                     title="Select only this card"
                   >
-                    <Focus size={16} />
+                    Only
                   </button>
                 </div>
               </li>

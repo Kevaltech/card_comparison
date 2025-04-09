@@ -141,6 +141,11 @@ function SearchKeyword() {
     }
   };
 
+  const handleOnlySelectBank = (bank) => {
+    setSelectedBanks([bank]);
+    filterResults(allResults?.results, [bank]);
+  };
+
   // Left-click: show card details in same tab.
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -241,9 +246,9 @@ function SearchKeyword() {
                 </h3>
                 <button
                   onClick={handleToggleAllBanks}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                     selectedBanks.length === BANKS.length
-                      ? "bg-indigo-600"
+                      ? "bg-blue-600"
                       : "bg-gray-200"
                   }`}
                 >
@@ -271,27 +276,48 @@ function SearchKeyword() {
                       ).size
                     : 0;
                   return (
-                    <label
-                      key={bank}
-                      className="flex items-center space-x-2 py-1 px-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedBanks.includes(bank)}
-                        onChange={() => handleBankFilter(bank)}
-                        className="rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
-                      />
-                      <span
-                        className={`text-sm ${
-                          selectedBanks.includes(bank)
-                            ? "text-blue-600 font-medium"
-                            : "text-gray-700"
-                        }`}
-                      >
-                        {bank}{" "}
-                        <span className="text-gray-400 text-xs">({count})</span>
-                      </span>
-                    </label>
+                    <div key={bank} className="group relative">
+                      <div className="flex items-center py-1 px-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <label className="flex items-center space-x-2 cursor-pointer flex-1">
+                          <input
+                            type="checkbox"
+                            checked={selectedBanks.includes(bank)}
+                            onChange={() => handleBankFilter(bank)}
+                            className="rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                          />
+                          <span
+                            className={`text-sm ${
+                              selectedBanks.includes(bank)
+                                ? "text-blue-600 font-medium"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {bank}{" "}
+                            <span className="text-gray-400 text-xs">
+                              ({count})
+                            </span>
+                          </span>
+                        </label>
+
+                        {/* Google Flights-style "Only" button */}
+                        <button
+                          onClick={() => handleOnlySelectBank(bank)}
+                          className={`
+                            opacity-0 group-hover:opacity-100 transition-opacity
+                            text-xs text-blue-500 px-2 py-1 rounded
+                            ${
+                              selectedBanks.length === 1 &&
+                              selectedBanks[0] === bank
+                                ? "bg-blue-50 font-medium"
+                                : "hover:bg-gray-100"
+                            }
+                        `}
+                          title="Select only this bank"
+                        >
+                          Only
+                        </button>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

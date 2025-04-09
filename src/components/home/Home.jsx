@@ -635,7 +635,7 @@ export const Home = () => {
                 <tr
                   key={card.CardId}
                   className="cursor-pointer hover:bg-gray-50"
-                  // onClick={() => handleSearchRedirect(card.CardId)}
+                  onClick={() => handleSearchRedirect(card.CardId)}
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center">
