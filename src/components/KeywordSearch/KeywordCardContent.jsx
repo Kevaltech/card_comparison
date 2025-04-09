@@ -10,7 +10,7 @@ function escapeRegExp(string) {
 }
 
 // Count occurrences only in the text nodes.
-function countTextOccurrences(htmlContent, keyword) {
+function countTextOccurrences(htmlContent, keyword, exact = false) {
   if (!keyword) return 0;
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, "text/html");
@@ -21,7 +21,11 @@ function countTextOccurrences(htmlContent, keyword) {
     null,
     false
   );
-  const regex = new RegExp(escapeRegExp(keyword), "gi");
+  // If exact is true, match the keyword with optional plural (i.e. an optional trailing "s") and word boundaries.
+  const regex = exact
+    ? new RegExp(`\\b(${escapeRegExp(keyword)})(s)?\\b`, "gi")
+    : new RegExp(escapeRegExp(keyword), "gi");
+
   while (walker.nextNode()) {
     const text = walker.currentNode.nodeValue;
     const matches = text.match(regex);
@@ -33,7 +37,7 @@ function countTextOccurrences(htmlContent, keyword) {
 }
 
 // Highlight occurrences only in text nodes.
-function highlightTextNodes(htmlContent, keyword) {
+function highlightTextNodes(htmlContent, keyword, exact = false) {
   if (!keyword) return htmlContent;
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, "text/html");
@@ -43,7 +47,10 @@ function highlightTextNodes(htmlContent, keyword) {
     null,
     false
   );
-  const regex = new RegExp(escapeRegExp(keyword), "gi");
+  const regex = exact
+    ? new RegExp(`\\b(${escapeRegExp(keyword)})(s)?\\b`, "gi")
+    : new RegExp(escapeRegExp(keyword), "gi");
+
   const textNodes = [];
   while (walker.nextNode()) {
     textNodes.push(walker.currentNode);
@@ -61,12 +68,11 @@ function highlightTextNodes(htmlContent, keyword) {
 }
 
 const KeywordCardContent = ({ cardData2, keyword }) => {
-  //   const { cardId, version } = useParams();
   const cardId = cardData2.cardId;
   const version = cardData2.version;
 
-  console.log("cardData2", cardData2);
-
+  // Check if keyword is wrapped in double quotes for an exact search.
+  const isExactSearch = keyword.startsWith('"') && keyword.endsWith('"');
   // Remove surrounding quotes if present.
   const cleanKeyword = keyword.replace(/^"|"$/g, "");
 
@@ -131,8 +137,12 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
 
   const { cardName, last_updated, url, bank_name, changes } = cardData;
   const originalContent = changes[activeTab]?.content || "";
-  // Use the cleaned keyword for highlighting.
-  const highlightedContent = highlightTextNodes(originalContent, cleanKeyword);
+  // Use the cleaned keyword for highlighting, passing the exact search flag.
+  const highlightedContent = highlightTextNodes(
+    originalContent,
+    cleanKeyword,
+    isExactSearch
+  );
 
   // Navigate to next highlighted occurrence.
   const onNextKeyword = () => {
@@ -198,7 +208,8 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
               {changes.map((tab, index) => {
                 const tabKeywordCount = countTextOccurrences(
                   tab.content,
-                  cleanKeyword
+                  cleanKeyword,
+                  isExactSearch
                 );
                 return (
                   <button
