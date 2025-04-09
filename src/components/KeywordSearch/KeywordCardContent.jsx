@@ -61,9 +61,9 @@ function highlightTextNodes(htmlContent, keyword) {
 }
 
 const KeywordCardContent = ({ cardData2, keyword }) => {
-  const { cardId, version } = useParams();
-  //   const cardId = cardData2.cardId;
-  //   const version = cardData2.version;
+  //   const { cardId, version } = useParams();
+  const cardId = cardData2.cardId;
+  const version = cardData2.version;
 
   console.log("cardData2", cardData2);
 
