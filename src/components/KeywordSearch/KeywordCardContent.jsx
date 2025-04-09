@@ -21,7 +21,7 @@ function countTextOccurrences(htmlContent, keyword, exact = false) {
     null,
     false
   );
-  // If exact is true, match the keyword with optional plural (i.e. an optional trailing "s") and word boundaries.
+  // If exact, match whole word with an optional trailing "s".
   const regex = exact
     ? new RegExp(`\\b(${escapeRegExp(keyword)})(s)?\\b`, "gi")
     : new RegExp(escapeRegExp(keyword), "gi");
@@ -78,7 +78,8 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
 
   const [cardData, setCardData] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [curKeywordIndex, setCurKeywordIndex] = useState(0);
+  // Initialize with -1 so that initially no occurrence is active.
+  const [curKeywordIndex, setCurKeywordIndex] = useState(-1);
   const [keywordCount, setKeywordCount] = useState(0);
 
   const contentRef = useRef(null);
@@ -107,8 +108,9 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
         ".highlighted-keyword"
       );
       setKeywordCount(highlights.length);
+      // If there are no highlights, ensure the active index is -1.
       if (highlights.length === 0) {
-        setCurKeywordIndex(0);
+        setCurKeywordIndex(-1);
       }
     }
   }, [cardData, activeTab, cleanKeyword]);
@@ -120,7 +122,8 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
         ".highlighted-keyword"
       );
       highlights.forEach((el, index) => {
-        if (index === curKeywordIndex) {
+        // Only highlight the active occurrence if curKeywordIndex is non-negative.
+        if (curKeywordIndex === index) {
           el.style.backgroundColor = "orange"; // active keyword color
           el.style.fontWeight = "bold";
         } else {
@@ -151,7 +154,9 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
         ".highlighted-keyword"
       );
       if (!highlights.length) return;
-      const nextIndex = (curKeywordIndex + 1) % highlights.length;
+      // If no keyword is active, set to first (index 0), else move to the next.
+      const nextIndex =
+        curKeywordIndex === -1 ? 0 : (curKeywordIndex + 1) % highlights.length;
       highlights[nextIndex].scrollIntoView({
         behavior: "smooth",
         block: "center",
@@ -167,8 +172,11 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
         ".highlighted-keyword"
       );
       if (!highlights.length) return;
+      // If no keyword is active, set to the last occurrence, else move to the previous.
       const prevIndex =
-        (curKeywordIndex - 1 + highlights.length) % highlights.length;
+        curKeywordIndex === -1
+          ? highlights.length - 1
+          : (curKeywordIndex - 1 + highlights.length) % highlights.length;
       highlights[prevIndex].scrollIntoView({
         behavior: "smooth",
         block: "center",
@@ -216,7 +224,8 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
                     key={index}
                     onClick={() => {
                       setActiveTab(index);
-                      setCurKeywordIndex(0);
+                      // Reset active index when switching tabs.
+                      setCurKeywordIndex(-1);
                     }}
                     className={`relative px-4 py-2 -mb-px font-medium ${
                       activeTab === index
@@ -236,6 +245,7 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
             </div>
             {/* Keyword Navigation on the right side */}
             <KeywordNavigation
+              // Pass curKeywordIndex (with -1 indicating "none active") and total count.
               curKeywordIndex={curKeywordIndex}
               keywordCount={keywordCount}
               onPrev={onPrevKeyword}
