@@ -12,6 +12,7 @@ import {
   Filter,
 } from "lucide-react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const BankSection = ({
   bankName,
@@ -394,8 +395,9 @@ const BankSection = ({
                       onChange={() => handleOpenCardSelect(card.cardId)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <button
-                      onClick={() => onCardSelect(card.cardId)}
+                    <Link
+                      // onClick={() => onCardSelect(card.cardId)}
+                      to={`/compare/${card.cardId}`}
                       className={`flex-1 flex items-center w-full p-2 text-sm rounded-lg transition-colors ${
                         selectedCard === card.cardId
                           ? "bg-blue-100 text-blue-700 hover:bg-blue-100"
@@ -412,7 +414,7 @@ const BankSection = ({
                           {formatDate(card.open_update)}
                         </span>
                       </div>
-                    </button>
+                    </Link>
                     <button
                       onClick={() => handleOnlySelectOpen(card.cardId)}
                       className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
