@@ -416,7 +416,10 @@ const BankSection = ({
                       }`}
                       title={`${bankName} ${card.name} (ID ${card.cardId})`}
                     >
-                      <div className="w-full text-left truncate">
+                      <div
+                        className="w-full text-left truncate"
+                        onClick={() => handleOpenCardSelect(card.cardId)}
+                      >
                         <span className="font-medium">{card.name}</span>
                         <span className="text-xs text-gray-500 ml-2">
                           #{card.cardId} -
@@ -425,12 +428,10 @@ const BankSection = ({
                           {formatDate(card.open_update)}
                         </span>
                       </div>
-                    </Link>
-
-                    {/* Google Flights-style "Only" button */}
-                    <button
-                      onClick={() => handleOnlySelectOpen(card.cardId)}
-                      className={`
+                      {/* Google Flights-style "Only" button */}
+                      <button
+                        onClick={() => handleOnlySelectOpen(card.cardId)}
+                        className={`
                               opacity-0 group-hover:opacity-100 transition-opacity
                               text-xs text-blue-500 px-2 py-1 rounded
                               ${
@@ -439,11 +440,12 @@ const BankSection = ({
                                   ? "bg-blue-50 font-medium"
                                   : "hover:bg-gray-100"
                               }
-            `}
-                      title="Select only this card"
-                    >
-                      Only
-                    </button>
+               `}
+                        title="Select only this card"
+                      >
+                        Only
+                      </button>
+                    </Link>
                   </div>
                 </li>
               ))}
@@ -597,7 +599,10 @@ const BankSection = ({
                     }`}
                     title={`${bankName} ${card.name} (ID ${card.cardId})`}
                   >
-                    <div className="w-full text-left truncate">
+                    <div
+                      className="w-full text-left truncate"
+                      onClick={() => handleResolveCardSelect(card.cardId)}
+                    >
                       <span className="font-medium">{card.name}</span>
                       <span className="text-xs text-gray-500 ml-2">
                         #{card.cardId} -
@@ -606,12 +611,10 @@ const BankSection = ({
                         {formatDate(card.last_update)}
                       </span>
                     </div>
-                  </Link>
-
-                  {/* Google Flights-style "Only" button */}
-                  <button
-                    onClick={() => handleOnlySelectResolve(card.cardId)}
-                    className={`
+                    {/* Google Flights-style "Only" button */}
+                    <button
+                      onClick={() => handleOnlySelectResolve(card.cardId)}
+                      className={`
                             opacity-0 group-hover:opacity-100 transition-opacity
                             text-xs text-blue-500 px-2 py-1 rounded
                             ${
@@ -621,10 +624,11 @@ const BankSection = ({
                                 : "hover:bg-gray-100"
                             }
                           `}
-                    title="Select only this card"
-                  >
-                    Only
-                  </button>
+                      title="Select only this card"
+                    >
+                      Only
+                    </button>
+                  </Link>
                 </div>
               </li>
             ))}
