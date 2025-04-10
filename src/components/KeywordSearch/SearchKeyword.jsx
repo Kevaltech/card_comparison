@@ -154,6 +154,7 @@ function SearchKeyword() {
   // Right-click: show custom context menu.
   const handleContextMenu = (e, card) => {
     e.preventDefault();
+    e.stopPropagation();
     setContextMenu({ x: e.pageX, y: e.pageY, card });
   };
 
@@ -495,7 +496,7 @@ function SearchKeyword() {
                 }}
               >
                 <div
-                  onClick={() => openCardInNewTab(contextMenu.card)}
+                  onClick={(e) => openCardInNewTab(contextMenu.card, e)}
                   style={{ padding: "8px 12px", cursor: "pointer" }}
                 >
                   Open in New Tab
