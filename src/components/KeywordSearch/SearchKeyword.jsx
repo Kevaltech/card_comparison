@@ -2,7 +2,12 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Search, ChevronLeft, X, ArrowRight, Home } from "lucide-react";
 import axios from "axios";
 import { formatDate } from "../../utils/formateDate";
-import { Link, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useSearchParams,
+  useParams,
+  useNavigate,
+} from "react-router-dom";
 import KeywordCardContent from "./KeywordCardContent";
 
 const BANKS = [
@@ -15,6 +20,7 @@ const BANKS = [
   "ICICI",
   "IDFC",
   "IndusInd",
+  "Kotak",
   "RBL",
   "SBI",
   "SCB",
@@ -22,8 +28,17 @@ const BANKS = [
 ];
 
 function SearchKeyword() {
+  const { cardId, version } = useParams();
   const [searchParams] = useSearchParams();
-  const [keyword, setKeyword] = useState("");
+  const navigate = useNavigate();
+
+  // Use two states: one for the current input and another for the committed search keyword.
+  const [inputValue, setInputValue] = useState(
+    localStorage.getItem("searchKeyword") || ""
+  );
+  const [committedKeyword, setCommittedKeyword] = useState(
+    localStorage.getItem("searchKeyword") || ""
+  );
   const [allResults, setAllResults] = useState(null);
   const [displayedResults, setDisplayedResults] = useState([]);
   const [groupedResults, setGroupedResults] = useState({});
@@ -31,44 +46,42 @@ function SearchKeyword() {
   const [error, setError] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
   const [selectedBanks, setSelectedBanks] = useState([]);
-  const [contextMenu, setContextMenu] = useState(null);
   const containerRef = useRef(null);
 
-  // Load persisted search results on mount and check for query params.
+  // Load persisted search results and the committed keyword on mount.
   useEffect(() => {
-    const stored = sessionStorage.getItem("searchResults");
-    if (stored) {
-      const parsedData = JSON.parse(stored);
+    const storedResults = localStorage.getItem("searchResults");
+    const storedKeyword = localStorage.getItem("searchKeyword");
+    if (storedResults) {
+      const parsedData = JSON.parse(storedResults);
       setAllResults(parsedData);
       filterResults(parsedData.results, selectedBanks);
-    }
-    const selectedCardParam = searchParams.get("selectedCard");
-    const keywordParam = searchParams.get("keyword");
-    if (keywordParam) {
-      setKeyword(keywordParam);
-    }
-    if (selectedCardParam && stored) {
-      const { results } = JSON.parse(stored);
-      const matchingCard = results.find(
-        (card) => `${card.cardId}_${card.version}` === selectedCardParam
-      );
-      if (matchingCard) {
-        setSelectedCard(matchingCard);
+      // If route params exist, find and set the matching card.
+      if (cardId && version) {
+        const matchingCard = parsedData.results.find(
+          (card) =>
+            card.cardId === cardId &&
+            card.version.toString() === version.toString()
+        );
+        if (matchingCard) {
+          setSelectedCard(matchingCard);
+        }
       }
     }
-  }, []);
-
-  // Global click to close custom context menu
-  useEffect(() => {
-    const handleClick = () => {
-      if (contextMenu) setContextMenu(null);
-    };
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, [contextMenu]);
+    // If there is a keyword in the URL search params, override stored value.
+    const urlKeyword = searchParams.get("keyword");
+    if (urlKeyword) {
+      setInputValue(urlKeyword);
+      setCommittedKeyword(urlKeyword);
+      localStorage.setItem("searchKeyword", urlKeyword);
+    } else if (storedKeyword) {
+      setInputValue(storedKeyword);
+      setCommittedKeyword(storedKeyword);
+    }
+  }, [cardId, version, searchParams, selectedBanks]);
 
   const handleSearch = async () => {
-    if (!keyword.trim()) {
+    if (!inputValue.trim()) {
       setError("Please enter a search keyword.");
       return;
     }
@@ -78,15 +91,19 @@ function SearchKeyword() {
     setGroupedResults({});
     setSelectedCard(null);
 
+    // Commit the current search term and store it so it persists.
+    setCommittedKeyword(inputValue);
+    localStorage.setItem("searchKeyword", inputValue);
+
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_SEARCH_KEYWORDS_URL}=${encodeURIComponent(
-          keyword
+          inputValue
         )}`,
         { headers: { "ngrok-skip-browser-warning": "234242" } }
       );
       setAllResults(response.data);
-      sessionStorage.setItem("searchResults", JSON.stringify(response.data));
+      localStorage.setItem("searchResults", JSON.stringify(response.data));
       filterResults(response.data.results, selectedBanks);
     } catch (err) {
       setError("Search failed. Please try again.");
@@ -146,35 +163,11 @@ function SearchKeyword() {
     filterResults(allResults?.results, [bank]);
   };
 
-  // Left-click: show card details in same tab.
+  // Left-click: show card details in the same tab.
   const handleCardClick = (card) => {
     setSelectedCard(card);
-  };
-
-  // Right-click: show custom context menu.
-  const handleContextMenu = (e, card) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setContextMenu({ x: e.pageX, y: e.pageY, card });
-  };
-
-  // Open card details in new tab using URL with query parameters.
-  const openCardInNewTab = (card) => {
-    const cardIdentifier = `${card.cardId}_${card.version}`;
-    const detailsUrl = `${
-      window.location.origin
-    }/searchKeyword?selectedCard=${cardIdentifier}&keyword=${encodeURIComponent(
-      keyword
-    )}`;
-    window.open(detailsUrl, "_blank");
-  };
-
-  const handleBack = () => {
-    setSelectedCard(null);
-  };
-
-  const handleClearSearch = () => {
-    setKeyword("");
+    // Optionally, update the URL if needed:
+    // navigate(`/searchKeyword/${card.cardId}/${card.version}?keyword=${encodeURIComponent(committedKeyword)}`);
   };
 
   const calculateTotalGroupedCards = (results) => {
@@ -190,37 +183,38 @@ function SearchKeyword() {
     allResults?.results
   );
 
-  // Fix for the sortedResults implementation
+  // Convert groupedResults object into a sorted array.
   const sortedResults = useMemo(() => {
     if (!groupedResults) return [];
 
-    // Convert groupedResults object to array of objects with key and cards properties
-    return (
-      Object.entries(groupedResults)
-        .map(([key, cards]) => {
-          // Extract the first card to get the bank_name and cardName
-          const firstCard = cards[0];
-          return {
-            key,
-            cards,
-            bank_name: firstCard.bank_name,
-            cardName: firstCard.cardName,
-          };
-        })
-        // First sort by bank_name alphabetically
-        .sort((a, b) => {
-          // First level: sort by bank_name
-          const bankComparison = a.bank_name.localeCompare(b.bank_name);
-
-          // If bank names are the same, sort by cardName
-          if (bankComparison === 0) {
-            return a.cardName.localeCompare(b.cardName);
-          }
-
-          return bankComparison;
-        })
-    );
+    return Object.entries(groupedResults)
+      .map(([key, cards]) => {
+        const firstCard = cards[0];
+        return {
+          key,
+          cards,
+          bank_name: firstCard.bank_name,
+          cardName: firstCard.cardName,
+        };
+      })
+      .sort((a, b) => {
+        const bankComparison = a.bank_name.localeCompare(b.bank_name);
+        if (bankComparison === 0) {
+          return a.cardName.localeCompare(b.cardName);
+        }
+        return bankComparison;
+      });
   }, [groupedResults]);
+
+  // Go back to the card list view, removing any selected card params.
+  const handleBack = () => {
+    setSelectedCard(null);
+    navigate("/searchKeyword?keyword=" + encodeURIComponent(committedKeyword));
+  };
+
+  const handleClearSearch = () => {
+    setInputValue("");
+  };
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -238,14 +232,14 @@ function SearchKeyword() {
             <div className="flex-1 relative">
               <input
                 type="text"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                 placeholder="Search within cards..."
                 className="w-full pl-10 pr-4 py-2 h-11 border-none bg-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-              {keyword && (
+              {inputValue && (
                 <button
                   onClick={handleClearSearch}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
@@ -331,8 +325,6 @@ function SearchKeyword() {
                             </span>
                           </span>
                         </label>
-
-                        {/* Google Flights-style "Only" button */}
                         <button
                           onClick={() => handleOnlySelectBank(bank)}
                           className={`
@@ -395,70 +387,70 @@ function SearchKeyword() {
                   </div>
                   <KeywordCardContent
                     cardData2={selectedCard}
-                    keyword={keyword}
+                    keyword={committedKeyword}
                   />
                 </>
               ) : Object.keys(groupedResults).length > 0 ? (
                 <div className="space-y-2">
                   <h2 className="text-lg font-medium text-gray-900 mb-4">
                     {Object.keys(groupedResults).length} cards found for "
-                    {keyword}"
+                    {committedKeyword}"
                   </h2>
 
                   {sortedResults.map((item) => {
                     const versions = item.cards;
                     const firstCard = versions[0];
                     const latestCard = versions[versions.length - 1];
-                    return (
-                      <div
-                        key={item.key}
-                        className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow px-3 py-1 border border-gray-50 group"
-                        onContextMenu={(e) => handleContextMenu(e, latestCard)}
-                      >
-                        <div className="flex justify-between items-center">
-                          <div
-                            className="flex-1 cursor-pointer"
-                            onClick={() => handleCardClick(latestCard)}
-                          >
-                            <div className="flex items-center">
-                              <div className="flex-1 flex items-center gap-2">
-                                <h2 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                  {firstCard.cardName} ({firstCard.cardId})
-                                </h2>
-                                <p className="text-xs text-gray-500">
-                                  {firstCard.bank_name} • {versions.length}{" "}
-                                  version{versions.length > 1 ? "s" : ""}
-                                </p>
-                              </div>
 
-                              <span className="text-xs text-gray-400 mr-2 whitespace-nowrap">
-                                Updated {formatDate(latestCard.last_updated)}
-                              </span>
-                            </div>
-                            <div className="mt-1 flex flex-wrap gap-1.5">
-                              {versions.map((card) => (
+                    return (
+                      <Link
+                        key={item.key}
+                        to={`/searchKeyword/${latestCard.cardId}/${
+                          latestCard.version
+                        }?keyword=${encodeURIComponent(committedKeyword)}`}
+                        className="no-underline"
+                      >
+                        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow px-3 py-1 border border-gray-50 group">
+                          <div className="flex justify-between items-center">
+                            <div className="flex-1">
+                              <div className="flex items-center">
+                                <div className="flex-1 flex items-center gap-2">
+                                  <h2 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                    {firstCard.cardName} ({firstCard.cardId})
+                                  </h2>
+                                  <p className="text-xs text-gray-500">
+                                    {firstCard.bank_name} • {versions.length}{" "}
+                                    version{versions.length > 1 ? "s" : ""}
+                                  </p>
+                                </div>
+                                <span className="text-xs text-gray-400 mr-2 whitespace-nowrap">
+                                  Updated {formatDate(latestCard.last_updated)}
+                                </span>
+                              </div>
+                              <div className="mt-1 flex flex-wrap gap-1.5">
+                                {versions.map((card) => (
+                                  <span
+                                    key={`${card.cardId}-${card.version}`}
+                                    className="px-2 py-1 text-xs bg-gray-50 text-gray-600 border border-gray-100 rounded-md"
+                                  >
+                                    v{card.version}
+                                  </span>
+                                ))}
                                 <button
-                                  key={`${card.cardId}-${card.version}`}
+                                  className="ml-auto flex items-center text-xs text-blue-500 hover:text-blue-700 font-medium"
                                   onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleCardClick(card);
+                                    e.preventDefault();
+                                    // Optionally prevent navigation if needed.
                                   }}
-                                  className="px-2 py-1 text-xs bg-gray-50 text-gray-600 border border-gray-100 rounded-md hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-colors"
                                 >
-                                  v{card.version}
+                                  View latest
+                                  <ArrowRight className="w-3 h-3 ml-1" />
                                 </button>
-                              ))}
-                              <button
-                                onClick={() => handleCardClick(latestCard)}
-                                className="ml-auto flex items-center text-xs text-blue-500 hover:text-blue-700 font-medium"
-                              >
-                                View latest
-                                <ArrowRight className="w-3 h-3 ml-1" />
-                              </button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     );
                   })}
                 </div>
@@ -482,27 +474,6 @@ function SearchKeyword() {
                 </div>
               )}
             </div>
-            {contextMenu && (
-              <div
-                style={{
-                  position: "fixed",
-                  top: contextMenu.y,
-                  left: contextMenu.x,
-                  zIndex: 1000,
-                  backgroundColor: "white",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                  boxShadow: "0px 0px 10px rgba(0,0,0,0.2)",
-                }}
-              >
-                <div
-                  onClick={(e) => openCardInNewTab(contextMenu.card, e)}
-                  style={{ padding: "8px 12px", cursor: "pointer" }}
-                >
-                  Open in New Tab
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

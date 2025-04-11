@@ -600,7 +600,7 @@ const BankSection = ({
                     title={`${bankName} ${card.name} (ID ${card.cardId})`}
                   >
                     <div
-                      className="w-full text-left truncate"
+                      className="w-full text-left truncate "
                       onClick={() => handleResolveCardSelect(card.cardId)}
                     >
                       <span className="font-medium">{card.name}</span>
