@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import BanksList from "./BanksList";
 import BackToTop from "../CardDetails/BackToTop";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const Sidebar = ({
   banksData,
@@ -18,6 +18,7 @@ export const Sidebar = ({
   const [isSearching, setIsSearching] = useState(false);
   const [areCardsExpanded, setAreCardsExpanded] = useState(false);
   const searchRef = useRef(null);
+  const navigate = useNavigate();
 
   // Calculate totals
   const totalCards = Object.values(banksData).reduce(
@@ -115,6 +116,12 @@ export const Sidebar = ({
     setIsSearching(false);
   };
 
+  const handleSearchRedirect = () => {
+    navigate(
+      "/searchKeyword/?keyword=" + encodeURIComponent(searchTerm) + "#search"
+    );
+  };
+
   return (
     <aside
       id="default-sidebar"
@@ -133,6 +140,7 @@ export const Sidebar = ({
             type="search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && handleSearchRedirect()}
             className="block w-full p-4 pl-10 pr-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Search Cards or Cards Id"
           />

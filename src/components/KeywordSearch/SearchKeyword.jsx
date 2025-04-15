@@ -10,7 +10,6 @@ import {
 } from "react-router-dom";
 import KeywordCardContent from "./KeywordCardContent";
 
-// Define your banks list.
 const BANKS = [
   "Amex",
   "AU",
@@ -28,15 +27,15 @@ const BANKS = [
   "Yes",
 ];
 
-// Cache expiry time (e.g. 5 minutes).
-const CACHE_EXPIRY = 50 * 60 * 1000; // 50 minutes in milliseconds
+// Cache expiry time set to 5 minutes.
+const CACHE_EXPIRY = 50 * 60 * 1000;
 
 function SearchKeyword() {
   const { cardId, version } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Use two states: one for the text input and another for the committed keyword.
+  // Separate states: inputValue updates on each keystroke; committedKeyword is used for searching.
   const [inputValue, setInputValue] = useState("");
   const [committedKeyword, setCommittedKeyword] = useState("");
   const [allResults, setAllResults] = useState(null);
@@ -46,21 +45,19 @@ function SearchKeyword() {
   const [error, setError] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
   const [selectedBanks, setSelectedBanks] = useState([]);
+  const [autoSearched, setAutoSearched] = useState(false); // Prevent multiple auto searches.
   const containerRef = useRef(null);
 
-  // Helper to create a unique storage key for each keyword.
-  const makeStorageKey = (base, keyword) => {
-    return `${base}-${keyword.toLowerCase()}`;
-  };
+  // Helper: create unique storage keys for each keyword.
+  const makeStorageKey = (base, keyword) => `${base}-${keyword.toLowerCase()}`;
 
-  // Functions for cache handling:
+  // Cache helper functions.
   const getCachedResults = (keyword) => {
     const cacheKey = makeStorageKey("searchResults", keyword);
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       try {
         const cachedObj = JSON.parse(cached);
-        // Check if the cached data is still valid.
         if (Date.now() - cachedObj.timestamp < CACHE_EXPIRY) {
           return cachedObj.data;
         }
@@ -77,7 +74,7 @@ function SearchKeyword() {
     localStorage.setItem(cacheKey, JSON.stringify(cacheObj));
   };
 
-  // On mount, if the URL has a keyword, load its results from cache (if not expired).
+  // On mount, if a keyword is in the URL, load it (and attempt to load cached data).
   useEffect(() => {
     const urlKeyword = searchParams.get("keyword");
     if (urlKeyword) {
@@ -87,7 +84,6 @@ function SearchKeyword() {
       if (cachedData) {
         setAllResults(cachedData);
         filterResults(cachedData.results, selectedBanks);
-        // If route params exist, find the matching card.
         if (cardId && version) {
           const matchingCard = cachedData.results.find(
             (card) =>
@@ -100,13 +96,27 @@ function SearchKeyword() {
         }
       }
     } else {
-      // Fresh load: no keyword in URL → clear state.
+      // Fresh load from Home: start with empty state.
       setInputValue("");
       setCommittedKeyword("");
       setAllResults(null);
       setGroupedResults({});
     }
   }, [cardId, version, searchParams, selectedBanks]);
+
+  // Auto search effect: if the URL hash is "#search" and inputValue is non-empty, trigger handleSearch.
+  useEffect(() => {
+    const urlKeyword = searchParams.get("keyword");
+    if (
+      urlKeyword &&
+      window.location.hash === "#search" &&
+      inputValue.trim() !== "" &&
+      !autoSearched
+    ) {
+      handleSearch();
+      setAutoSearched(true);
+    }
+  }, [searchParams, inputValue, autoSearched]);
 
   const handleSearch = async () => {
     if (!inputValue.trim()) {
@@ -119,12 +129,11 @@ function SearchKeyword() {
     setGroupedResults({});
     setSelectedCard(null);
 
-    // Commit the search term.
+    // Commit the current search term.
     setCommittedKeyword(inputValue);
-    // Update URL query.
     setSearchParams({ keyword: inputValue });
 
-    // First, check if we already have non-expired cached data:
+    // Use cached data if available.
     const cachedData = getCachedResults(inputValue);
     if (cachedData) {
       setAllResults(cachedData);
@@ -141,7 +150,6 @@ function SearchKeyword() {
         { headers: { "ngrok-skip-browser-warning": "234242" } }
       );
       setAllResults(response.data);
-      // Save data in cache with expiry.
       setCachedResults(inputValue, response.data);
       filterResults(response.data.results, selectedBanks);
     } catch (err) {
@@ -165,7 +173,6 @@ function SearchKeyword() {
         : results;
     setDisplayedResults(filtered);
 
-    // Group results by card name and bank.
     const grouped = filtered.reduce((acc, card) => {
       const key = `${card.cardName}-${card.bank_name}`;
       if (!acc[key]) acc[key] = [];
@@ -201,10 +208,10 @@ function SearchKeyword() {
     filterResults(allResults?.results, [bank]);
   };
 
-  // On left-click, show card details.
+  // Left-click: show card details.
   const handleCardClick = (card) => {
     setSelectedCard(card);
-    // Optionally, update URL (if needed).
+    // Optionally update the URL here.
     // navigate(`/searchKeyword/${card.cardId}/${card.version}?keyword=${encodeURIComponent(committedKeyword)}`);
   };
 
@@ -241,7 +248,7 @@ function SearchKeyword() {
       });
   }, [groupedResults]);
 
-  // "Back" button to clear the selected card.
+  // "Back" handler to clear selected card.
   const handleBack = () => {
     setSelectedCard(null);
     navigate("/searchKeyword?keyword=" + encodeURIComponent(committedKeyword));
@@ -457,12 +464,16 @@ function SearchKeyword() {
                               </div>
                               <div className="mt-1 flex flex-wrap gap-1.5">
                                 {versions.map((card) => (
-                                  <span
+                                  <button
                                     key={`${card.cardId}-${card.version}`}
-                                    className="px-2 py-1 text-xs bg-gray-50 text-gray-600 border border-gray-100 rounded-md"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleCardClick(card);
+                                    }}
+                                    className="px-2 py-1 text-xs bg-gray-50 text-gray-600 border border-gray-100 rounded-md hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-colors"
                                   >
                                     v{card.version}
-                                  </span>
+                                  </button>
                                 ))}
                                 <button
                                   className="ml-auto flex items-center text-xs text-blue-500 hover:text-blue-700 font-medium"
