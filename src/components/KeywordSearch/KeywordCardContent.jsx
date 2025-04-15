@@ -3,6 +3,7 @@ import KeywordNavigation from "./KeywordNavigation"; // Adjust the import path a
 import { Link } from "react-router-dom";
 import { formatDate } from "../../utils/formateDate";
 import { useParams } from "react-router-dom";
+import { use } from "react";
 
 // Helper to escape regex special characters.
 function escapeRegExp(string) {
@@ -133,6 +134,17 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
       });
     }
   }, [curKeywordIndex, cardData, activeTab, cleanKeyword]);
+
+  useEffect(() => {
+    // Find the first tab with the keyword.
+    // If no keyword is provided, default to the first tab.
+    const firstTabWithKeyword = cardData?.changes?.findIndex((tab) => {
+      return countTextOccurrences(tab.content, cleanKeyword, isExactSearch) > 0;
+    });
+
+    setActiveTab(firstTabWithKeyword !== -1 ? firstTabWithKeyword : 0);
+    setCurKeywordIndex(-1); // Reset active index when fetching new data.
+  }, [cardData]);
 
   if (!cardData) {
     return <div>Loading...</div>;

@@ -375,9 +375,9 @@ export const Home = () => {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto min-h-screen overflow-auto">
+    <div className="p-6 pt-4 max-w-7xl mx-auto min-h-screen overflow-auto">
       <div className="flex items-start gap-4 justify-between">
-        <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+        <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
         <div className="w-1/8 flex justify-end ">
           {/* <button
             onClick={handleSearchKeywordRedirect}
