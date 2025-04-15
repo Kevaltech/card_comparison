@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 import KeywordCardContent from "./KeywordCardContent";
 
+// Define your banks list.
 const BANKS = [
   "Amex",
   "AU",
@@ -27,18 +28,17 @@ const BANKS = [
   "Yes",
 ];
 
+// Cache expiry time (e.g. 5 minutes).
+const CACHE_EXPIRY = 50 * 60 * 1000; // 50 minutes in milliseconds
+
 function SearchKeyword() {
   const { cardId, version } = useParams();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Use two states: one for the current input and another for the committed search keyword.
-  const [inputValue, setInputValue] = useState(
-    localStorage.getItem("searchKeyword") || ""
-  );
-  const [committedKeyword, setCommittedKeyword] = useState(
-    localStorage.getItem("searchKeyword") || ""
-  );
+  // Use two states: one for the text input and another for the committed keyword.
+  const [inputValue, setInputValue] = useState("");
+  const [committedKeyword, setCommittedKeyword] = useState("");
   const [allResults, setAllResults] = useState(null);
   const [displayedResults, setDisplayedResults] = useState([]);
   const [groupedResults, setGroupedResults] = useState({});
@@ -48,35 +48,63 @@ function SearchKeyword() {
   const [selectedBanks, setSelectedBanks] = useState([]);
   const containerRef = useRef(null);
 
-  // Load persisted search results and the committed keyword on mount.
-  useEffect(() => {
-    const storedResults = localStorage.getItem("searchResults");
-    const storedKeyword = localStorage.getItem("searchKeyword");
-    if (storedResults) {
-      const parsedData = JSON.parse(storedResults);
-      setAllResults(parsedData);
-      filterResults(parsedData.results, selectedBanks);
-      // If route params exist, find and set the matching card.
-      if (cardId && version) {
-        const matchingCard = parsedData.results.find(
-          (card) =>
-            card.cardId === cardId &&
-            card.version.toString() === version.toString()
-        );
-        if (matchingCard) {
-          setSelectedCard(matchingCard);
+  // Helper to create a unique storage key for each keyword.
+  const makeStorageKey = (base, keyword) => {
+    return `${base}-${keyword.toLowerCase()}`;
+  };
+
+  // Functions for cache handling:
+  const getCachedResults = (keyword) => {
+    const cacheKey = makeStorageKey("searchResults", keyword);
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const cachedObj = JSON.parse(cached);
+        // Check if the cached data is still valid.
+        if (Date.now() - cachedObj.timestamp < CACHE_EXPIRY) {
+          return cachedObj.data;
         }
+      } catch (e) {
+        console.error("Error parsing cached data:", e);
       }
     }
-    // If there is a keyword in the URL search params, override stored value.
+    return null;
+  };
+
+  const setCachedResults = (keyword, data) => {
+    const cacheKey = makeStorageKey("searchResults", keyword);
+    const cacheObj = { data, timestamp: Date.now() };
+    localStorage.setItem(cacheKey, JSON.stringify(cacheObj));
+  };
+
+  // On mount, if the URL has a keyword, load its results from cache (if not expired).
+  useEffect(() => {
     const urlKeyword = searchParams.get("keyword");
     if (urlKeyword) {
       setInputValue(urlKeyword);
       setCommittedKeyword(urlKeyword);
-      localStorage.setItem("searchKeyword", urlKeyword);
-    } else if (storedKeyword) {
-      setInputValue(storedKeyword);
-      setCommittedKeyword(storedKeyword);
+      const cachedData = getCachedResults(urlKeyword);
+      if (cachedData) {
+        setAllResults(cachedData);
+        filterResults(cachedData.results, selectedBanks);
+        // If route params exist, find the matching card.
+        if (cardId && version) {
+          const matchingCard = cachedData.results.find(
+            (card) =>
+              card.cardId === cardId &&
+              card.version.toString() === version.toString()
+          );
+          if (matchingCard) {
+            setSelectedCard(matchingCard);
+          }
+        }
+      }
+    } else {
+      // Fresh load: no keyword in URL → clear state.
+      setInputValue("");
+      setCommittedKeyword("");
+      setAllResults(null);
+      setGroupedResults({});
     }
   }, [cardId, version, searchParams, selectedBanks]);
 
@@ -91,9 +119,19 @@ function SearchKeyword() {
     setGroupedResults({});
     setSelectedCard(null);
 
-    // Commit the current search term and store it so it persists.
+    // Commit the search term.
     setCommittedKeyword(inputValue);
-    localStorage.setItem("searchKeyword", inputValue);
+    // Update URL query.
+    setSearchParams({ keyword: inputValue });
+
+    // First, check if we already have non-expired cached data:
+    const cachedData = getCachedResults(inputValue);
+    if (cachedData) {
+      setAllResults(cachedData);
+      filterResults(cachedData.results, selectedBanks);
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await axios.get(
@@ -103,7 +141,8 @@ function SearchKeyword() {
         { headers: { "ngrok-skip-browser-warning": "234242" } }
       );
       setAllResults(response.data);
-      localStorage.setItem("searchResults", JSON.stringify(response.data));
+      // Save data in cache with expiry.
+      setCachedResults(inputValue, response.data);
       filterResults(response.data.results, selectedBanks);
     } catch (err) {
       setError("Search failed. Please try again.");
@@ -124,7 +163,6 @@ function SearchKeyword() {
             )
           )
         : results;
-
     setDisplayedResults(filtered);
 
     // Group results by card name and bank.
@@ -163,18 +201,17 @@ function SearchKeyword() {
     filterResults(allResults?.results, [bank]);
   };
 
-  // Left-click: show card details in the same tab.
+  // On left-click, show card details.
   const handleCardClick = (card) => {
     setSelectedCard(card);
-    // Optionally, update the URL if needed:
+    // Optionally, update URL (if needed).
     // navigate(`/searchKeyword/${card.cardId}/${card.version}?keyword=${encodeURIComponent(committedKeyword)}`);
   };
 
   const calculateTotalGroupedCards = (results) => {
     const uniqueCards = new Set();
     results?.forEach((card) => {
-      const key = `${card.cardName}-${card.bank_name}`;
-      uniqueCards.add(key);
+      uniqueCards.add(`${card.cardName}-${card.bank_name}`);
     });
     return uniqueCards.size;
   };
@@ -183,10 +220,8 @@ function SearchKeyword() {
     allResults?.results
   );
 
-  // Convert groupedResults object into a sorted array.
   const sortedResults = useMemo(() => {
     if (!groupedResults) return [];
-
     return Object.entries(groupedResults)
       .map(([key, cards]) => {
         const firstCard = cards[0];
@@ -206,7 +241,7 @@ function SearchKeyword() {
       });
   }, [groupedResults]);
 
-  // Go back to the card list view, removing any selected card params.
+  // "Back" button to clear the selected card.
   const handleBack = () => {
     setSelectedCard(null);
     navigate("/searchKeyword?keyword=" + encodeURIComponent(committedKeyword));
@@ -327,16 +362,12 @@ function SearchKeyword() {
                         </label>
                         <button
                           onClick={() => handleOnlySelectBank(bank)}
-                          className={`
-                            opacity-0 group-hover:opacity-100 transition-opacity
-                            text-xs text-blue-500 px-2 py-1 rounded
-                            ${
-                              selectedBanks.length === 1 &&
-                              selectedBanks[0] === bank
-                                ? "bg-blue-50 font-medium"
-                                : "hover:bg-gray-100"
-                            }
-                        `}
+                          className={`opacity-0 group-hover:opacity-100 transition-opacity text-xs text-blue-500 px-2 py-1 rounded ${
+                            selectedBanks.length === 1 &&
+                            selectedBanks[0] === bank
+                              ? "bg-blue-50 font-medium"
+                              : "hover:bg-gray-100"
+                          }`}
                           title="Select only this bank"
                         >
                           Only
@@ -381,8 +412,7 @@ function SearchKeyword() {
                       onClick={handleBack}
                       className="flex items-center text-blue-600 hover:text-blue-800 mb-1 font-medium text-sm"
                     >
-                      <ChevronLeft className="w-4 h-4 mr-1" />
-                      Back to results
+                      <ChevronLeft className="w-4 h-4 mr-1" /> Back to results
                     </button>
                   </div>
                   <KeywordCardContent
@@ -396,12 +426,10 @@ function SearchKeyword() {
                     {Object.keys(groupedResults).length} cards found for "
                     {committedKeyword}"
                   </h2>
-
                   {sortedResults.map((item) => {
                     const versions = item.cards;
                     const firstCard = versions[0];
                     const latestCard = versions[versions.length - 1];
-
                     return (
                       <Link
                         key={item.key}
@@ -440,7 +468,6 @@ function SearchKeyword() {
                                   className="ml-auto flex items-center text-xs text-blue-500 hover:text-blue-700 font-medium"
                                   onClick={(e) => {
                                     e.preventDefault();
-                                    // Optionally prevent navigation if needed.
                                   }}
                                 >
                                   View latest

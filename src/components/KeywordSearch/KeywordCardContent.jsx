@@ -72,6 +72,8 @@ const KeywordCardContent = ({ cardData2, keyword }) => {
   const cardId = cardData2.cardId;
   const version = cardData2.version;
 
+  console.log("cardId", cardId, "version", version, "keyword", keyword);
+
   // Check if keyword is wrapped in double quotes for an exact search.
   const isExactSearch = keyword.startsWith('"') && keyword.endsWith('"');
   // Remove surrounding quotes if present.
