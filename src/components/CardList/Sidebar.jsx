@@ -117,9 +117,9 @@ export const Sidebar = ({
   };
 
   const handleSearchRedirect = () => {
-    navigate(
-      "/searchKeyword/?keyword=" + encodeURIComponent(searchTerm) + "#search"
-    );
+    const url =
+      "/searchKeyword/?keyword=" + encodeURIComponent(searchTerm) + "#search";
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
