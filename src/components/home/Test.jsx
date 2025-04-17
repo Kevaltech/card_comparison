@@ -6,6 +6,7 @@ import { html } from "diff2html";
 import { cleanupText } from "../../utils/cleantext";
 import DiffNavigation from "../CardDetails/DiffNavigation";
 import { formatDate } from "../../utils/formateDate";
+
 // import BackToTop from "../CardDetails/BackToTop";
 
 const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
@@ -121,6 +122,58 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
     setActiveDiffHtml(tabsData[activeTab].diffHtml);
     setCurChangeIndex(-1);
   }, [activeTab, tabsData]);
+
+  // 2) Swap in active tab HTML
+  useEffect(() => {
+    setActiveDiffHtml(tabsData[activeTab]?.diffHtml || "");
+    setCurChangeIndex(-1);
+  }, [activeTab, tabsData]);
+
+  // console.log("activeDiffHtml", activeDiffHtml);
+
+  // 3) Post‑processing: headings, lists, and ASCII→HTML tables
+  useEffect(() => {
+    if (!activeDiffHtml) return;
+    setTimeout(() => {
+      const container = document.querySelector(".active-diff-container");
+      if (!container) return;
+
+      container.querySelectorAll(".d2h-code-line-ctn").forEach((span) => {
+        const text = span.textContent || "";
+        const m = text.match(/^(#{1,6})\s+(.*)$/);
+        if (m) {
+          const lvlMap = { 4: 1, 3: 2, 2: 3, 1: 4 };
+          const lvl = lvlMap[m[1].length] || 6;
+          const tag = `h${lvl}`;
+          const el = document.createElement(tag);
+          el.className = [
+            "whitespace-normal",
+            [
+              "text-2xl",
+              "text-2xl",
+              "text-2xl",
+              "text-xl",
+              "text-lg",
+              "text-base",
+            ][lvl - 1],
+            "font-semibold",
+            "my-0",
+          ].join(" ");
+          el.textContent = m[2];
+          span.parentNode.replaceChild(el, span);
+        } else if (text.startsWith("* ")) {
+          const ul = document.createElement("ul");
+          ul.className = "list-disc pl-6 text-gray-800"; // Enhanced list styling
+          const li = document.createElement("li");
+          li.className =
+            "break-words whitespace-normal text-base leading-relaxed"; // Professional list item styling
+          li.textContent = text.slice(2);
+          ul.appendChild(li);
+          span.parentNode.replaceChild(ul, span);
+        }
+      });
+    }, 0);
+  }, [activeDiffHtml]);
 
   // Synchronize row heights for active diff.
   useEffect(() => {

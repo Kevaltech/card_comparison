@@ -62,7 +62,11 @@ export const Sidebar = ({
 
   // Toggle expand/collapse all cards
   const toggleCardsExpanded = () => {
-    setAreCardsExpanded((prev) => !prev);
+    setAreCardsExpanded(false);
+  };
+
+  const toggleCardsCollapsed = () => {
+    setAreCardsExpanded(true);
   };
 
   function sortObjectByKeys(obj) {
@@ -204,12 +208,21 @@ export const Sidebar = ({
               <h6 className="text-lg font-bold D:text-white">
                 Cards ({totalCards})
               </h6>
-              <span
-                className="cursor-pointer text-sm text-blue-600"
-                onClick={toggleCardsExpanded}
-              >
-                {areCardsExpanded ? "Collapse all" : "Expand all"}
-              </span>
+              <div>
+                <span
+                  className="cursor-pointer text-sm text-blue-600"
+                  onClick={toggleCardsExpanded}
+                >
+                  Collapse all
+                </span>
+                <span className="mx-2">|</span>
+                <span
+                  className="cursor-pointer text-sm text-blue-600"
+                  onClick={toggleCardsCollapsed}
+                >
+                  Expand all
+                </span>
+              </div>
             </li>
             {Object.entries(sortedBankData).map(([bankName, data]) => (
               <BanksList
