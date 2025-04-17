@@ -1,5 +1,12 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Search, ChevronLeft, X, ArrowRight, Home } from "lucide-react";
+import {
+  Search,
+  ChevronLeft,
+  X,
+  ArrowRight,
+  Home,
+  CookingPot,
+} from "lucide-react";
 import axios from "axios";
 import { formatDate } from "../../utils/formateDate";
 import {
@@ -28,7 +35,7 @@ const BANKS = [
 ];
 
 // Cache expiry time set to 5 minutes.
-const CACHE_EXPIRY = 50 * 60 * 1000;
+const CACHE_EXPIRY = 12 * 60 * 60 * 1000;
 
 function SearchKeyword() {
   const { cardId, version } = useParams();
@@ -210,6 +217,7 @@ function SearchKeyword() {
 
   // Left-click: show card details.
   const handleCardClick = (card) => {
+    console.log("Card clicked:", card);
     setSelectedCard(card);
     // Optionally update the URL here.
     // navigate(`/searchKeyword/${card.cardId}/${card.version}?keyword=${encodeURIComponent(committedKeyword)}`);
@@ -467,6 +475,7 @@ function SearchKeyword() {
                                   <button
                                     key={`${card.cardId}-${card.version}`}
                                     onClick={(e) => {
+                                      e.preventDefault(); // cancel the <a> navigation :contentReference[oaicite:0]{index=0}
                                       e.stopPropagation();
                                       handleCardClick(card);
                                     }}
