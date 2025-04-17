@@ -48,6 +48,7 @@ function BanksList({
         bankRef.current?.scrollIntoView({
           behavior: "smooth",
           block: "start",
+          inline: "nearest",
         });
       }
     }
