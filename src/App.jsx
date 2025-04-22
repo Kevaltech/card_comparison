@@ -4,13 +4,7 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import CardsCompareLIst from "./CardsCompareLIst";
 import SearchKeyword from "./components/KeywordSearch/SearchKeyword";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  HashRouter,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Home } from "./components/home/Home";
 import Navbar from "./components/nav/Navbar";
 import Test from "./components/home/Test";
@@ -18,7 +12,7 @@ import KeywordCardContent from "./components/KeywordSearch/KeywordCardContent";
 
 function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       {/* <Navbar /> */}
       <Routes>
         <Route path="/" element={<CardsCompareLIst />} />
@@ -38,7 +32,7 @@ function App() {
           element={<SearchKeyword />}
         />
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
 
