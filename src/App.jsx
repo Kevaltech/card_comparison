@@ -1,36 +1,38 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+// App.js
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import SignupForm from "./components/auth/SignUp";
+import LoginForm from "./components/auth/SignIn";
+import PendingApproval from "./components/auth/PendingApproval";
 import CardsCompareLIst from "./CardsCompareLIst";
 import SearchKeyword from "./components/KeywordSearch/SearchKeyword";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Home } from "./components/home/Home";
-import Navbar from "./components/nav/Navbar";
-import Test from "./components/home/Test";
-import KeywordCardContent from "./components/KeywordSearch/KeywordCardContent";
+import RequireAuth from "./utils/RequireAuth";
 
 function App() {
   return (
     <BrowserRouter>
-      {/* <Navbar /> */}
       <Routes>
-        <Route path="/" element={<CardsCompareLIst />} />
-        <Route path="/test" element={<Test />} />
-        <Route path="/compare/:cardId" element={<CardsCompareLIst />} />
-        <Route path="/overview/:overview" element={<CardsCompareLIst />} />
+        {/* Public routes */}
+        <Route path="/signup" element={<SignupForm />} />
+        <Route path="/signin" element={<LoginForm />} />
+        <Route path="/pending" element={<PendingApproval />} />
 
-        {/* <Route path="/" element={<CardsCompareLIst />} /> */}
-        {/* Add a redirect from root to default compare route */}
-        {/* <Route path="/" element={<Navigate to="/compare/hdfcc29" replace />} /> */}
-        {/* Catch-all route to handle any undefined routes */}
-        {/* <Route path="*" element={<Navigate to="/compare/hdfcc29" replace />} /> */}
-        <Route path="/searchKeyword" element={<SearchKeyword />} />
-        {/* The new route for opening card details in a new tab */}
-        <Route
-          path="/searchKeyword/:cardId/:version"
-          element={<SearchKeyword />}
-        />
+        {/* Protected routes */}
+        <Route element={<RequireAuth />}>
+          <Route path="/" element={<CardsCompareLIst />} />
+          <Route path="/test" element={<Home />} />
+          <Route path="/compare/:cardId" element={<CardsCompareLIst />} />
+          <Route path="/overview/:overview" element={<CardsCompareLIst />} />
+          <Route path="/searchKeyword" element={<SearchKeyword />} />
+          <Route
+            path="/searchKeyword/:cardId/:version"
+            element={<SearchKeyword />}
+          />
+        </Route>
+
+        {/* Catch-all: redirect unknown paths for unauthenticated users */}
+        <Route path="*" element={<Navigate to="/signup" replace />} />
       </Routes>
     </BrowserRouter>
   );

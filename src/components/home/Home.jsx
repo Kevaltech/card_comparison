@@ -678,6 +678,7 @@ export const Home = () => {
                     <Link
                       // onClick={() => handleSearchRedirect(card.CardId)}
                       to={`/compare/${card.CardId}`}
+                      target="_blank"
                       className="flex items-center gap-1 text-blue-500 hover:text-blue-600"
                     >
                       <span className="text-sm">View Details</span>

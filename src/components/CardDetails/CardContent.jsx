@@ -230,67 +230,6 @@ export const CardContent = ({ cardData, onStatusToggle, containerRef }) => {
     }
   };
 
-  // useEffect(() => {
-  //   if (!versionData?.cardHtml || !containerRef.current) return;
-
-  //   const handleStyleTags = () => {
-  //     const styleTags = containerRef?.current?.getElementsByTagName("style");
-  //     Array.from(styleTags || []).forEach((styleTag) => {
-  //       if (styleTag.getAttribute("data-processed")) return;
-
-  //       const newStyleElement = document.createElement("style");
-  //       Array.from(styleTag.attributes).forEach((attr) => {
-  //         if (attr.name !== "data-processed") {
-  //           newStyleElement.setAttribute(attr.name, attr.value);
-  //         }
-  //       });
-
-  //       newStyleElement.textContent = styleTag.textContent;
-  //       styleTag.setAttribute("data-processed", "true");
-  //       document.head.appendChild(newStyleElement);
-  //     });
-  //   };
-
-  //   const handleScriptTags = () => {
-  //     const scripts = containerRef.current?.getElementsByTagName("script");
-  //     Array.from(scripts || []).forEach((script) => {
-  //       if (script.getAttribute("data-executed")) return;
-
-  //       const newScript = document.createElement("script");
-  //       Array.from(script.attributes).forEach((attr) => {
-  //         if (attr.name !== "data-executed") {
-  //           newScript.setAttribute(attr.name, attr.value);
-  //         }
-  //       });
-
-  //       newScript.textContent = script.textContent;
-  //       script.setAttribute("data-executed", "true");
-  //       script.parentNode?.removeChild(script);
-  //       document.body.appendChild(newScript);
-  //     });
-  //   };
-
-  //   handleStyleTags();
-  //   handleScriptTags();
-
-  //   if (typeof window.initializeTabs === "function") {
-  //     try {
-  //       window.initializeTabs();
-  //       // window.navigateDiff();
-  //     } catch (err) {
-  //       console.error("Error initializing tabs:", err);
-  //     }
-  //   }
-
-  //   if (typeof window.cleanupDOMElements === "function") {
-  //     try {
-  //       window.cleanupDOMElements();
-  //     } catch (err) {
-  //       console.error("Error cleaning up DOM elements:", err);
-  //     }
-  //   }
-  // }, [versionData?.cardHtml]);
-
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header Section with Fixed Position */}
