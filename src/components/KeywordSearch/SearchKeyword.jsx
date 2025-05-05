@@ -20,18 +20,18 @@ import KeywordCardContent from "./KeywordCardContent";
 const BANKS = [
   "Amex",
   "AU",
-  "Axis",
-  "Federal",
-  "HDFC",
+  "Axis Bank",
+  "Federal Bank",
+  "HDFC Bank",
   "HSBC",
-  "ICICI",
-  "IDFC",
+  "ICICI Bank",
+  "IDFC First",
   "IndusInd",
   "Kotak",
-  "RBL",
+  "RBL Bank",
   "SBI",
-  "SCB",
-  "Yes",
+  "Std. Chartered",
+  "Yes Bank",
 ];
 
 // Cache expiry time set to 5 minutes.
