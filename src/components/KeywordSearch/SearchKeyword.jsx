@@ -1,12 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import {
-  Search,
-  ChevronLeft,
-  X,
-  ArrowRight,
-  Home,
-  CookingPot,
-} from "lucide-react";
+import { Search, ChevronLeft, X, ArrowRight, Home } from "lucide-react";
 import axios from "axios";
 import { formatDate } from "../../utils/formateDate";
 import {
@@ -17,21 +10,51 @@ import {
 } from "react-router-dom";
 import KeywordCardContent from "./KeywordCardContent";
 
+// Define banks with multiple aliases and a display label
 const BANKS = [
-  "Amex",
-  "AU",
-  "Axis Bank",
-  "Federal Bank",
-  "HDFC Bank",
-  "HSBC",
-  "ICICI Bank",
-  "IDFC First",
-  "IndusInd",
-  "Kotak",
-  "RBL Bank",
-  "SBI",
-  "Std. Chartered",
-  "Yes Bank",
+  {
+    key: "amex",
+    label: "Amex",
+    aliases: ["Amex", "American Express"],
+  },
+  { key: "axis", label: "Axis", aliases: ["Axis", "Axis Bank"] },
+  {
+    key: "au",
+    label: "AU",
+    aliases: ["AU", "AU Small Finance Bank"],
+  },
+  {
+    key: "federal",
+    label: "Federal",
+    aliases: ["Federal Bank", "Federal"],
+  },
+  { key: "hdfc", label: "HDFC", aliases: ["HDFC Bank", "HDFC"] },
+  { key: "hsbc", label: "HSBC", aliases: ["HSBC", "HSBC Bank"] },
+  { key: "icici", label: "ICICI", aliases: ["ICICI Bank", "ICICI"] },
+  // { key: "idbi", label: "IDBI", aliases: ["IDBI", "IDBI Bank"] },
+  { key: "idfc", label: "IDFC", aliases: ["IDFC First", "IDFC"] },
+  {
+    key: "indusind",
+    label: "IndusInd",
+    aliases: ["IndusInd", "IndusInd Bank"],
+  },
+  {
+    key: "kotak",
+    label: "Kotak",
+    aliases: ["Kotak", "Kotak Mahindra Bank"],
+  },
+  { key: "rbl", label: "RBL", aliases: ["RBL Bank", "Ratnakar Bank"] },
+  {
+    key: "sbi",
+    label: "SBI",
+    aliases: ["SBI", "State Bank of India"],
+  },
+  {
+    key: "scb",
+    label: "SCB",
+    aliases: ["Std. Chartered", "Standard Chartered", "SCB"],
+  },
+  { key: "yes", label: "Yes", aliases: ["Yes Bank", "Yes"] },
 ];
 
 // Cache expiry time set to 5 minutes.
@@ -42,7 +65,7 @@ function SearchKeyword() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Separate states: inputValue updates on each keystroke; committedKeyword is used for searching.
+  // Separate states
   const [inputValue, setInputValue] = useState("");
   const [committedKeyword, setCommittedKeyword] = useState("");
   const [allResults, setAllResults] = useState(null);
@@ -52,13 +75,11 @@ function SearchKeyword() {
   const [error, setError] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
   const [selectedBanks, setSelectedBanks] = useState([]);
-  const [autoSearched, setAutoSearched] = useState(false); // Prevent multiple auto searches.
+  const [autoSearched, setAutoSearched] = useState(false);
   const containerRef = useRef(null);
 
-  // Helper: create unique storage keys for each keyword.
   const makeStorageKey = (base, keyword) => `${base}-${keyword.toLowerCase()}`;
 
-  // Cache helper functions.
   const getCachedResults = (keyword) => {
     const cacheKey = makeStorageKey("searchResults", keyword);
     const cached = localStorage.getItem(cacheKey);
@@ -81,43 +102,38 @@ function SearchKeyword() {
     localStorage.setItem(cacheKey, JSON.stringify(cacheObj));
   };
 
-  // On mount, if a keyword is in the URL, load it (and attempt to load cached data).
+  // Initial load effect
   useEffect(() => {
     const urlKeyword = searchParams.get("keyword");
     if (urlKeyword) {
       setInputValue(urlKeyword);
       setCommittedKeyword(urlKeyword);
-      const cachedData = getCachedResults(urlKeyword);
-      if (cachedData) {
-        setAllResults(cachedData);
-        filterResults(cachedData.results, selectedBanks);
+      const cached = getCachedResults(urlKeyword);
+      if (cached) {
+        setAllResults(cached);
+        filterResults(cached.results, selectedBanks);
         if (cardId && version) {
-          const matchingCard = cachedData.results.find(
-            (card) =>
-              card.cardId === cardId &&
-              card.version.toString() === version.toString()
+          const match = cached.results.find(
+            (c) => c.cardId === cardId && c.version.toString() === version
           );
-          if (matchingCard) {
-            setSelectedCard(matchingCard);
-          }
+          if (match) setSelectedCard(match);
         }
       }
     } else {
-      // Fresh load from Home: start with empty state.
       setInputValue("");
       setCommittedKeyword("");
       setAllResults(null);
       setGroupedResults({});
     }
-  }, [cardId, version, searchParams, selectedBanks]);
+  }, [cardId, version, searchParams]);
 
-  // Auto search effect: if the URL hash is "#search" and inputValue is non-empty, trigger handleSearch.
+  // Handle search trigger from URL hash
   useEffect(() => {
     const urlKeyword = searchParams.get("keyword");
     if (
       urlKeyword &&
       window.location.hash === "#search" &&
-      inputValue.trim() !== "" &&
+      inputValue.trim() &&
       !autoSearched
     ) {
       handleSearch();
@@ -136,15 +152,13 @@ function SearchKeyword() {
     setGroupedResults({});
     setSelectedCard(null);
 
-    // Commit the current search term.
     setCommittedKeyword(inputValue);
     setSearchParams({ keyword: inputValue });
 
-    // Use cached data if available.
-    const cachedData = getCachedResults(inputValue);
-    if (cachedData) {
-      setAllResults(cachedData);
-      filterResults(cachedData.results, selectedBanks);
+    const cached = getCachedResults(inputValue);
+    if (cached) {
+      setAllResults(cached);
+      filterResults(cached.results, selectedBanks);
       setLoading(false);
       return;
     }
@@ -166,38 +180,39 @@ function SearchKeyword() {
     }
   };
 
-  const filterResults = (results, banks) => {
+  // Enhanced filter: accept banks array of keys
+  const filterResults = (results, bankKeys) => {
     if (!results) return;
-    const filtered =
-      banks.length > 0
-        ? results.filter((card) =>
-            banks.some(
-              (bank) =>
-                bank.trim().toLowerCase() ===
-                card.bank_name.trim().toLowerCase()
-            )
-          )
-        : results;
+    const filtered = bankKeys.length
+      ? results.filter((card) =>
+          bankKeys.some((key) => {
+            const bank = BANKS.find((b) => b.key === key);
+            return bank.aliases
+              .map((a) => a.toLowerCase())
+              .includes(card.bank_name.trim().toLowerCase());
+          })
+        )
+      : results;
     setDisplayedResults(filtered);
 
     const grouped = filtered.reduce((acc, card) => {
-      const key = `${card.cardName}-${card.bank_name}`;
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(card);
+      const groupKey = `${card.cardName}-${card.bank_name}`;
+      if (!acc[groupKey]) acc[groupKey] = [];
+      acc[groupKey].push(card);
       return acc;
     }, {});
-    Object.keys(grouped).forEach((key) => {
-      grouped[key].sort((a, b) => a.version - b.version);
-    });
+    Object.values(grouped).forEach((arr) =>
+      arr.sort((a, b) => a.version - b.version)
+    );
     setGroupedResults(grouped);
   };
 
-  const handleBankFilter = (bank) => {
-    const newSelection = selectedBanks.includes(bank)
-      ? selectedBanks.filter((b) => b !== bank)
-      : [...selectedBanks, bank];
-    setSelectedBanks(newSelection);
-    filterResults(allResults?.results, newSelection);
+  const handleBankFilter = (key) => {
+    const next = selectedBanks.includes(key)
+      ? selectedBanks.filter((k) => k !== key)
+      : [...selectedBanks, key];
+    setSelectedBanks(next);
+    filterResults(allResults?.results, next);
   };
 
   const handleToggleAllBanks = () => {
@@ -205,70 +220,56 @@ function SearchKeyword() {
       setSelectedBanks([]);
       filterResults(allResults?.results, []);
     } else {
-      setSelectedBanks([...BANKS]);
-      filterResults(allResults?.results, [...BANKS]);
+      const allKeys = BANKS.map((b) => b.key);
+      setSelectedBanks(allKeys);
+      filterResults(allResults?.results, allKeys);
     }
   };
 
-  const handleOnlySelectBank = (bank) => {
-    setSelectedBanks([bank]);
-    filterResults(allResults?.results, [bank]);
+  const handleOnlySelectBank = (key) => {
+    setSelectedBanks([key]);
+    filterResults(allResults?.results, [key]);
   };
 
-  // Left-click: show card details.
   const handleCardClick = (card) => {
-    console.log("Card clicked:", card);
     setSelectedCard(card);
-    // Optionally update the URL here.
-    // navigate(`/searchKeyword/${card.cardId}/${card.version}?keyword=${encodeURIComponent(committedKeyword)}`);
   };
 
   const calculateTotalGroupedCards = (results) => {
-    const uniqueCards = new Set();
-    results?.forEach((card) => {
-      uniqueCards.add(`${card.cardName}-${card.bank_name}`);
-    });
-    return uniqueCards.size;
+    if (!results) return 0;
+    const unique = new Set(results.map((c) => `${c.cardName}-${c.bank_name}`));
+    return unique.size;
   };
 
-  const totalGroupedCardsCount = calculateTotalGroupedCards(
-    allResults?.results
-  );
+  const totalGrouped = calculateTotalGroupedCards(allResults?.results);
 
   const sortedResults = useMemo(() => {
-    if (!groupedResults) return [];
     return Object.entries(groupedResults)
       .map(([key, cards]) => {
-        const firstCard = cards[0];
+        const first = cards[0];
         return {
           key,
           cards,
-          bank_name: firstCard.bank_name,
-          cardName: firstCard.cardName,
+          bank_name: first.bank_name,
+          cardName: first.cardName,
         };
       })
       .sort((a, b) => {
-        const bankComparison = a.bank_name.localeCompare(b.bank_name);
-        if (bankComparison === 0) {
-          return a.cardName.localeCompare(b.cardName);
-        }
-        return bankComparison;
+        const cmp = a.bank_name.localeCompare(b.bank_name);
+        return cmp === 0 ? a.cardName.localeCompare(b.cardName) : cmp;
       });
   }, [groupedResults]);
 
-  // "Back" handler to clear selected card.
   const handleBack = () => {
     setSelectedCard(null);
-    navigate("/searchKeyword?keyword=" + encodeURIComponent(committedKeyword));
+    navigate(`/searchKeyword?keyword=${encodeURIComponent(committedKeyword)}`);
   };
 
-  const handleClearSearch = () => {
-    setInputValue("");
-  };
+  const handleClearSearch = () => setInputValue("");
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
-      {/* Top Search Bar */}
+      {/* Search Bar */}
       <div className="flex-none bg-white shadow-sm">
         <div className="max-w-5xl mx-auto px-6 py-6">
           <div className="flex items-center gap-4">
@@ -314,8 +315,8 @@ function SearchKeyword() {
 
       <div className="flex-1 overflow-hidden">
         <div className="h-full flex">
-          {/* Left Filters Panel */}
-          <div className="w-60 bg-white border-r border-gray-100 overflow-y-auto transition-all duration-300 lg:translate-x-0 pt-4">
+          {/* Filters Panel */}
+          <div className="w-60 bg-white border-r border-gray-100 overflow-y-auto pt-4">
             <div className="px-4 pl-8">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-medium uppercase tracking-wide text-gray-500">
@@ -340,46 +341,46 @@ function SearchKeyword() {
                 </button>
               </div>
               <div className="space-y-1 overflow-y-auto pr-2">
-                {BANKS.map((bank) => {
+                {BANKS.map((b) => {
                   const count = allResults?.results
                     ? new Set(
                         allResults.results
-                          .filter(
-                            (card) =>
-                              card.bank_name.trim().toLowerCase() ===
-                              bank.trim().toLowerCase()
+                          .filter((c) =>
+                            b.aliases
+                              .map((a) => a.toLowerCase())
+                              .includes(c.bank_name.trim().toLowerCase())
                           )
-                          .map((card) => `${card.cardName}-${card.bank_name}`)
+                          .map((c) => `${c.cardName}-${c.bank_name}`)
                       ).size
                     : 0;
                   return (
-                    <div key={bank} className="group relative">
+                    <div key={b.key} className="group relative">
                       <div className="flex items-center py-1 px-2 rounded-lg hover:bg-gray-50 transition-colors">
                         <label className="flex items-center space-x-2 cursor-pointer flex-1">
                           <input
                             type="checkbox"
-                            checked={selectedBanks.includes(bank)}
-                            onChange={() => handleBankFilter(bank)}
-                            className="rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                            checked={selectedBanks.includes(b.key)}
+                            onChange={() => handleBankFilter(b.key)}
+                            className="rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
                           <span
                             className={`text-sm ${
-                              selectedBanks.includes(bank)
+                              selectedBanks.includes(b.key)
                                 ? "text-blue-600 font-medium"
                                 : "text-gray-700"
                             }`}
                           >
-                            {bank}{" "}
+                            {b.label}{" "}
                             <span className="text-gray-400 text-xs">
                               ({count})
                             </span>
                           </span>
                         </label>
                         <button
-                          onClick={() => handleOnlySelectBank(bank)}
+                          onClick={() => handleOnlySelectBank(b.key)}
                           className={`opacity-0 group-hover:opacity-100 transition-opacity text-xs text-blue-500 px-2 py-1 rounded ${
                             selectedBanks.length === 1 &&
-                            selectedBanks[0] === bank
+                            selectedBanks[0] === b.key
                               ? "bg-blue-50 font-medium"
                               : "hover:bg-gray-100"
                           }`}
@@ -394,7 +395,7 @@ function SearchKeyword() {
               </div>
               <div className="mt-6 mb-2 pt-4 border-t border-gray-100">
                 <h2 className="text-sm font-medium text-gray-500">
-                  {totalGroupedCardsCount} cards found
+                  {totalGrouped} cards found
                 </h2>
                 {selectedBanks.length > 0 && (
                   <p className="text-xs text-gray-400 mt-1">
@@ -406,7 +407,7 @@ function SearchKeyword() {
             </div>
           </div>
 
-          {/* Results / Card Details */}
+          {/* Results */}
           <div
             ref={containerRef}
             className="flex-1 overflow-y-auto pr-28 relative"
@@ -435,7 +436,7 @@ function SearchKeyword() {
                     keyword={committedKeyword}
                   />
                 </>
-              ) : Object.keys(groupedResults).length > 0 ? (
+              ) : Object.keys(groupedResults).length ? (
                 <div className="space-y-2">
                   <h2 className="text-lg font-medium text-gray-900 mb-4">
                     {Object.keys(groupedResults).length} cards found for "
@@ -443,13 +444,13 @@ function SearchKeyword() {
                   </h2>
                   {sortedResults.map((item) => {
                     const versions = item.cards;
-                    const firstCard = versions[0];
-                    const latestCard = versions[versions.length - 1];
+                    const first = versions[0];
+                    const latest = versions[versions.length - 1];
                     return (
                       <Link
                         key={item.key}
-                        to={`/searchKeyword/${latestCard.cardId}/${
-                          latestCard.version
+                        to={`/searchKeyword/${latest.cardId}/${
+                          latest.version
                         }?keyword=${encodeURIComponent(committedKeyword)}`}
                         className="no-underline"
                       >
@@ -459,36 +460,34 @@ function SearchKeyword() {
                               <div className="flex items-center">
                                 <div className="flex-1 flex items-center gap-2">
                                   <h2 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                    {firstCard.cardName} ({firstCard.cardId})
+                                    {first.cardName} ({first.cardId})
                                   </h2>
                                   <p className="text-xs text-gray-500">
-                                    {firstCard.bank_name} • {versions.length}{" "}
+                                    {first.bank_name} • {versions.length}{" "}
                                     version{versions.length > 1 ? "s" : ""}
                                   </p>
                                 </div>
                                 <span className="text-xs text-gray-400 mr-2 whitespace-nowrap">
-                                  Updated {formatDate(latestCard.last_updated)}
+                                  Updated {formatDate(latest.last_updated)}
                                 </span>
                               </div>
                               <div className="mt-1 flex flex-wrap gap-1.5">
-                                {versions.map((card) => (
+                                {versions.map((c) => (
                                   <button
-                                    key={`${card.cardId}-${card.version}`}
+                                    key={`${c.cardId}-${c.version}`}
                                     onClick={(e) => {
-                                      e.preventDefault(); // cancel the <a> navigation :contentReference[oaicite:0]{index=0}
+                                      e.preventDefault();
                                       e.stopPropagation();
-                                      handleCardClick(card);
+                                      handleCardClick(c);
                                     }}
                                     className="px-2 py-1 text-xs bg-gray-50 text-gray-600 border border-gray-100 rounded-md hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-colors"
                                   >
-                                    v{card.version}
+                                    v{c.version}
                                   </button>
                                 ))}
                                 <button
                                   className="ml-auto flex items-center text-xs text-blue-500 hover:text-blue-700 font-medium"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                  }}
+                                  onClick={(e) => e.preventDefault()}
                                 >
                                   View latest
                                   <ArrowRight className="w-3 h-3 ml-1" />
