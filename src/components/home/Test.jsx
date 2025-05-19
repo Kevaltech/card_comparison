@@ -74,6 +74,7 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
       const patch = createPatch("text", oldContent, newContent, "", "", {
         context: Diff ? 3 : Number.MAX_SAFE_INTEGER,
       });
+      // console.log("comparedVersions.v1_date", comparedVersions.v1_date);
       let diffOutput = html(patch, {
         drawFileList: false,
         matching: "words",
@@ -106,9 +107,15 @@ const Test = ({ changes, Diff, handleDiff, handleAll, comparedVersions }) => {
         artificialDiff,
       };
     });
+
+    // Find the first tab with a real diff (artificialDiff === false)
+    const firstRealDiffIndex = newTabs.findIndex((tab) => !tab.artificialDiff);
+    const defaultTab = firstRealDiffIndex >= 0 ? firstRealDiffIndex : 0;
+
     setTabsData(newTabs);
-    // Preserve the current active tab if it exists; otherwise, default to 0.
-    setActiveTab((prevActive) => (newTabs[prevActive] ? prevActive : 0));
+    // Default to the first tab that has actual changes
+    setActiveTab(defaultTab);
+
     setCurChangeIndex(-1);
     setTabsScanned(false);
   }, [changes, Diff]);
