@@ -121,27 +121,23 @@ const BankSection = ({
   const resolveSortedData =
     cards?.resolve?.sort((a, b) => a.name.localeCompare(b.name)) || [];
 
-  function formatDate(date1) {
-    const date = new Date(date1);
+function formatDate(date1) {
+  const date = new Date(date1);
 
-    // Create a formatter for just day, month, year
-    const formatter = new Intl.DateTimeFormat("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "2-digit",
-    });
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = date.toLocaleString("en-IN", { month: "short" });
+  const year = date.getFullYear();
 
-    // Break into parts
-    const parts = formatter.formatToParts(date);
+  // let hours = date.getHours();
+  // const minutes = String(date.getMinutes()).padStart(2, "0");
+  // const ampm = hours >= 12 ? "pm" : "am";
 
-    // Extract
-    const day = parts.find((p) => p.type === "day").value;
-    const month = parts.find((p) => p.type === "month").value;
-    const year = parts.find((p) => p.type === "year").value;
+  // hours = hours % 12 || 12; // Convert to 12-hour format
+  // const formattedHour = String(hours).padStart(2, "0");
 
-    // Reassemble with hyphens
-    return `${day}-${month}-${year}`;
-  }
+  return `${day}-${month}-${year}`;
+}
+
 
   const getUniqueDates = (data) => {
     const dates = data.map((card) => formatDate(card.last_update));

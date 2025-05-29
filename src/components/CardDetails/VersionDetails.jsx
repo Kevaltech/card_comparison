@@ -42,22 +42,17 @@ const VersionStatusList = ({
   function formatDatelocal(date1) {
     const date = new Date(date1);
 
-    // Create a formatter for just day, month, year
-    const formatter = new Intl.DateTimeFormat("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "2-digit",
-    });
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = date.toLocaleString("en-IN", { month: "short" });
+    const year = date.getFullYear();
 
-    // Break into parts
-    const parts = formatter.formatToParts(date);
+    // let hours = date.getHours();
+    // const minutes = String(date.getMinutes()).padStart(2, "0");
+    // const ampm = hours >= 12 ? "pm" : "am";
 
-    // Extract
-    const day = parts.find((p) => p.type === "day").value;
-    const month = parts.find((p) => p.type === "month").value;
-    const year = parts.find((p) => p.type === "year").value;
+    // hours = hours % 12 || 12; // Convert to 12-hour format
+    // const formattedHour = String(hours).padStart(2, "0");
 
-    // Reassemble with hyphens
     return `${day}-${month}-${year}`;
   }
 
@@ -79,10 +74,10 @@ const VersionStatusList = ({
                 Versions
               </th>
               <th className="text-left py-1 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                vA-date
+                V (A)
               </th>
               <th className="text-left py-1 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                vB-date
+                V (B)
               </th>
               <th className="text-left py-1 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
